@@ -1,0 +1,169 @@
+/* ============================================================
+   Classes de texto e blocos que se repetem em várias telas.
+   Tudo que é específico de uma tela fica no módulo daquela página.
+   ============================================================ */
+
+/* Título de um card (14px, semibold). */
+.cardTitle {
+  font-size: var(--fs-14);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text);
+}
+
+/* Linha de apoio logo abaixo de um título de card. */
+.cardSub {
+  font-size: var(--fs-12);
+  color: var(--color-text-subtle);
+}
+
+/* Cabeçalho interno: título à esquerda, ação à direita. */
+.sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+}
+
+/* Rótulo caixa-alta acima de um número ou categoria. */
+.eyebrow {
+  font-size: var(--fs-11);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+.eyebrowOnInk {
+  color: var(--color-on-ink-55);
+}
+
+/* Números grandes em Sora. */
+.metricLg {
+  font-family: var(--font-display);
+  font-size: var(--fs-32);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.metricXl {
+  font-family: var(--font-display);
+  font-size: var(--fs-36);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.metricSm {
+  font-family: var(--font-display);
+  font-size: var(--fs-20);
+  font-weight: var(--fw-semibold);
+}
+
+/* Legenda cinza abaixo de um número. */
+.note {
+  margin-top: var(--space-4);
+  font-size: var(--fs-125);
+  color: var(--color-text-subtle);
+}
+
+/* Ícone quadrado que identifica um bloco (34px). */
+.blockIcon {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.blockIconAccent {
+  background: var(--color-accent-tint);
+  color: var(--color-accent);
+}
+
+.blockIconWarning {
+  background: var(--color-warning-tint);
+  color: var(--color-warning);
+}
+
+.blockIconNeutral {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+/* Faixa de aviso dentro do conteúdo (info / atenção). */
+.callout {
+  display: flex;
+  gap: var(--space-12);
+  align-items: flex-start;
+  padding: var(--space-12) var(--space-14);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-13);
+  line-height: var(--leading-normal);
+}
+
+.calloutInfo {
+  background: var(--color-info-tint);
+  color: var(--color-info);
+}
+
+.calloutWarning {
+  background: var(--color-warning-tint);
+  color: var(--color-warning-text);
+  align-items: center;
+  border-radius: var(--radius-xl);
+  padding: var(--space-12) var(--space-16);
+}
+
+.calloutIcon {
+  display: flex;
+  flex: none;
+  margin-top: 1px;
+}
+
+/* Bloco de par rótulo/valor sobre fundo rebaixado. */
+.dataRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-12);
+  padding: var(--space-10) var(--space-12);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+  font-size: var(--fs-13);
+}
+
+.dataRowLabel {
+  color: var(--color-text-muted);
+}
+
+.dataRowValue {
+  font-weight: var(--fw-semibold);
+}
+
+.dataRowExtra {
+  color: var(--color-text-subtle);
+  font-weight: var(--fw-regular);
+}
+
+/* Identificação de pessoa em linha de tabela: avatar + nome + e-mail. */
+.pessoa {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+}
+
+.pessoaNome {
+  font-weight: var(--fw-semibold);
+}
+
+.pessoaEmail {
+  font-size: var(--fs-12);
+  color: var(--color-text-subtle);
+}
+
+/* Texto corrido de apoio dentro de um card. */
+.prose {
+  font-size: var(--fs-13);
+  color: var(--color-text-muted);
+  line-height: var(--leading-relaxed);
+}

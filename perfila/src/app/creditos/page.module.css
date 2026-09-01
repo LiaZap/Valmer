@@ -1,0 +1,43 @@
+.rotulo {
+  font-size: var(--fs-13);
+  font-weight: var(--fw-medium);
+  color: var(--color-text-muted);
+}
+
+.valor {
+  margin-top: var(--space-10);
+}
+
+/* Unidade ao lado do número ("créditos", "de 80"). */
+.unidade {
+  font-size: var(--fs-14);
+  font-weight: var(--fw-medium);
+  color: var(--color-text-muted);
+}
+
+/* Card verde de recarga automática. */
+.recarga {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-12);
+}
+
+.recargaTitulo {
+  font-size: var(--fs-14);
+  font-weight: var(--fw-semibold);
+  color: var(--color-accent-strong);
+}
+
+.recargaTexto {
+  margin-top: var(--space-4);
+  font-size: var(--fs-13);
+  color: var(--color-accent);
+}
+
+.recargaBotao {
+  align-self: flex-start;
+  height: var(--control-nav);
+  padding: 0 var(--space-14);
+  font-size: var(--fs-13);
+}

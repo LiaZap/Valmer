@@ -1,0 +1,76 @@
+/* A tela tem coluna única com largura máxima confortável de leitura. */
+.coluna {
+  display: grid;
+  grid-template-columns: minmax(0, 860px);
+  gap: var(--space-16);
+}
+
+.avisoTexto {
+  flex: 1;
+}
+
+/* Grade de notificações: descrição + um canal por coluna. */
+.linha {
+  display: grid;
+  grid-template-columns: 1fr 100px 100px;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-16) var(--space-20);
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.cabecalho {
+  composes: linha;
+  padding: var(--space-8) var(--space-20);
+  font-size: var(--fs-11);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+.linha:last-child {
+  border-bottom: 0;
+}
+
+.centro {
+  display: flex;
+  justify-content: center;
+}
+
+.notificacaoTitulo {
+  font-size: var(--fs-135);
+  font-weight: var(--fw-semibold);
+}
+
+.notificacaoDesc {
+  margin-top: var(--space-2);
+  font-size: var(--fs-125);
+  color: var(--color-text-subtle);
+}
+
+/* ---------- Comunicações ---------- */
+.secaoTitulo {
+  padding: var(--space-16) var(--space-20);
+  border-bottom: 1px solid var(--color-border-soft);
+  font-size: var(--fs-14);
+  font-weight: var(--fw-semibold);
+}
+
+.opcaoEmail {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-16) var(--space-20);
+  font-size: var(--fs-135);
+  cursor: pointer;
+}
+
+@media (max-width: 560px) {
+  .linha,
+  .cabecalho {
+    grid-template-columns: 1fr 64px 64px;
+    padding-left: var(--space-16);
+    padding-right: var(--space-16);
+  }
+}

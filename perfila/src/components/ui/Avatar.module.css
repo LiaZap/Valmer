@@ -1,0 +1,30 @@
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  border-radius: 50%;
+  font-size: var(--fs-12);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+}
+
+.md {
+  width: 32px;
+  height: 32px;
+}
+
+.lg {
+  width: 36px;
+  height: 36px;
+}
+
+.muted {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.ink {
+  background: var(--color-ink);
+  color: var(--color-on-ink);
+}

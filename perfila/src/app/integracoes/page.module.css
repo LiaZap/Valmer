@@ -1,0 +1,40 @@
+.integracao {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+}
+
+/* Marca da plataforma: inicial sobre quadrado colorido. */
+.marca {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-on-ink);
+  font-family: var(--font-display);
+  font-size: var(--fs-16);
+  font-weight: var(--fw-bold);
+}
+
+.nome {
+  font-family: var(--font-display);
+  font-size: var(--fs-16);
+  font-weight: var(--fw-semibold);
+}
+
+.descricao {
+  flex: 1;
+  font-size: var(--fs-13);
+  color: var(--color-text-muted);
+  line-height: var(--leading-normal);
+}

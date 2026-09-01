@@ -1,0 +1,48 @@
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-16);
+  flex-wrap: wrap;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--fs-24);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text);
+}
+
+.subtitle {
+  margin-top: var(--space-6);
+  color: var(--color-text-muted);
+  font-size: var(--fs-14);
+}
+
+/* As ações nunca quebram dentro do grupo: em telas estreitas o bloco
+   inteiro desce para baixo do título. */
+.actions {
+  display: flex;
+  gap: var(--space-8);
+  flex: none;
+  flex-wrap: wrap;
+}
+
+/* Link "‹ Voltar" acima do título, em telas de detalhe.
+   Discreto de propósito: é navegação, não ação. */
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  align-self: flex-start;
+  color: var(--color-text-muted);
+  font-size: var(--fs-13);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.back:hover {
+  color: var(--color-text);
+  text-decoration: none;
+}

@@ -1,0 +1,251 @@
+/* ---------- Indicadores do topo ---------- */
+.kpiHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-8);
+  color: var(--color-text-muted);
+  font-size: var(--fs-13);
+  font-weight: var(--fw-medium);
+}
+
+.kpiValue {
+  margin-top: var(--space-12);
+}
+
+/* ---------- Cards de saldo ---------- */
+.saldo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-14);
+}
+
+.saldoValor {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-6);
+}
+
+.saldoUnidade {
+  color: var(--color-text-muted);
+  font-size: var(--fs-13);
+}
+
+/* O link de ação não estica na coluna: fica colado à esquerda. */
+.saldoAcao {
+  align-self: flex-start;
+}
+
+/* ---------- Card do programa de benefícios ---------- */
+.programa {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+/* Halo verde no canto: dá profundidade ao card escuro. */
+.programaGlow {
+  position: absolute;
+  right: -40px;
+  top: -40px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color-accent-glow), transparent 70%);
+  pointer-events: none;
+}
+
+/* Todo conteúdo fica acima do halo. */
+.programaTopo,
+.programaBarras,
+.programaNota {
+  position: relative;
+}
+
+.programaTopo {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-12);
+}
+
+.programaCategoria {
+  font-family: var(--font-display);
+  font-size: var(--fs-22);
+  font-weight: var(--fw-semibold);
+  margin-top: var(--space-4);
+}
+
+.programaBarras {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.barraLabel {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-12);
+  margin-bottom: var(--space-6);
+  font-size: var(--fs-125);
+  color: var(--color-on-ink-75);
+}
+
+.barraValor {
+  font-weight: var(--fw-semibold);
+  color: var(--color-on-ink);
+}
+
+.programaNota {
+  font-size: var(--fs-125);
+  color: var(--color-on-ink-70);
+}
+
+.programaNota b {
+  color: var(--color-on-ink);
+}
+
+.programaLink {
+  font-size: var(--fs-125);
+  font-weight: var(--fw-semibold);
+  color: var(--color-accent-on-dark);
+  text-decoration: none;
+}
+
+.programaLink:hover {
+  color: var(--color-on-ink);
+  text-decoration: underline;
+}
+
+/* ---------- Gráfico de vendas ---------- */
+.painel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.legenda {
+  display: flex;
+  align-items: center;
+  gap: var(--space-14);
+  font-size: var(--fs-12);
+  color: var(--color-text-muted);
+  flex-wrap: wrap;
+}
+
+.legendaItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.legendaPonto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.legendaPago {
+  background: var(--color-accent);
+}
+
+.legendaFaturado {
+  background: var(--color-warning);
+}
+
+.legendaSelect {
+  width: 110px;
+}
+
+/* Área do gráfico: linhas-guia horizontais a cada 38px, à espera dos
+   dados reais. */
+.grafico {
+  height: 190px;
+  border-radius: var(--radius-md);
+  background: repeating-linear-gradient(
+    0deg,
+    var(--color-hover) 0 1px,
+    transparent 1px 38px
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.graficoAviso {
+  max-width: 340px;
+  padding: var(--space-14) var(--space-18);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  font-size: var(--fs-13);
+  color: var(--color-text-muted);
+  line-height: var(--leading-normal);
+}
+
+/* ---------- Lista de cursos ---------- */
+.cursos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-14);
+}
+
+.cursoItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-8);
+  border: 1px solid transparent;
+  border-radius: var(--radius-xl);
+  background: transparent;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.cursoItem:hover {
+  background: var(--color-surface-sunken);
+  border-color: var(--color-border);
+  text-decoration: none;
+}
+
+.cursoCapa {
+  width: 56px;
+  height: 40px;
+  flex: none;
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-on-ink);
+  font-family: var(--font-display);
+  font-size: var(--fs-11);
+  font-weight: var(--fw-semibold);
+}
+
+.cursoTexto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.cursoTitulo {
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-135);
+  color: var(--color-text);
+}
+
+.cursoDesc {
+  font-size: var(--fs-12);
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

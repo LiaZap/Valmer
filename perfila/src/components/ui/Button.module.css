@@ -1,0 +1,139 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  font-family: var(--font-body);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.button:hover {
+  text-decoration: none;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---------- Tamanhos ---------- */
+.sm {
+  height: var(--control-icon);
+  padding: 0 var(--space-12);
+  font-size: var(--fs-13);
+  gap: var(--space-6);
+}
+
+.md {
+  height: var(--control-md);
+  padding: 0 var(--space-14);
+  font-size: var(--fs-135);
+}
+
+.lg {
+  height: var(--control-lg);
+  padding: 0 var(--space-16);
+  font-size: var(--fs-135);
+}
+
+/* ---------- Variantes ----------
+   primary   → ação principal da tela (verde)
+   secondary → ação de apoio (branco com borda)
+   danger    → ação destrutiva de apoio
+   dark      → ação de contraste sobre fundo claro
+   ghost     → cancelar / limpar
+   link      → navegação inline, sem caixa
+*/
+.primary {
+  background: var(--color-accent);
+  color: var(--color-on-ink);
+}
+
+.primary:hover {
+  background: var(--color-accent-hover);
+  color: var(--color-on-ink);
+}
+
+.secondary {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.secondary:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.danger {
+  background: var(--color-surface);
+  color: var(--color-danger);
+  border-color: var(--color-border);
+}
+
+.danger:hover {
+  background: var(--color-danger-tint);
+  color: var(--color-danger);
+}
+
+.dark {
+  background: var(--color-ink);
+  color: var(--color-on-ink);
+}
+
+.dark:hover {
+  background: var(--color-accent);
+  color: var(--color-on-ink);
+}
+
+/* Ação dentro de um aviso âmbar. */
+.warning {
+  background: var(--color-warning);
+  color: var(--color-on-ink);
+}
+
+.warning:hover {
+  background: var(--color-warning-text);
+  color: var(--color-on-ink);
+}
+
+.ghost {
+  background: none;
+  color: var(--color-text-muted);
+  font-weight: var(--fw-medium);
+}
+
+.ghost:hover {
+  background: none;
+  color: var(--color-text);
+}
+
+.link {
+  height: auto;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--color-accent);
+  font-size: var(--fs-13);
+  font-weight: var(--fw-semibold);
+  gap: var(--space-4);
+}
+
+.link:hover {
+  background: none;
+  color: var(--color-accent-hover);
+}
+
+/* Ocupa toda a largura do container (cards de curso, integrações). */
+.block {
+  width: 100%;
+}

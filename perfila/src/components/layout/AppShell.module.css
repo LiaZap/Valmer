@@ -1,0 +1,43 @@
+.shell {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Área de conteúdo das páginas. O `gap` de 20px é o ritmo vertical
+   padrão entre os blocos de uma tela. */
+.content {
+  padding: var(--content-padding) var(--content-padding) 60px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--content-gap);
+  max-width: var(--content-max-width);
+  width: 100%;
+}
+
+.footer {
+  margin-top: auto;
+  padding: var(--space-16) var(--content-padding);
+  font-size: var(--fs-12);
+  color: var(--color-text-subtle);
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-16);
+}
+
+@media (max-width: 560px) {
+  .content {
+    padding: var(--space-16) var(--space-16) 48px;
+  }
+
+  .footer {
+    padding: var(--space-16);
+  }
+}

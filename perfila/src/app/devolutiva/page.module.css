@@ -1,0 +1,10 @@
+.passaporte {
+  font-weight: var(--fw-medium);
+}
+
+/* Duração da sessão, abaixo do status. */
+.tempo {
+  margin-top: var(--space-4);
+  font-size: var(--fs-12);
+  color: var(--color-text-subtle);
+}

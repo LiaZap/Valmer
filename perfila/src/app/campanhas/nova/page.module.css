@@ -1,0 +1,63 @@
+.form {
+  max-width: 760px;
+}
+
+.corpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  padding: var(--space-24);
+}
+
+.dupla {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-14);
+}
+
+/* Linha inteira clicável que liga/desliga uma opção. */
+.opcao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-14);
+  padding: var(--space-14) var(--space-16);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-muted);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.opcao:hover {
+  border-color: var(--color-border-strong);
+}
+
+.opcaoTexto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.opcaoTitulo {
+  font-size: var(--fs-135);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text);
+}
+
+.opcaoDesc {
+  font-size: var(--fs-125);
+  color: var(--color-text-subtle);
+}
+
+@media (max-width: 560px) {
+  .dupla {
+    grid-template-columns: 1fr;
+  }
+
+  .corpo {
+    padding: var(--space-16);
+  }
+}

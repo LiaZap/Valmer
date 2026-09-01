@@ -1,0 +1,16 @@
+.empty {
+  text-align: center;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-13);
+}
+
+.plain {
+  padding: var(--space-24);
+}
+
+/* Área que ainda vai receber conteúdo (upload, lista vazia). */
+.dashed {
+  padding: var(--space-28);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-xl);
+}

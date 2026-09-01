@@ -1,0 +1,89 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.label {
+  display: block;
+  margin-bottom: var(--space-6);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-muted);
+}
+
+/* ---------- Controles de texto ---------- */
+.input,
+.textarea {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: var(--fs-135);
+  color: var(--color-text);
+  outline: none;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.input {
+  height: var(--control-lg);
+  padding: 0 var(--space-12);
+}
+
+.textarea {
+  padding: var(--space-10) var(--space-12);
+  resize: vertical;
+  line-height: var(--leading-normal);
+}
+
+/* ---------- Campo de busca com ícone ----------
+   A caixa desenha a borda; o input por dentro é transparente. */
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-10);
+  height: var(--control-user);
+  padding: 0 var(--space-12);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-subtle);
+  min-width: 0;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.searchBox:focus-within {
+  border-color: var(--color-accent);
+  box-shadow: var(--focus-ring);
+}
+
+.searchBoxRounded {
+  border-radius: var(--radius-xl);
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: var(--fs-13);
+  color: var(--color-text);
+  box-shadow: none;
+}
+
+/* O anel de foco fica na caixa, não no input interno. */
+.searchInput:focus {
+  border-color: transparent !important;
+  box-shadow: none;
+}
+
+.searchInputLg {
+  font-size: var(--fs-135);
+}

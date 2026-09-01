@@ -1,0 +1,121 @@
+/* ---------- Player ---------- */
+.player {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-ink);
+}
+
+.play {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-on-ink-12);
+  border: 1px solid var(--color-on-ink-30);
+  color: var(--color-on-ink);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.play:hover {
+  background: var(--color-on-ink-18);
+}
+
+.duracao {
+  position: absolute;
+  left: var(--space-16);
+  bottom: var(--space-14);
+  font-size: var(--fs-12);
+  color: var(--color-on-ink-70);
+}
+
+.aulaInfo {
+  padding: var(--space-18) var(--space-20);
+}
+
+.aulaTitulo {
+  margin-top: var(--space-4);
+  font-family: var(--font-display);
+  font-size: var(--fs-17);
+  font-weight: var(--fw-semibold);
+}
+
+/* ---------- Lista de aulas ---------- */
+.lista {
+  display: flex;
+  flex-direction: column;
+}
+
+.listaCabecalho {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-12);
+  padding: var(--space-14) var(--space-16);
+  border-bottom: 1px solid var(--color-border-soft);
+  font-size: var(--fs-14);
+  font-weight: var(--fw-semibold);
+}
+
+.listaProgresso {
+  font-size: var(--fs-125);
+  font-weight: var(--fw-medium);
+  color: var(--color-text-subtle);
+}
+
+.aula {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-12) var(--space-16);
+  border: 0;
+  border-bottom: 1px solid var(--color-border-soft);
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.aula:hover {
+  background: var(--color-surface-muted);
+}
+
+.aula:last-child {
+  border-bottom: 0;
+}
+
+.marcador {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-hover);
+  color: var(--color-text-muted);
+  font-size: var(--fs-11);
+  font-weight: var(--fw-bold);
+}
+
+.marcadorConcluido {
+  background: var(--color-accent);
+  color: var(--color-on-ink);
+}
+
+.aulaNome {
+  flex: 1;
+  font-size: var(--fs-135);
+  font-weight: var(--fw-medium);
+  color: var(--color-text);
+}
+
+.chevron {
+  display: flex;
+  color: var(--color-text-subtle);
+}

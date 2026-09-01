@@ -1,0 +1,80 @@
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.iconButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---------- Variantes ---------- */
+
+/* Ação inline em linha de tabela. */
+.plain {
+  width: var(--control-icon);
+  height: var(--control-icon);
+  border-radius: var(--radius-md);
+}
+
+.plain:hover:not(:disabled) {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+/* Ação isolada no cabeçalho de um card. */
+.outline {
+  width: var(--control-icon);
+  height: var(--control-icon);
+  border-radius: var(--radius-md);
+  border-color: var(--color-border);
+  background: var(--color-surface);
+}
+
+.outline:hover:not(:disabled) {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+/* Botão de recolher menu, na barra superior. */
+.topbar {
+  width: var(--control-nav);
+  height: var(--control-nav);
+  border-radius: var(--radius-md);
+}
+
+.topbar:hover:not(:disabled) {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+/* Paginação de tabela. */
+.pager {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-xs);
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-subtle);
+}
+
+.pager:hover:not(:disabled) {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+/* ---------- Tom destrutivo ---------- */
+.danger:hover:not(:disabled) {
+  background: var(--color-danger-tint);
+  color: var(--color-danger);
+}

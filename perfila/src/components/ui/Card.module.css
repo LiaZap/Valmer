@@ -1,0 +1,73 @@
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+}
+
+/* ---------- Tons ---------- */
+.ink {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: var(--color-on-ink);
+}
+
+.accent {
+  background: var(--color-accent-tint);
+  border-color: var(--color-accent-tint-border);
+}
+
+/* ---------- Espaçamento interno ---------- */
+.paddingSm {
+  padding: var(--space-16);
+}
+
+.paddingMd {
+  padding: var(--space-20);
+}
+
+.paddingLg {
+  padding: var(--space-24);
+}
+
+/* Cards que embalam tabelas: sem padding e com rolagem horizontal
+   contida dentro do próprio card, nunca na página. */
+.scrollX {
+  overflow-x: auto;
+}
+
+/* Recorta capas e imagens no raio do card. */
+.clip {
+  overflow: hidden;
+}
+
+/* ---------- Cabeçalho e rodapé ---------- */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+  padding: var(--space-16) var(--space-20);
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.headerTitle {
+  font-size: var(--fs-14);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-8);
+  padding: var(--space-14) var(--space-24);
+  border-top: 1px solid var(--color-border-soft);
+  background: var(--color-surface-muted);
+  border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+}

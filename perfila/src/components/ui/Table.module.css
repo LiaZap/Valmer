@@ -1,0 +1,136 @@
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  /* Abaixo desta largura a tabela rola dentro do card, nunca na página. */
+  min-width: 720px;
+}
+
+.th {
+  padding: var(--space-10) var(--space-16);
+  text-align: left;
+  font-size: var(--fs-11);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.td {
+  padding: var(--space-14) var(--space-16);
+  border-bottom: 1px solid var(--color-border-soft);
+  font-size: var(--fs-135);
+  vertical-align: middle;
+  color: var(--color-text);
+}
+
+/* Linhas com avatar respiram menos na vertical. */
+.dense {
+  padding-top: var(--space-12);
+  padding-bottom: var(--space-12);
+}
+
+.row {
+  transition: background var(--transition-fast);
+}
+
+.row:hover {
+  background: var(--color-surface-muted);
+}
+
+.alignRight {
+  text-align: right;
+}
+
+.alignCenter {
+  text-align: center;
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+/* Grupo de ações no fim da linha. */
+.actions {
+  display: inline-flex;
+  gap: var(--space-2);
+}
+
+/* Rodapé da tabela: contagem à esquerda, paginação à direita. */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-12) var(--space-16);
+  font-size: var(--fs-125);
+  color: var(--color-text-subtle);
+}
+
+.pagination {
+  display: flex;
+  gap: var(--space-4);
+}
+
+/* Barra de filtros no topo do card da tabela. */
+.filters {
+  display: flex;
+  gap: var(--space-12);
+  padding: var(--space-14) var(--space-16);
+  border-bottom: 1px solid var(--color-border-soft);
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+/* Larguras usuais dos campos de filtro. */
+.filterGrow {
+  flex: 1;
+  min-width: 200px;
+}
+
+.filterDate {
+  width: 150px;
+}
+
+.filterMd {
+  width: 160px;
+}
+
+.filterLg {
+  width: 170px;
+}
+
+.filterXl {
+  width: 220px;
+}
+
+/* Nome principal da linha (empresa, campanha, pessoa). */
+.primary {
+  font-weight: var(--fw-semibold);
+}
+
+/* Segunda linha da célula: e-mail, autor, tipo. */
+.secondary {
+  margin-top: var(--space-2);
+  font-size: var(--fs-12);
+  color: var(--color-text-subtle);
+}
+
+/* Nome clicável que leva ao detalhe. */
+.linkCell {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: var(--fw-semibold);
+  color: var(--color-text);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.linkCell:hover {
+  color: var(--color-accent);
+  text-decoration: none;
+}

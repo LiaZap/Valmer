@@ -1,0 +1,210 @@
+/* ============================================================
+   Perfila · Design Tokens
+   ------------------------------------------------------------
+   Fonte única de verdade do design system. Todos os valores
+   foram extraídos do protótipo aprovado (Perfila.dc.html).
+   Nenhum componente deve escrever uma cor "crua" — sempre token.
+   ============================================================ */
+
+:root {
+  /* ---------------------------------------------------------
+     1. COR · Neutros quentes (base "stone")
+     A plataforma inteira se apoia nesta escala. O fundo é
+     levemente bege para tirar o aspecto frio de dashboard.
+     --------------------------------------------------------- */
+  --color-bg: #f5f3ef; /* fundo da aplicação */
+  --color-surface: #ffffff; /* cards, sidebar, topbar */
+  --color-surface-muted: #faf9f6; /* hover de linha, rodapé de card */
+  --color-surface-sunken: #f5f3ef; /* blocos internos dentro de um card */
+  --color-hover: #f0ede7; /* hover de botões neutros e chips */
+
+  --color-border: #e6e2da; /* borda padrão de card, input, tabela */
+  --color-border-soft: #efece6; /* divisórias internas (mais leves) */
+  --color-border-strong: #d6d0c6; /* dashed, scrollbar, separadores */
+
+  /* Gradiente de espaço reservado para foto ainda não enviada. */
+  --color-photo-from: #e6e2da;
+  --color-photo-to: #cfc9be;
+
+  /* ---------------------------------------------------------
+     2. COR · Texto
+     Quatro níveis de hierarquia + placeholder.
+     --------------------------------------------------------- */
+  --color-text: #1c1a17; /* títulos e texto forte */
+  --color-text-secondary: #4b463f; /* itens de navegação inativos */
+  --color-text-muted: #6b655c; /* texto de apoio, labels */
+  --color-text-subtle: #9a938a; /* metadados, captions, ícones */
+  --color-text-placeholder: #b5aea4; /* placeholder de campos */
+
+  /* ---------------------------------------------------------
+     3. COR · Superfície escura (cards de destaque, toast)
+     --------------------------------------------------------- */
+  --color-ink: #1c1a17;
+  --color-on-ink: #ffffff;
+  /* Opacidades do branco sobre fundo escuro — o número é a opacidade. */
+  --color-on-ink-75: rgba(255, 255, 255, 0.75); /* rótulo de progresso */
+  --color-on-ink-70: rgba(255, 255, 255, 0.7); /* texto de apoio */
+  --color-on-ink-65: rgba(255, 255, 255, 0.65); /* legenda, pill */
+  --color-on-ink-55: rgba(255, 255, 255, 0.55); /* eyebrow caixa-alta */
+  --color-on-ink-30: rgba(255, 255, 255, 0.3); /* borda de botão */
+  --color-on-ink-18: rgba(255, 255, 255, 0.18); /* borda sutil, chip */
+  --color-on-ink-14: rgba(255, 255, 255, 0.14); /* trilho de progresso */
+  --color-on-ink-12: rgba(255, 255, 255, 0.12); /* superfície sobre escuro */
+
+  /* ---------------------------------------------------------
+     4. COR · Acento único (verde-floresta)
+     O sistema tem UM acento. Tudo que é ação primária,
+     sucesso ou estado ativo usa esta família.
+     --------------------------------------------------------- */
+  --color-accent: #2f6b4f;
+  --color-accent-hover: #24543e;
+  --color-accent-strong: #24543e; /* texto sobre o tint claro */
+  --color-accent-tint: #e8f3ec; /* fundo de estado ativo / sucesso */
+  --color-accent-tint-border: #cfe5d8;
+  --color-accent-on-dark: #6fbf93; /* acento legível sobre --color-ink */
+  --color-accent-ring: rgba(47, 107, 79, 0.15); /* anel de foco */
+  --color-accent-glow: rgba(47, 107, 79, 0.55); /* halo decorativo no card escuro */
+
+  /* ---------------------------------------------------------
+     5. COR · Status
+     Vermelho (destrutivo), âmbar (atenção), azul (informação).
+     Cada um com par "sólido + tint".
+     --------------------------------------------------------- */
+  --color-danger: #b3261e;
+  --color-danger-tint: #fcebea;
+
+  --color-warning: #b45309;
+  --color-warning-solid: #d97706;
+  --color-warning-tint: #fdf3e1;
+  --color-warning-text: #7c3a00; /* texto sobre o tint âmbar */
+
+  --color-info: #1f4b8e;
+  --color-info-soft: #3b63a6; /* texto secundário sobre o tint azul */
+  --color-info-tint: #e7eef9;
+
+  /* ---------------------------------------------------------
+     6. COR · DISC
+     Cada fator comportamental tem cor fixa em todo o produto.
+     --------------------------------------------------------- */
+  --color-disc-d: #b3261e;
+  --color-disc-d-tint: #fcebea;
+  --color-disc-i: #d97706;
+  --color-disc-i-text: #b45309;
+  --color-disc-i-tint: #fdf3e1;
+  --color-disc-s: #2f6b4f;
+  --color-disc-s-tint: #e8f3ec;
+  --color-disc-c: #1f4b8e;
+  --color-disc-c-tint: #e7eef9;
+
+  /* ---------------------------------------------------------
+     7. TIPOGRAFIA
+     Sora nos títulos (display), Figtree no texto corrido.
+     --------------------------------------------------------- */
+  --font-display: var(--font-sora), 'Sora', system-ui, sans-serif;
+  --font-body: var(--font-figtree), 'Figtree', system-ui, sans-serif;
+
+  /* Escala em px — nomes numéricos para fidelidade absoluta.
+     "105" = 10.5px, "135" = 13.5px, e assim por diante. */
+  --fs-105: 10.5px; /* rótulo de grupo na sidebar */
+  --fs-11: 11px; /* micro label caixa-alta */
+  --fs-115: 11.5px;
+  --fs-12: 12px; /* caption, label de campo */
+  --fs-125: 12.5px;
+  --fs-13: 13px; /* texto de apoio */
+  --fs-135: 13.5px; /* corpo de tabela e botão */
+  --fs-14: 14px; /* título de card, texto de página */
+  --fs-15: 15px;
+  --fs-16: 16px;
+  --fs-17: 17px;
+  --fs-20: 20px;
+  --fs-22: 22px;
+  --fs-24: 24px; /* H1 de página */
+  --fs-26: 26px;
+  --fs-32: 32px; /* número de KPI */
+  --fs-36: 36px; /* número de saldo */
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  --tracking-tight: -0.02em; /* títulos display */
+  --tracking-wide: 0.06em; /* cabeçalho de tabela */
+  --tracking-wider: 0.08em; /* eyebrow / rótulo de grupo */
+
+  --leading-tight: 1.15;
+  --leading-snug: 1.35;
+  --leading-normal: 1.45;
+  --leading-relaxed: 1.5;
+
+  /* ---------------------------------------------------------
+     8. RAIO
+     --------------------------------------------------------- */
+  --radius-2xs: 5px; /* checkbox */
+  --radius-xs: 6px; /* chip DISC, paginação */
+  --radius-sm: 7px; /* item de dropdown */
+  --radius-md: 8px; /* botão, input, item de nav */
+  --radius-lg: 9px; /* ícone em quadrado */
+  --radius-xl: 10px; /* card interno, dropdown */
+  --radius-2xl: 12px; /* card */
+  --radius-full: 999px; /* pill, avatar, toggle */
+
+  /* ---------------------------------------------------------
+     9. ESPAÇAMENTO
+     --------------------------------------------------------- */
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-6: 6px;
+  --space-8: 8px;
+  --space-10: 10px;
+  --space-12: 12px;
+  --space-14: 14px;
+  --space-16: 16px;
+  --space-18: 18px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-28: 28px;
+
+  /* ---------------------------------------------------------
+     10. LAYOUT
+     --------------------------------------------------------- */
+  --sidebar-width: 248px;
+  --sidebar-width-collapsed: 68px;
+  --sidebar-header-height: 56px;
+  --topbar-height: 64px;
+  --content-padding: 28px;
+  --content-max-width: 1360px;
+  --content-gap: 20px;
+
+  /* ---------------------------------------------------------
+     11. ALTURA DE CONTROLES
+     --------------------------------------------------------- */
+  --control-sm: 30px; /* select compacto */
+  --control-nav: 34px; /* item de sidebar, botão de ícone do topo */
+  --control-md: 36px; /* botão padrão */
+  --control-lg: 38px; /* input, select, botão de filtro */
+  --control-user: 40px; /* chip do usuário, busca do topo */
+  --control-icon: 32px; /* botão de ação em tabela */
+
+  /* ---------------------------------------------------------
+     12. ELEVAÇÃO
+     --------------------------------------------------------- */
+  --shadow-dropdown: 0 12px 32px rgba(28, 26, 23, 0.12);
+  --shadow-toast: 0 8px 24px rgba(0, 0, 0, 0.18);
+  --shadow-knob: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --focus-ring: 0 0 0 3px var(--color-accent-ring);
+
+  /* ---------------------------------------------------------
+     13. MOVIMENTO
+     --------------------------------------------------------- */
+  --transition-fast: 0.12s;
+  --transition-base: 0.15s;
+  --transition-slow: 0.2s;
+
+  /* ---------------------------------------------------------
+     14. CAMADAS (z-index)
+     --------------------------------------------------------- */
+  --z-topbar: 5;
+  --z-dropdown: 40;
+  --z-toast: 50;
+}

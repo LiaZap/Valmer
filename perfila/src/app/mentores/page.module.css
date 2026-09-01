@@ -1,0 +1,35 @@
+/* Espaço reservado para a foto do mentor. */
+.foto {
+  aspect-ratio: 4 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, var(--color-photo-from), var(--color-photo-to));
+  color: var(--color-text-muted);
+  font-size: var(--fs-12);
+  text-align: center;
+  padding: var(--space-12);
+}
+
+.corpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-16);
+}
+
+.nome {
+  font-family: var(--font-display);
+  font-size: var(--fs-16);
+  font-weight: var(--fw-semibold);
+}
+
+.especialidade {
+  font-size: var(--fs-13);
+  color: var(--color-text-muted);
+  line-height: var(--leading-normal);
+}
+
+.agendar {
+  margin-top: var(--space-8);
+}

@@ -1,0 +1,78 @@
+/* ---------- Cartões de média DISC ---------- */
+.fator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+}
+
+.fatorLetra {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-on-ink);
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+}
+
+.fatorD {
+  background: var(--color-disc-d);
+}
+
+.fatorI {
+  background: var(--color-disc-i);
+}
+
+.fatorS {
+  background: var(--color-disc-s);
+}
+
+.fatorC {
+  background: var(--color-disc-c);
+}
+
+.fatorNome {
+  font-size: var(--fs-12);
+  color: var(--color-text-subtle);
+}
+
+/* ---------- Chips D · I · S · C ---------- */
+.chips {
+  display: flex;
+  gap: var(--space-6);
+}
+
+.chip {
+  min-width: 34px;
+  height: 26px;
+  padding: 0 var(--space-8);
+  border-radius: var(--radius-xs);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-125);
+  font-weight: var(--fw-bold);
+}
+
+.chipD {
+  background: var(--color-disc-d-tint);
+  color: var(--color-disc-d);
+}
+
+.chipI {
+  background: var(--color-disc-i-tint);
+  color: var(--color-disc-i-text);
+}
+
+.chipS {
+  background: var(--color-disc-s-tint);
+  color: var(--color-disc-s);
+}
+
+.chipC {
+  background: var(--color-disc-c-tint);
+  color: var(--color-disc-c);
+}

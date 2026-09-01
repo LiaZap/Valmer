@@ -1,0 +1,19 @@
+/* Idioma do inventário, abaixo do nome da empresa. */
+.idioma {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.bandeira {
+  display: inline-block;
+  width: 14px;
+  height: 10px;
+  flex: none;
+  border-radius: 2px;
+  background: var(--color-accent);
+}
+
+.inventarios {
+  font-weight: var(--fw-semibold);
+}

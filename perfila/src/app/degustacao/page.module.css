@@ -1,0 +1,32 @@
+.rotulo {
+  font-size: var(--fs-13);
+  font-weight: var(--fw-medium);
+  color: var(--color-text-muted);
+}
+
+.valor {
+  margin-top: var(--space-10);
+}
+
+.config {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.campos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-14);
+}
+
+.salvar {
+  align-self: flex-end;
+  padding: 0 var(--space-16);
+}
+
+@media (max-width: 560px) {
+  .campos {
+    grid-template-columns: 1fr;
+  }
+}

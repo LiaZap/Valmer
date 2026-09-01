@@ -1,0 +1,56 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding: 3px var(--space-10);
+  border: 1px solid transparent;
+  border-radius: var(--radius-full);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+}
+
+.sm {
+  font-size: var(--fs-115);
+}
+
+/* Ponto de status à esquerda do rótulo. */
+.dot {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ---------- Tons ---------- */
+.neutral {
+  background: var(--color-hover);
+  color: var(--color-text-muted);
+}
+
+.success {
+  background: var(--color-accent-tint);
+  color: var(--color-accent);
+}
+
+.warning {
+  background: var(--color-warning-tint);
+  color: var(--color-warning);
+}
+
+/* Perfil DISC: duas letras, peso maior e leve tracking. */
+.strong {
+  background: var(--color-hover);
+  color: var(--color-text);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.04em;
+}
+
+/* Sobre card escuro: contorno em vez de preenchimento. */
+.onInk {
+  padding: var(--space-4) var(--space-10);
+  border-color: var(--color-on-ink-18);
+  color: var(--color-on-ink-65);
+  font-weight: var(--fw-regular);
+}

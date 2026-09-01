@@ -1,0 +1,34 @@
+/* Célula de respostas: rótulo + barra de progresso. */
+.respostasLabel {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-8);
+  margin-bottom: var(--space-6);
+  font-size: var(--fs-125);
+}
+
+.respostasTotal {
+  font-weight: var(--fw-semibold);
+}
+
+.pendentes {
+  font-weight: var(--fw-semibold);
+  color: var(--color-warning);
+}
+
+.completa {
+  font-weight: var(--fw-semibold);
+  color: var(--color-accent);
+}
+
+/* Selo de relatório disponível para download. */
+.download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-accent-tint);
+  color: var(--color-accent);
+}
