@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:#F5F3EF;color:#1C1A17;font-family:Figtree,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#2F6B4F;text-decoration:none}a:hover{color:#24543E;text-decoration:underline}
+input::placeholder,textarea::placeholder{color:#B5AEA4}
+input:focus,textarea:focus,select:focus{border-color:#2F6B4F !important;box-shadow:0 0 0 3px rgba(47,107,79,.15)}
+button{font-family:inherit}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes ddIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+*{scrollbar-width:thin;scrollbar-color:#D6D0C6 transparent}
+*::-webkit-scrollbar{width:8px;height:8px}*::-webkit-scrollbar-track{background:transparent}*::-webkit-scrollbar-thumb{background:#D6D0C6;border-radius:8px;border:2px solid transparent;background-clip:padding-box}*::-webkit-scrollbar-thumb:hover{background:#B5AEA4;border:2px solid transparent;background-clip:padding-box}
+input[type=checkbox]{appearance:none;width:18px;height:18px;border:1.5px solid #D6D0C6;border-radius:5px;background:#fff;display:inline-grid;place-content:center;cursor:pointer;transition:all .12s}input[type=checkbox]::before{content:"";width:10px;height:10px;clip-path:polygon(14% 44%,0 65%,50% 100%,100% 16%,80% 0%,43% 62%);background:#fff;transform:scale(0)}input[type=checkbox]:checked{background:#2F6B4F;border-color:#2F6B4F}input[type=checkbox]:checked::before{transform:scale(1)}
+</style>
+</helmet>
+<div style="display:flex;min-height:100vh;width:100%">
+
+<aside style="align-self:stretch;min-height:100vh;flex:none;display:flex;flex-direction:column;background:#fff;border-right:1px solid #E6E2DA;transition:width .2s ease;overflow:hidden;width: {{ sbWidth }}">
+  <div style="display:flex;align-items:center;gap:10px;height:56px;padding:0 16px;border-bottom:1px solid #EFECE6;flex:none">
+    <div style="width:32px;height:32px;flex:none;border-radius:9px;background:#2F6B4F;color:#fff;display:flex;align-items:center;justify-content:center;font-family:Sora,sans-serif;font-weight:700;font-size:13px;letter-spacing:-.02em"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M4 18V10M10 18V6M16 18v-4M22 18V8"></path></svg></div>
+    <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-direction:column;line-height:1.1;white-space:nowrap">
+        <span style="font-family:Sora,sans-serif;font-weight:600;font-size:15px;color:#1C1A17">Perfila</span>
+        <span style="font-size:11px;color:#9A938A;font-weight:500">Portal do Analista</span>
+      </div>
+    </sc-if>
+  </div>
+  <nav style="flex:1;padding:8px 10px;display:flex;flex-direction:column;gap:8px">
+    <sc-for list="{{ nav }}" as="g" hint-placeholder-count="4">
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+          <div style="font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#9A938A;padding:2px 10px 4px">{{ g.label }}</div>
+        </sc-if>
+        <sc-for list="{{ g.items }}" as="item" hint-placeholder-count="4">
+          <button onClick="{{ item.go }}" title="{{ item.label }}" style="display:flex;align-items:center;gap:12px;width:100%;height:34px;padding:0 10px;border-radius:8px;border:0;cursor:pointer;font-size:13px;text-align:left;white-space:nowrap;transition:background .12s;background: {{ item.bg }};color: {{ item.fg }};font-weight: {{ item.wt }};justify-content: {{ navJustify }}" style-hover="background:#F0EDE7">
+            <span style="display:flex;flex:none">{{ item.icon }}</span>
+            <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}"><span style="flex:1;overflow:hidden;text-overflow:ellipsis">{{ item.label }}</span></sc-if>
+          </button>
+        </sc-for>
+      </div>
+    </sc-for>
+  </nav>
+  <div style="flex:none;padding:8px 10px;border-top:1px solid #EFECE6">
+    <button onClick="{{ toastSair }}" title="Sair" style="display:flex;align-items:center;gap:12px;width:100%;height:34px;padding:0 10px;border-radius:8px;border:0;background:transparent;color:#6B655C;cursor:pointer;font-size:13.5px;white-space:nowrap;justify-content: {{ navJustify }}" style-hover="background:#FCEBEA;color:#B3261E">
+      <span style="display:flex">{{ ic.logout }}</span>
+      <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}"><span>Sair</span></sc-if>
+    </button>
+  </div>
+</aside>
+
+<main style="flex:1;min-width:0;display:flex;flex-direction:column">
+  <header style="position:sticky;top:0;z-index:5;height:64px;display:flex;align-items:center;gap:16px;padding:0 28px;background:rgba(245,243,239,.9);backdrop-filter:blur(8px);border-bottom:1px solid #E6E2DA">
+    <button onClick="{{ toggleSb }}" title="Recolher menu" style="width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid transparent;background:transparent;color:#6B655C;cursor:pointer" style-hover="background:#fff;border-color:#E6E2DA;color:#1C1A17">{{ ic.menu }}</button>
+    <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#9A938A;white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis">
+      <span>Analista</span><span style="color:#D6D0C6">/</span>
+      <span style="color:#1C1A17;font-weight:500">{{ pageTitle }}</span>
+      <sc-if value="{{ hasSub }}" hint-placeholder-val="{{ false }}"><span style="color:#D6D0C6">/</span><span style="color:#1C1A17;font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis">{{ pageSub }}</span></sc-if>
+    </div>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:10px;height:40px;padding:0 12px;border-radius:10px;background:#fff;border:1px solid #E6E2DA;color:#9A938A;flex:1 1 120px;min-width:0;max-width:260px">
+      {{ ic.search }}<input placeholder="Buscar cliente, campanha…" style="border:0;outline:none;background:transparent;font:inherit;font-size:13px;color:#1C1A17;flex:1;min-width:0;box-shadow:none">
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;padding-left:12px;border-left:1px solid #E6E2DA;height:32px;flex:none">
+      <button style="display:flex;align-items:center;gap:10px;height:40px;padding:0 10px 0 4px;border-radius:999px;border:1px solid transparent;background:transparent;cursor:pointer" style-hover="background:#fff;border-color:#E6E2DA">
+        <span style="width:32px;height:32px;border-radius:50%;background:#1C1A17;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">VA</span>
+        <span style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.15;white-space:nowrap"><span style="font-size:13px;font-weight:600;color:#1C1A17">Valmer Albuquerque</span><span style="font-size:11px;color:#9A938A">Analista · Membro · 2 créditos</span></span>
+        <span style="color:#9A938A;display:flex">{{ ic.chevD }}</span>
+      </button>
+    </div>
+  </header>
+
+  <div style="padding:28px 28px 60px;display:flex;flex-direction:column;gap:20px;max-width:1360px;width:100%">
+
+  <!-- DASHBOARD -->
+  <sc-if value="{{ is.dashboard }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <div><h1 style="margin:0;font-family:Sora,sans-serif;font-size:24px;font-weight:600;letter-spacing:-.02em">Bom dia, Valmer</h1><p style="margin:6px 0 0;color:#6B655C;font-size:14px">Resumo da sua operação nesta terça, 1 de setembro.</p></div>
+      <div style="display:flex;gap:8px;flex:none">
+        <button onClick="{{ goEnvio }}" style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:8px;white-space:nowrap;background:#fff;color:#1C1A17;font-size:13.5px;font-weight:600;border:1px solid #E6E2DA;cursor:pointer" style-hover="background:#F0EDE7">{{ ic.zap }} Envio rápido</button>
+        <button onClick="{{ goCampanhasNova }}" style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:8px;white-space:nowrap;background:#2F6B4F;color:#fff;font-size:13.5px;font-weight:600;border:0;cursor:pointer" style-hover="background:#24543E">{{ ic.plus }} Nova campanha</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;padding:20px"><div style="display:flex;align-items:center;justify-content:space-between;color:#6B655C;font-size:13px;font-weight:500">Total de clientes {{ ic.users }}</div><div style="font-family:Sora,sans-serif;font-size:32px;font-weight:600;margin-top:12px;letter-spacing:-.02em">227</div><div style="font-size:12.5px;color:#9A938A;margin-top:4px">5 novos nos últimos 30 dias</div></div>
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;padding:20px"><div style="display:flex;align-items:center;justify-content:space-between;color:#6B655C;font-size:13px;font-weight:500">Devolutivas {{ ic.chat }}</div><div style="font-family:Sora,sans-serif;font-size:32px;font-weight:600;margin-top:12px;letter-spacing:-.02em">42h26</div><div style="font-size:12.5px;color:#9A938A;margin-top:4px">15 realizadas</div></div>
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;padding:20px"><div style="display:flex;align-items:center;justify-content:space-between;color:#6B655C;font-size:13px;font-weight:500">Total faturado {{ ic.dollar }}</div><div style="font-family:Sora,sans-serif;font-size:32px;font-weight:600;margin-top:12px;letter-spacing:-.02em">R$ 0,00</div><div style="font-size:12.5px;color:#9A938A;margin-top:4px">Nenhuma venda no período</div></div>
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;padding:20px"><div style="display:flex;align-items:center;justify-content:space-between;color:#6B655C;font-size:13px;font-weight:500">Créditos utilizados {{ ic.card }}</div><div style="font-family:Sora,sans-serif;font-size:32px;font-weight:600;margin-top:12px;letter-spacing:-.02em">2</div><div style="font-size:12.5px;color:#9A938A;margin-top:4px">3 de degustação · 0 da plataforma</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px">
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="width:34px;height:34px;border-radius:9px;background:#E8F3EC;color:#2F6B4F;display:flex;align-items:center;justify-content:center">{{ ic.card }}</span><div><div style="font-weight:600;font-size:14px">Créditos</div><div style="font-size:12px;color:#9A938A">Saldo da plataforma</div></div></div>
+        <div style="display:flex;align-items:baseline;gap:6px"><span style="font-family:Sora,sans-serif;font-size:36px;font-weight:600;letter-spacing:-.02em">2</span><span style="color:#6B655C;font-size:13px">créditos</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px">
+          <div style="display:flex;justify-content:space-between;padding:10px 12px;border-radius:8px;background:#F5F3EF"><span style="color:#6B655C">Vitalícios</span><span style="font-weight:600">2</span></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 12px;border-radius:8px;background:#F5F3EF"><span style="color:#6B655C">A expirar</span><span style="font-weight:600">0 <span style="color:#9A938A;font-weight:400">· N/D</span></span></div>
+        </div>
+        <button onClick="{{ goCreditos }}" style="align-self:flex-start;background:none;border:0;padding:0;color:#2F6B4F;font-weight:600;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:4px">Comprar créditos {{ ic.chevR }}</button>
+      </div>
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="width:34px;height:34px;border-radius:9px;background:#FDF3E1;color:#B45309;display:flex;align-items:center;justify-content:center">{{ ic.gift }}</span><div><div style="font-weight:600;font-size:14px">Degustações</div><div style="font-size:12px;color:#9A938A">Saldo de testes gratuitos</div></div></div>
+        <div style="display:flex;align-items:baseline;gap:6px"><span style="font-family:Sora,sans-serif;font-size:36px;font-weight:600;letter-spacing:-.02em">180</span><span style="color:#6B655C;font-size:13px">créditos</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px">
+          <div style="display:flex;justify-content:space-between;padding:10px 12px;border-radius:8px;background:#F5F3EF"><span style="color:#6B655C">Vitalícios</span><span style="font-weight:600">180</span></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 12px;border-radius:8px;background:#F5F3EF"><span style="color:#6B655C">A expirar</span><span style="font-weight:600">0 <span style="color:#9A938A;font-weight:400">· N/D</span></span></div>
+        </div>
+        <button onClick="{{ goDegustacao }}" style="align-self:flex-start;background:none;border:0;padding:0;color:#2F6B4F;font-weight:600;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:4px">Configurar degustação {{ ic.chevR }}</button>
+      </div>
+      <div style="background:#1C1A17;color:#fff;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:16px;position:relative;overflow:hidden">
+        <div style="position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(47,107,79,.55),transparent 70%)"></div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;position:relative"><div><div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:600">Programa de benefícios</div><div style="font-family:Sora,sans-serif;font-size:22px;font-weight:600;margin-top:4px">Membro</div></div><span style="font-size:12px;color:rgba(255,255,255,.65);padding:4px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.18)">Expira 06/01/2027</span></div>
+        <div style="display:flex;flex-direction:column;gap:12px;position:relative">
+          <div><div style="display:flex;justify-content:space-between;font-size:12.5px;color:rgba(255,255,255,.75);margin-bottom:6px"><span>Créditos utilizados</span><span style="font-weight:600;color:#fff">71 de 80</span></div><div style="height:6px;border-radius:3px;background:rgba(255,255,255,.14)"><div style="width:88%;height:100%;border-radius:3px;background:#6FBF93"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12.5px;color:rgba(255,255,255,.75);margin-bottom:6px"><span>Créditos comprados</span><span style="font-weight:600;color:#fff">52 de 120</span></div><div style="height:6px;border-radius:3px;background:rgba(255,255,255,.14)"><div style="width:43%;height:100%;border-radius:3px;background:#6FBF93"></div></div></div>
+        </div>
+        <div style="font-size:12.5px;color:rgba(255,255,255,.7);position:relative">Faltam 9 créditos para a categoria <b style="color:#fff">Gold</b>. <button onClick="{{ goBeneficios }}" style="background:none;border:0;padding:0;color:#6FBF93;font-weight:600;font-size:12.5px;cursor:pointer">Ver benefícios</button></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px">
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between"><div style="font-weight:600;font-size:14px">Vendas por período</div><div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#6B655C"><span style="display:flex;align-items:center;gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:#2F6B4F"></i>Pago</span><span style="display:flex;align-items:center;gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:#B45309"></i>Faturado</span><div style="width:110px"><dc-import name="Select" options="{{ optPeriodo }}" size="sm" hint-size="110px,30px"></dc-import></div></div></div>
+        <div style="height:190px;border-radius:8px;background:repeating-linear-gradient(0deg,#F0EDE7 0 1px,transparent 1px 38px);display:flex;align-items:center;justify-content:center;text-align:center">
+          <div style="background:#fff;padding:14px 18px;border-radius:10px;border:1px solid #E6E2DA;font-size:13px;color:#6B655C;max-width:340px">Ainda não há vendas suficientes para exibir o gráfico. <a href="#" onClick="{{ goDegustacao }}">Configure a degustação</a> para começar a converter clientes.</div>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between"><div style="font-weight:600;font-size:14px">Nossos cursos</div><button onClick="{{ goCursos }}" style="background:none;border:0;padding:0;color:#2F6B4F;font-weight:600;font-size:13px;cursor:pointer">Ver todos</button></div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <sc-for list="{{ cursosTop }}" as="c" hint-placeholder-count="3">
+            <button onClick="{{ goCursos }}" style="display:flex;align-items:center;gap:12px;padding:8px;border-radius:10px;border:1px solid transparent;background:transparent;cursor:pointer;text-align:left;font:inherit" style-hover="background:#F5F3EF;border-color:#E6E2DA">
+              <span style="width:56px;height:40px;flex:none;border-radius:6px;background: {{ c.tone }};display:flex;align-items:center;justify-content:center;color:#fff;font-family:Sora,sans-serif;font-size:11px;font-weight:600">{{ c.abbr }}</span>
+              <span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-weight:600;font-size:13.5px;color:#1C1A17">{{ c.title }}</span><span style="font-size:12px;color:#9A938A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.desc }}</span></span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ENVIO RÁPIDO -->
+  <sc-if value="{{ is.envio }}" hint-placeholder-val="{{ false }}">
+    <div><h1 style="margin:0;font-family:Sora,sans-serif;font-size:24px;font-weight:600;letter-spacing:-.02em">Envio rápido</h1><p style="margin:6px 0 0;color:#6B655C;font-size:14px">Envie passaportes para uma campanha existente ou crie uma nova em segundos.</p></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;align-items:start">
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;display:flex;flex-direction:column">
+        <div style="padding:20px 24px;border-bottom:1px solid #EFECE6;display:flex;flex-direction:column;gap:12px">
+          <label style="font-size:12px;font-weight:600;color:#6B655C;display:block">Campanha</label>
+          <div style="display:flex;gap:10px">
+            <div style="flex:1;display:flex;align-items:center;gap:10px;height:40px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;color:#9A938A">{{ ic.search }}<input placeholder="Procurar uma campanha existente" style="border:0;outline:none;background:transparent;font:inherit;font-size:13.5px;color:#1C1A17;flex:1;box-shadow:none"></div>
+            <button onClick="{{ goCampanhasNova }}" style="display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px;border-radius:8px;background:#fff;color:#1C1A17;font-size:13.5px;font-weight:600;border:1px solid #E6E2DA;cursor:pointer;white-space:nowrap" style-hover="background:#F0EDE7">{{ ic.plus }} Nova campanha</button>
+          </div>
+        </div>
+        <div style="padding:20px 24px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;gap:4px;border-bottom:1px solid #E6E2DA"><button style="padding:8px 12px;border:0;border-bottom:2px solid #2F6B4F;margin-bottom:-1px;background:none;font-size:13px;font-weight:600;color:#1C1A17;cursor:pointer">Envio de passaporte</button><button style="padding:8px 12px;border:0;background:none;font-size:13px;font-weight:500;color:#9A938A;cursor:pointer">Histórico</button></div>
+          <div style="display:flex;gap:12px;padding:12px 14px;border-radius:8px;background:#E7EEF9;color:#1F4B8E;font-size:13px;align-items:flex-start"><span style="display:flex;flex:none;margin-top:1px">{{ ic.info }}</span><span>Importe um arquivo <b>.csv</b> ou <b>.xlsx</b> com as colunas <b>email</b> e <b>nome</b>, ou adicione destinatários um a um abaixo.</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">E-mail</label><input placeholder="seuemail@exemplo.com" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+            <div><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Nome</label><input placeholder="Nome completo" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+            <div><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Idioma</label><dc-import name="Select" options="{{ optIdioma }}" hint-size="100%,38px"></dc-import></div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button onClick="{{ toastAdd }}" style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:8px;white-space:nowrap;background:#2F6B4F;color:#fff;font-size:13.5px;font-weight:600;border:0;cursor:pointer" style-hover="background:#24543E">{{ ic.plus }} Adicionar</button>
+            <button onClick="{{ toastImport }}" style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:8px;white-space:nowrap;background:#fff;color:#1C1A17;font-size:13.5px;font-weight:600;border:1px solid #E6E2DA;cursor:pointer" style-hover="background:#F0EDE7">{{ ic.upload }} Importar planilha</button>
+          </div>
+          <div style="border:1px dashed #D6D0C6;border-radius:10px;padding:28px;text-align:center;color:#9A938A;font-size:13px">Nenhum destinatário adicionado ainda.</div>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:12px;font-size:13px">
+        <div style="font-weight:600;font-size:14px">Como funciona</div>
+        <ol style="margin:0;padding-left:18px;color:#6B655C;display:flex;flex-direction:column;gap:8px;line-height:1.45"><li>Escolha ou crie a campanha que receberá os passaportes.</li><li>Adicione destinatários manualmente ou por planilha.</li><li>Cada envio consome 1 crédito (ou 1 degustação, se configurada).</li></ol>
+        <div style="margin-top:6px;padding:12px;border-radius:8px;background:#F5F3EF;display:flex;justify-content:space-between"><span style="color:#6B655C">Saldo disponível</span><span style="font-weight:600">2 créditos · 180 degustações</span></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- CAMPANHAS -->
+  <sc-if value="{{ is.campanhas }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <div><h1 style="margin:0;font-family:Sora,sans-serif;font-size:24px;font-weight:600;letter-spacing:-.02em">Campanhas</h1><p style="margin:6px 0 0;color:#6B655C;font-size:14px">4 campanhas · 60 passaportes enviados</p></div>
+      <div style="display:flex;gap:8px;flex:none">
+        <button onClick="{{ toastExport }}" style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:8px;white-space:nowrap;background:#fff;color:#1C1A17;font-size:13.5px;font-weight:600;border:1px solid #E6E2DA;cursor:pointer" style-hover="background:#F0EDE7">{{ ic.download }} Exportar</button>
+        <button onClick="{{ toastLinks }}" style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:8px;white-space:nowrap;background:#fff;color:#1C1A17;font-size:13.5px;font-weight:600;border:1px solid #E6E2DA;cursor:pointer" style-hover="background:#F0EDE7">{{ ic.link }} Meus links</button>
+        <button onClick="{{ toastRemovePend }}" style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:8px;white-space:nowrap;background:#fff;color:#B3261E;font-size:13.5px;font-weight:600;border:1px solid #E6E2DA;cursor:pointer" style-hover="background:#FCEBEA">{{ ic.trash }} Remover pendentes</button>
+        <button onClick="{{ goCampanhasNova }}" style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:8px;white-space:nowrap;background:#2F6B4F;color:#fff;font-size:13.5px;font-weight:600;border:0;cursor:pointer" style-hover="background:#24543E">{{ ic.plus }} Nova campanha</button>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;overflow-x:auto">
+      <div style="display:flex;gap:12px;padding:14px 16px;border-bottom:1px solid #EFECE6;align-items:flex-end;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Nome</label><input placeholder="Buscar por nome" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+        <div style="width:170px"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Degustação</label><dc-import name="Select" options="{{ optDegust }}" hint-size="100%,38px"></dc-import></div>
+        <div style="width:220px"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Tipo de relatório</label><dc-import name="Select" options="{{ optRelTodos }}" hint-size="100%,38px"></dc-import></div>
+        <div style="width:150px"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Data inicial</label><input placeholder="dd/mm/aaaa" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+        <div style="width:150px"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Data final</label><input placeholder="dd/mm/aaaa" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+        <button onClick="{{ toastSearch }}" style="height:38px;padding:0 16px;border-radius:8px;background:#1C1A17;color:#fff;font-size:13.5px;font-weight:600;border:0;cursor:pointer">Pesquisar</button>
+        <button onClick="{{ toastClear }}" style="height:38px;padding:0 12px;border-radius:8px;background:none;color:#6B655C;font-size:13.5px;font-weight:500;border:0;cursor:pointer" style-hover="color:#1C1A17">Limpar</button>
+      </div>
+      <table style="width:100%;border-collapse:collapse;min-width:720px">
+        <thead><tr>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA;min-width:240px">Campanha</th>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Finalidade</th>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Criada em</th>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA;width:260px">Respostas</th>
+          <th style="text-align:center;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Download</th>
+          <th style="text-align:right;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Ações</th>
+        </tr></thead>
+        <tbody>
+        <sc-for list="{{ campaigns }}" as="r" hint-placeholder-count="4">
+          <tr style-hover="background:#FAF9F6">
+            <td style="padding:14px 16px;border-bottom:1px solid #EFECE6;font-size:13.5px;vertical-align:middle"><div style="font-weight:600">{{ r.name }}</div><div style="font-size:12px;color:#9A938A;margin-top:2px">{{ r.type }}</div></td>
+            <td style="padding:14px 16px;border-bottom:1px solid #EFECE6;font-size:13.5px;vertical-align:middle"><span style="display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;background:#F0EDE7;font-size:12px;font-weight:600;color:#6B655C">{{ r.scope }}</span></td>
+            <td style="padding:14px 16px;border-bottom:1px solid #EFECE6;font-size:13.5px;vertical-align:middle;color:#6B655C"><div>{{ r.date }}</div><div style="font-size:12px;color:#9A938A;margin-top:2px">por {{ r.by }}</div></td>
+            <td style="padding:14px 16px;border-bottom:1px solid #EFECE6;font-size:13.5px;vertical-align:middle">
+              <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px"><span style="font-weight:600">{{ r.resp }} de {{ r.total }} respondidos</span><span style="color: {{ r.pendColor }};font-weight:600">{{ r.pendLabel }}</span></div>
+              <div style="height:6px;border-radius:3px;background:#F0EDE7"><div style="height:100%;border-radius:3px;background:#2F6B4F;width: {{ r.pct }}"></div></div>
+            </td>
+            <td style="padding:14px 16px;border-bottom:1px solid #EFECE6;vertical-align:middle;text-align:center"><span style="display:inline-flex;width:24px;height:24px;border-radius:50%;background:#E8F3EC;color:#2F6B4F;align-items:center;justify-content:center">{{ ic.check }}</span></td>
+            <td style="padding:14px 16px;border-bottom:1px solid #EFECE6;vertical-align:middle;text-align:right"><div style="display:inline-flex;gap:2px">
+              <button onClick="{{ toastView }}" title="Visualizar" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:0;background:transparent;color:#6B655C;cursor:pointer" style-hover="background:#F0EDE7;color:#1C1A17">{{ ic.eye }}</button>
+              <button onClick="{{ toastLink }}" title="Gerar link" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:0;background:transparent;color:#6B655C;cursor:pointer" style-hover="background:#F0EDE7;color:#1C1A17">{{ ic.link }}</button>
+              <button onClick="{{ toastExport }}" title="Exportar" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:0;background:transparent;color:#6B655C;cursor:pointer" style-hover="background:#F0EDE7;color:#1C1A17">{{ ic.download }}</button>
+            </div></td>
+          </tr>
+        </sc-for>
+        </tbody>
+      </table>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;font-size:12.5px;color:#9A938A">Mostrando 4 de 4 <div style="display:flex;gap:4px"><button style="width:28px;height:28px;border-radius:6px;border:1px solid #E6E2DA;background:#fff;color:#9A938A;display:inline-flex;align-items:center;justify-content:center">{{ ic.chevL }}</button><button style="width:28px;height:28px;border-radius:6px;border:1px solid #E6E2DA;background:#fff;color:#9A938A;display:inline-flex;align-items:center;justify-content:center">{{ ic.chevR }}</button></div></div>
+    </div>
+  </sc-if>
+
+  <!-- CAMPANHA NOVA -->
+  <sc-if value="{{ is.campanhasNova }}" hint-placeholder-val="{{ false }}">
+    <button onClick="{{ goCampanhas }}" style="display:inline-flex;align-items:center;gap:4px;background:none;border:0;padding:0;color:#6B655C;font-size:13px;cursor:pointer;align-self:flex-start" style-hover="color:#1C1A17">{{ ic.chevL }} Voltar para campanhas</button>
+    <div><h1 style="margin:0;font-family:Sora,sans-serif;font-size:24px;font-weight:600;letter-spacing:-.02em">Criar campanha</h1><p style="margin:6px 0 0;color:#6B655C;font-size:14px">Uma campanha agrupa os passaportes enviados e define o tipo de relatório gerado.</p></div>
+    <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;max-width:760px">
+      <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+        <div><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Nome da campanha</label><input placeholder="Ex.: Capacitação Liderança 2026" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Área de atuação</label><dc-import name="Select" options="{{ optArea }}" hint-size="100%,38px"></dc-import></div>
+          <div><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Tipo de relatório</label><dc-import name="Select" options="{{ optRel }}" hint-size="100%,38px"></dc-import></div>
+        </div>
+        <button onClick="{{ toggleDownload }}" style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 16px;border-radius:10px;border:1px solid #E6E2DA;background:#FAF9F6;cursor:pointer;text-align:left;font:inherit">
+          <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13.5px;font-weight:600;color:#1C1A17">Permitir download do relatório</span><span style="font-size:12.5px;color:#9A938A">O respondente poderá baixar o PDF ao finalizar o questionário.</span></span>
+          <span style="width:40px;height:22px;flex:none;border-radius:11px;position:relative;transition:background .15s;background: {{ dlBg }}"><span style="position:absolute;top:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:left .15s;left: {{ dlLeft }}"></span></span>
+        </button>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;padding:14px 24px;border-top:1px solid #EFECE6;background:#FAF9F6;border-radius:0 0 12px 12px">
+        <button onClick="{{ goCampanhas }}" style="height:36px;padding:0 14px;border-radius:8px;background:none;color:#6B655C;font-size:13.5px;font-weight:500;border:0;cursor:pointer">Cancelar</button>
+        <button onClick="{{ saveCampanha }}" style="height:36px;padding:0 16px;border-radius:8px;background:#2F6B4F;color:#fff;font-size:13.5px;font-weight:600;border:0;cursor:pointer" style-hover="background:#24543E">Salvar campanha</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- DNA LISTA -->
+  <sc-if value="{{ is.dna }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <div><h1 style="margin:0;font-family:Sora,sans-serif;font-size:24px;font-weight:600;letter-spacing:-.02em">DNA Organizacional</h1><p style="margin:6px 0 0;color:#6B655C;font-size:14px">Mapeie o perfil coletivo das empresas a partir dos inventários respondidos.</p></div>
+      <button onClick="{{ goDnaNovo }}" style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:8px;white-space:nowrap;background:#2F6B4F;color:#fff;font-size:13.5px;font-weight:600;border:0;cursor:pointer" style-hover="background:#24543E">{{ ic.plus }} Adicionar DNA</button>
+    </div>
+    <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;overflow-x:auto">
+      <div style="display:flex;gap:12px;padding:14px 16px;border-bottom:1px solid #EFECE6;align-items:flex-end;flex-wrap:wrap">
+        <div style="flex:1"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Nome</label><input placeholder="Buscar por nome" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+        <div style="width:150px"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Data inicial</label><input placeholder="dd/mm/aaaa" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+        <div style="width:150px"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Data final</label><input placeholder="dd/mm/aaaa" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+        <button onClick="{{ toastSearch }}" style="height:38px;padding:0 16px;border-radius:8px;background:#1C1A17;color:#fff;font-size:13.5px;font-weight:600;border:0;cursor:pointer">Pesquisar</button>
+        <button onClick="{{ toastClear }}" style="height:38px;padding:0 12px;border-radius:8px;background:none;color:#6B655C;font-size:13.5px;border:0;cursor:pointer">Limpar</button>
+      </div>
+      <table style="width:100%;border-collapse:collapse;min-width:720px">
+        <thead><tr>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Empresa</th>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Inventários</th>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Criado por</th>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Criado em</th>
+          <th style="text-align:right;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Ações</th>
+        </tr></thead>
+        <tbody>
+        <sc-for list="{{ dnas }}" as="r" hint-placeholder-count="4">
+          <tr style-hover="background:#FAF9F6">
+            <td style="padding:14px 16px;border-bottom:1px solid #EFECE6;font-size:13.5px;vertical-align:middle"><button onClick="{{ goDnaAberto }}" style="background:none;border:0;padding:0;font:inherit;font-weight:600;color:#1C1A17;cursor:pointer;text-align:left" style-hover="color:#2F6B4F">{{ r.name }}</button><div style="font-size:12px;color:#9A938A;margin-top:2px;display:flex;align-items:center;gap:6px"><span style="width:14px;height:10px;border-radius:2px;background:linear-gradient(#2F6B4F 0 100%);display:inline-block"></span>Português (BR)</div></td>
+            <td style="padding:14px 16px;border-bottom:1px solid #EFECE6;font-size:13.5px;vertical-align:middle"><span style="font-weight:600">{{ r.inv }}</span></td>
+            <td style="padding:14px 16px;border-bottom:1px solid #EFECE6;font-size:13.5px;vertical-align:middle;color:#6B655C">{{ r.by }}</td>
+            <td style="padding:14px 16px;border-bottom:1px solid #EFECE6;font-size:13.5px;vertical-align:middle;color:#6B655C">{{ r.date }}</td>
+            <td style="padding:14px 16px;border-bottom:1px solid #EFECE6;vertical-align:middle;text-align:right"><div style="display:inline-flex;gap:2px">
+              <button onClick="{{ goDnaAberto }}" title="Abrir" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:0;background:transparent;color:#6B655C;cursor:pointer" style-hover="background:#F0EDE7;color:#1C1A17">{{ ic.eye }}</button>
+              <button onClick="{{ toastEdit }}" title="Editar" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:0;background:transparent;color:#6B655C;cursor:pointer" style-hover="background:#F0EDE7;color:#1C1A17">{{ ic.edit }}</button>
+              <button onClick="{{ toastReport }}" title="Ver relatório" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:0;background:transparent;color:#6B655C;cursor:pointer" style-hover="background:#F0EDE7;color:#1C1A17">{{ ic.file }}</button>
+              <button onClick="{{ toastCharts }}" title="Gráficos" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:0;background:transparent;color:#6B655C;cursor:pointer" style-hover="background:#F0EDE7;color:#1C1A17">{{ ic.chart }}</button>
+              <button onClick="{{ toastPdf }}" title="Baixar PDF" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:0;background:transparent;color:#6B655C;cursor:pointer" style-hover="background:#F0EDE7;color:#1C1A17">{{ ic.download }}</button>
+              <button onClick="{{ toastRemove }}" title="Remover" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:0;background:transparent;color:#6B655C;cursor:pointer" style-hover="background:#FCEBEA;color:#B3261E">{{ ic.trash }}</button>
+            </div></td>
+          </tr>
+        </sc-for>
+        </tbody>
+      </table>
+    </div>
+  </sc-if>
+
+  <!-- DNA NOVO -->
+  <sc-if value="{{ is.dnaNovo }}" hint-placeholder-val="{{ false }}">
+    <button onClick="{{ goDna }}" style="display:inline-flex;align-items:center;gap:4px;background:none;border:0;padding:0;color:#6B655C;font-size:13px;cursor:pointer;align-self:flex-start" style-hover="color:#1C1A17">{{ ic.chevL }} Voltar para DNA Organizacional</button>
+    <div><h1 style="margin:0;font-family:Sora,sans-serif;font-size:24px;font-weight:600;letter-spacing:-.02em">Novo DNA</h1><p style="margin:6px 0 0;color:#6B655C;font-size:14px">Dê um nome à empresa e vincule campanhas e inventários.</p></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;align-items:start">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:16px">
+          <div><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Nome</label><input placeholder="Nome do DNA" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+          <div><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Descrição</label><textarea placeholder="Digite aqui…" rows="3" style="padding:10px 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%;resize:vertical"></textarea></div>
+        </div>
+        <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #EFECE6"><div style="font-weight:600;font-size:14px">Campanhas</div><button onClick="{{ toastAdd }}" style="display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:8px;background:#fff;color:#1C1A17;font-size:13px;font-weight:600;border:1px solid #E6E2DA;cursor:pointer" style-hover="background:#F0EDE7">{{ ic.plus }} Adicionar campanha</button></div>
+          <div style="padding:24px;text-align:center;color:#9A938A;font-size:13px">Nenhuma campanha vinculada.</div>
+        </div>
+        <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #EFECE6"><div style="font-weight:600;font-size:14px">Inventário</div><div style="display:flex;gap:6px"><button onClick="{{ toastRefresh }}" title="Atualizar" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid #E6E2DA;background:#fff;color:#6B655C;cursor:pointer" style-hover="background:#F0EDE7">{{ ic.refresh }}</button><button onClick="{{ toastAdd }}" style="display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:8px;background:#fff;color:#1C1A17;font-size:13px;font-weight:600;border:1px solid #E6E2DA;cursor:pointer" style-hover="background:#F0EDE7">{{ ic.plus }} Adicionar inventário</button></div></div>
+          <div style="padding:24px;text-align:center;color:#9A938A;font-size:13px">Nenhum registro.</div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px">
+          <button onClick="{{ goDna }}" style="height:36px;padding:0 14px;border-radius:8px;background:none;color:#6B655C;font-size:13.5px;border:0;cursor:pointer">Cancelar</button>
+          <button onClick="{{ saveDna }}" style="height:36px;padding:0 16px;border-radius:8px;background:#2F6B4F;color:#fff;font-size:13.5px;font-weight:600;border:0;cursor:pointer" style-hover="background:#24543E">Salvar DNA</button>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;padding:20px;font-size:13px;color:#6B655C;line-height:1.5"><div style="font-weight:600;font-size:14px;color:#1C1A17;margin-bottom:8px">O que é um DNA?</div>O DNA Organizacional consolida os perfis DISC de um grupo e mostra o comportamento predominante da equipe. Vincule uma campanha para importar os respondentes automaticamente.</div>
+    </div>
+  </sc-if>
+
+  <!-- DNA ABERTO -->
+  <sc-if value="{{ is.dnaAberto }}" hint-placeholder-val="{{ false }}">
+    <button onClick="{{ goDna }}" style="display:inline-flex;align-items:center;gap:4px;background:none;border:0;padding:0;color:#6B655C;font-size:13px;cursor:pointer;align-self:flex-start" style-hover="color:#1C1A17">{{ ic.chevL }} Voltar para DNA Organizacional</button>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <div><h1 style="margin:0;font-family:Sora,sans-serif;font-size:24px;font-weight:600;letter-spacing:-.02em">Deputado Afonso</h1><p style="margin:6px 0 0;color:#6B655C;font-size:14px">69 inventários · criado em 08/12/2025 por Valmer Albuquerque dos Santos</p></div>
+      <div style="display:flex;gap:8px;flex:none">
+        <button onClick="{{ toastReport }}" style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:8px;white-space:nowrap;background:#fff;color:#1C1A17;font-size:13.5px;font-weight:600;border:1px solid #E6E2DA;cursor:pointer" style-hover="background:#F0EDE7">{{ ic.file }} Visualizar relatório</button>
+        <button onClick="{{ toastPdf }}" style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:8px;white-space:nowrap;background:#2F6B4F;color:#fff;font-size:13.5px;font-weight:600;border:0;cursor:pointer" style-hover="background:#24543E">{{ ic.download }} Baixar PDF</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;padding:16px;display:flex;align-items:center;gap:12px"><span style="width:40px;height:40px;border-radius:10px;background:#B3261E;color:#fff;display:flex;align-items:center;justify-content:center;font-family:Sora,sans-serif;font-weight:700">D</span><div><div style="font-size:12px;color:#9A938A">Dominância média</div><div style="font-family:Sora,sans-serif;font-size:20px;font-weight:600">52</div></div></div>
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;padding:16px;display:flex;align-items:center;gap:12px"><span style="width:40px;height:40px;border-radius:10px;background:#D97706;color:#fff;display:flex;align-items:center;justify-content:center;font-family:Sora,sans-serif;font-weight:700">I</span><div><div style="font-size:12px;color:#9A938A">Influência média</div><div style="font-family:Sora,sans-serif;font-size:20px;font-weight:600">57</div></div></div>
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;padding:16px;display:flex;align-items:center;gap:12px"><span style="width:40px;height:40px;border-radius:10px;background:#2F6B4F;color:#fff;display:flex;align-items:center;justify-content:center;font-family:Sora,sans-serif;font-weight:700">S</span><div><div style="font-size:12px;color:#9A938A">Estabilidade média</div><div style="font-family:Sora,sans-serif;font-size:20px;font-weight:600">47</div></div></div>
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;padding:16px;display:flex;align-items:center;gap:12px"><span style="width:40px;height:40px;border-radius:10px;background:#1F4B8E;color:#fff;display:flex;align-items:center;justify-content:center;font-family:Sora,sans-serif;font-weight:700">C</span><div><div style="font-size:12px;color:#9A938A">Conformidade média</div><div style="font-family:Sora,sans-serif;font-size:20px;font-weight:600">45</div></div></div>
+    </div>
+    <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;overflow-x:auto">
+      <div style="display:flex;gap:12px;padding:14px 16px;border-bottom:1px solid #EFECE6;align-items:flex-end;flex-wrap:wrap">
+        <div style="flex:1"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Nome</label><input placeholder="Buscar respondente" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+        <div style="width:150px"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Data inicial</label><input placeholder="dd/mm/aaaa" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+        <div style="width:150px"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Data final</label><input placeholder="dd/mm/aaaa" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+        <button onClick="{{ toastSearch }}" style="height:38px;padding:0 16px;border-radius:8px;background:#1C1A17;color:#fff;font-size:13.5px;font-weight:600;border:0;cursor:pointer">Pesquisar</button>
+      </div>
+      <table style="width:100%;border-collapse:collapse;min-width:720px">
+        <thead><tr>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Respondente</th>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Perfil</th>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">D · I · S · C</th>
+          <th style="text-align:right;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Respondido em</th>
+        </tr></thead>
+        <tbody>
+        <sc-for list="{{ people }}" as="p" hint-placeholder-count="4">
+          <tr style-hover="background:#FAF9F6">
+            <td style="padding:12px 16px;border-bottom:1px solid #EFECE6;font-size:13.5px;vertical-align:middle"><div style="display:flex;align-items:center;gap:12px"><span style="width:36px;height:36px;border-radius:50%;background:#F0EDE7;color:#1C1A17;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">{{ p.ini }}</span><div><div style="font-weight:600">{{ p.name }}</div><div style="font-size:12px;color:#9A938A">{{ p.email }}</div></div></div></td>
+            <td style="padding:12px 16px;border-bottom:1px solid #EFECE6;vertical-align:middle"><span style="display:inline-flex;padding:3px 10px;border-radius:999px;background:#F0EDE7;font-size:12px;font-weight:700;letter-spacing:.04em;color:#1C1A17">{{ p.prof }}</span></td>
+            <td style="padding:12px 16px;border-bottom:1px solid #EFECE6;vertical-align:middle"><div style="display:flex;gap:6px">
+              <span style="min-width:34px;height:26px;padding:0 8px;border-radius:6px;background:#FCEBEA;color:#B3261E;display:inline-flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700">{{ p.d }}</span>
+              <span style="min-width:34px;height:26px;padding:0 8px;border-radius:6px;background:#FDF3E1;color:#B45309;display:inline-flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700">{{ p.i }}</span>
+              <span style="min-width:34px;height:26px;padding:0 8px;border-radius:6px;background:#E8F3EC;color:#2F6B4F;display:inline-flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700">{{ p.s }}</span>
+              <span style="min-width:34px;height:26px;padding:0 8px;border-radius:6px;background:#E7EEF9;color:#1F4B8E;display:inline-flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700">{{ p.c }}</span>
+            </div></td>
+            <td style="padding:12px 16px;border-bottom:1px solid #EFECE6;font-size:13.5px;vertical-align:middle;text-align:right;color:#6B655C">{{ p.date }}</td>
+          </tr>
+        </sc-for>
+        </tbody>
+      </table>
+    </div>
+  </sc-if>
+
+  <!-- ARQUITETURA -->
+  <sc-if value="{{ is.arquitetura }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <div><h1 style="margin:0;font-family:Sora,sans-serif;font-size:24px;font-weight:600;letter-spacing:-.02em">Arquitetura de Cargos</h1><p style="margin:6px 0 0;color:#6B655C;font-size:14px">Defina o perfil comportamental ideal para cada cargo e compare com candidatos.</p></div>
+      <button onClick="{{ toastAdd }}" style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:8px;white-space:nowrap;background:#2F6B4F;color:#fff;font-size:13.5px;font-weight:600;border:0;cursor:pointer" style-hover="background:#24543E">{{ ic.plus }} Adicionar cargo</button>
+    </div>
+    <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;overflow-x:auto">
+      <div style="display:flex;gap:12px;padding:14px 16px;border-bottom:1px solid #EFECE6;align-items:flex-end;flex-wrap:wrap">
+        <div style="flex:1"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Nome</label><input placeholder="Buscar por cargo" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+        <div style="width:150px"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Data inicial</label><input placeholder="dd/mm/aaaa" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+        <div style="width:150px"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Data final</label><input placeholder="dd/mm/aaaa" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+        <button onClick="{{ toastSearch }}" style="height:38px;padding:0 16px;border-radius:8px;background:#1C1A17;color:#fff;font-size:13.5px;font-weight:600;border:0;cursor:pointer">Pesquisar</button>
+      </div>
+      <table style="width:100%;border-collapse:collapse;min-width:720px">
+        <thead><tr>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Cargo</th>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Criado por</th>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Criado em</th>
+          <th style="text-align:right;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Ações</th>
+        </tr></thead>
+        <tbody><tr style-hover="background:#FAF9F6">
+          <td style="padding:14px 16px;border-bottom:1px solid #EFECE6;font-size:13.5px;font-weight:600">Consultora de Vendas de Maquiagem</td>
+          <td style="padding:14px 16px;border-bottom:1px solid #EFECE6;font-size:13.5px;color:#6B655C">Valmer Albuquerque dos Santos</td>
+          <td style="padding:14px 16px;border-bottom:1px solid #EFECE6;font-size:13.5px;color:#6B655C">07/03/2020 às 17:10</td>
+          <td style="padding:14px 16px;border-bottom:1px solid #EFECE6;text-align:right"><div style="display:inline-flex;gap:2px">
+            <button onClick="{{ toastPdf }}" title="Baixar" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:0;background:transparent;color:#6B655C;cursor:pointer" style-hover="background:#F0EDE7;color:#1C1A17">{{ ic.download }}</button>
+            <button onClick="{{ toastEdit }}" title="Alterar" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:0;background:transparent;color:#6B655C;cursor:pointer" style-hover="background:#F0EDE7;color:#1C1A17">{{ ic.edit }}</button>
+            <button onClick="{{ toastDup }}" title="Duplicar" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:0;background:transparent;color:#6B655C;cursor:pointer" style-hover="background:#F0EDE7;color:#1C1A17">{{ ic.copy }}</button>
+            <button onClick="{{ toastRemove }}" title="Remover" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:0;background:transparent;color:#6B655C;cursor:pointer" style-hover="background:#FCEBEA;color:#B3261E">{{ ic.trash }}</button>
+          </div></td>
+        </tr></tbody>
+      </table>
+      <div style="padding:12px 16px;font-size:12.5px;color:#9A938A">Total: 1</div>
+    </div>
+  </sc-if>
+
+  <!-- DEVOLUTIVA -->
+  <sc-if value="{{ is.devolutiva }}" hint-placeholder-val="{{ false }}">
+    <div><h1 style="margin:0;font-family:Sora,sans-serif;font-size:24px;font-weight:600;letter-spacing:-.02em">Devolutiva</h1><p style="margin:6px 0 0;color:#6B655C;font-size:14px">Sessões de feedback com os respondentes dos seus passaportes.</p></div>
+    <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;overflow-x:auto">
+      <div style="display:flex;gap:12px;padding:14px 16px;border-bottom:1px solid #EFECE6;align-items:flex-end;flex-wrap:wrap">
+        <div style="flex:1"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Nome</label><input placeholder="Nome" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+        <div style="flex:1"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">E-mail</label><input placeholder="E-mail" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+        <div style="width:160px"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Status</label><dc-import name="Select" options="{{ optStatus }}" hint-size="100%,38px"></dc-import></div>
+        <div style="width:150px"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Data inicial</label><input placeholder="dd/mm/aaaa" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+        <div style="width:150px"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Data final</label><input placeholder="dd/mm/aaaa" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+        <button onClick="{{ toastSearch }}" style="height:38px;padding:0 16px;border-radius:8px;background:#1C1A17;color:#fff;font-size:13.5px;font-weight:600;border:0;cursor:pointer">Pesquisar</button>
+      </div>
+      <table style="width:100%;border-collapse:collapse;min-width:720px">
+        <thead><tr>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Respondente</th>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Passaporte</th>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Status</th>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Criado em</th>
+          <th style="text-align:right;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Ações</th>
+        </tr></thead>
+        <tbody>
+        <sc-for list="{{ devolutivas }}" as="r" hint-placeholder-count="5">
+          <tr style-hover="background:#FAF9F6">
+            <td style="padding:14px 16px;border-bottom:1px solid #EFECE6;font-size:13.5px;vertical-align:middle"><div style="font-weight:600">{{ r.name }}</div><div style="font-size:12px;color:#9A938A;margin-top:2px">{{ r.email }}</div></td>
+            <td style="padding:14px 16px;border-bottom:1px solid #EFECE6;font-size:13.5px;vertical-align:middle"><div style="font-weight:500">{{ r.camp }}</div><div style="font-size:12px;color:#9A938A;margin-top:2px">DISC + Tipos Psicológicos + Valores</div></td>
+            <td style="padding:14px 16px;border-bottom:1px solid #EFECE6;font-size:13.5px;vertical-align:middle"><span style="display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;background: {{ r.bg }};color: {{ r.fg }}"><i style="width:6px;height:6px;border-radius:50%;background:currentColor"></i>{{ r.status }}</span><sc-if value="{{ r.hasTime }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:#9A938A;margin-top:4px">Tempo: {{ r.time }}</div></sc-if></td>
+            <td style="padding:14px 16px;border-bottom:1px solid #EFECE6;font-size:13.5px;vertical-align:middle;color:#6B655C">{{ r.date }}</td>
+            <td style="padding:14px 16px;border-bottom:1px solid #EFECE6;vertical-align:middle;text-align:right"><div style="display:inline-flex;gap:2px">
+              <button onClick="{{ toastView }}" title="Visualizar" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:0;background:transparent;color:#6B655C;cursor:pointer" style-hover="background:#F0EDE7;color:#1C1A17">{{ ic.eye }}</button>
+              <sc-if value="{{ r.done }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ toastPdf }}" title="Baixar PDF" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:0;background:transparent;color:#6B655C;cursor:pointer" style-hover="background:#F0EDE7;color:#1C1A17">{{ ic.download }}</button>
+                <button onClick="{{ toastMail }}" title="Enviar por e-mail" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:0;background:transparent;color:#6B655C;cursor:pointer" style-hover="background:#F0EDE7;color:#1C1A17">{{ ic.mail }}</button>
+              </sc-if>
+            </div></td>
+          </tr>
+        </sc-for>
+        </tbody>
+      </table>
+    </div>
+  </sc-if>
+
+  <!-- BENEFÍCIOS -->
+  <sc-if value="{{ is.beneficios }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <div><h1 style="margin:0;font-family:Sora,sans-serif;font-size:24px;font-weight:600;letter-spacing:-.02em">Programa de Benefícios</h1><p style="margin:6px 0 0;color:#6B655C;font-size:14px">Quanto mais créditos você compra ou utiliza, mais vantagens desbloqueia.</p></div>
+      <button onClick="{{ toastWhats }}" style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:8px;white-space:nowrap;background:#fff;color:#1C1A17;font-size:13.5px;font-weight:600;border:1px solid #E6E2DA;cursor:pointer" style-hover="background:#F0EDE7">{{ ic.chat }} Falar com o consultor</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
+      <div style="background:#1C1A17;color:#fff;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:6px"><div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:600">Categoria atual</div><div style="font-family:Sora,sans-serif;font-size:26px;font-weight:600">Membro</div><div style="font-size:12.5px;color:rgba(255,255,255,.65)">Expira em 06/01/2027 · valores considerados a partir de 06/01/2026</div></div>
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;padding:20px;display:flex;gap:16px;align-items:center"><div style="width:64px;height:64px;flex:none;border-radius:50%;background:conic-gradient(#2F6B4F 88%,#F0EDE7 0);display:flex;align-items:center;justify-content:center"><div style="width:50px;height:50px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">88%</div></div><div><div style="font-weight:600;font-size:14px">Créditos utilizados</div><div style="font-size:13px;color:#6B655C;margin-top:2px">71 de 80 · faltam 9 para <b>Gold</b></div></div></div>
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;padding:20px;display:flex;gap:16px;align-items:center"><div style="width:64px;height:64px;flex:none;border-radius:50%;background:conic-gradient(#2F6B4F 43%,#F0EDE7 0);display:flex;align-items:center;justify-content:center"><div style="width:50px;height:50px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">43%</div></div><div><div style="font-weight:600;font-size:14px">Créditos comprados</div><div style="font-size:13px;color:#6B655C;margin-top:2px">52 de 120 · faltam 68 para <b>Gold</b></div></div></div>
+    </div>
+    <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;overflow:hidden">
+      <table style="width:100%;border-collapse:collapse;min-width:720px">
+        <thead><tr>
+          <th style="text-align:left;padding:16px;font-size:13px;font-weight:600;color:#1C1A17;border-bottom:1px solid #E6E2DA;width:26%">Nossos benefícios</th>
+          <sc-for list="{{ tiers }}" as="t" hint-placeholder-count="5">
+            <th style="text-align:left;padding:12px 16px;border-bottom:1px solid #E6E2DA;border-left:1px solid #EFECE6;vertical-align:top;background: {{ t.bg }}"><div style="font-family:Sora,sans-serif;font-size:14px;font-weight:600;color: {{ t.fg }}">{{ t.name }}</div><div style="font-size:11.5px;font-weight:400;margin-top:4px;line-height:1.35;color: {{ t.sub }}">{{ t.rule }}</div></th>
+          </sc-for>
+        </tr></thead>
+        <tbody>
+        <sc-for list="{{ benefits }}" as="b" hint-placeholder-count="6">
+          <tr style-hover="background:#FAF9F6">
+            <td style="padding:14px 16px;border-bottom:1px solid #EFECE6;font-size:13.5px;font-weight:500">{{ b.name }}</td>
+            <sc-for list="{{ b.cells }}" as="v" hint-placeholder-count="5">
+              <td style="padding:14px 16px;border-bottom:1px solid #EFECE6;border-left:1px solid #EFECE6;font-size:13.5px;font-weight:600;color:#1C1A17">
+                <sc-if value="{{ v.yes }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;width:22px;height:22px;border-radius:50%;background:#E8F3EC;color:#2F6B4F;align-items:center;justify-content:center">{{ ic.check }}</span></sc-if>
+                <sc-if value="{{ v.no }}" hint-placeholder-val="{{ false }}"><span style="color:#D6D0C6">—</span></sc-if>
+                <sc-if value="{{ v.isText }}" hint-placeholder-val="{{ true }}">{{ v.text }}</sc-if>
+              </td>
+            </sc-for>
+          </tr>
+        </sc-for>
+        </tbody>
+      </table>
+    </div>
+  </sc-if>
+
+  <!-- CRÉDITOS / DEGUSTAÇÃO -->
+  <sc-if value="{{ is.creditos }}" hint-placeholder-val="{{ false }}">
+    <div><h1 style="margin:0;font-family:Sora,sans-serif;font-size:24px;font-weight:600;letter-spacing:-.02em">Créditos</h1><p style="margin:6px 0 0;color:#6B655C;font-size:14px">Saldo, histórico e compra de créditos da plataforma.</p></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;padding:20px"><div style="font-size:13px;color:#6B655C;font-weight:500">Saldo atual</div><div style="font-family:Sora,sans-serif;font-size:32px;font-weight:600;margin-top:10px">2 <span style="font-size:14px;font-weight:500;color:#6B655C">créditos</span></div><div style="font-size:12.5px;color:#9A938A;margin-top:4px">2 vitalícios · 0 a expirar</div></div>
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;padding:20px"><div style="font-size:13px;color:#6B655C;font-weight:500">Utilizados no ciclo</div><div style="font-family:Sora,sans-serif;font-size:32px;font-weight:600;margin-top:10px">71 <span style="font-size:14px;font-weight:500;color:#6B655C">de 80</span></div><div style="font-size:12.5px;color:#9A938A;margin-top:4px">Ciclo iniciado em 06/01/2026</div></div>
+      <div style="background:#E8F3EC;border:1px solid #CFE5D8;border-radius:12px;padding:20px;display:flex;flex-direction:column;justify-content:space-between;gap:12px"><div><div style="font-weight:600;font-size:14px;color:#24543E">Recarga automática</div><div style="font-size:13px;color:#2F6B4F;margin-top:4px">Nunca fique sem créditos: compre automaticamente quando o saldo chegar a zero.</div></div><button onClick="{{ toastBuy }}" style="align-self:flex-start;height:34px;padding:0 14px;border-radius:8px;background:#2F6B4F;color:#fff;font-size:13px;font-weight:600;border:0;cursor:pointer">Comprar créditos</button></div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ is.degustacao }}" hint-placeholder-val="{{ false }}">
+    <div><h1 style="margin:0;font-family:Sora,sans-serif;font-size:24px;font-weight:600;letter-spacing:-.02em">Degustação</h1><p style="margin:6px 0 0;color:#6B655C;font-size:14px">Ofereça uma amostra gratuita do relatório e converta em clientes.</p></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;align-items:start">
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;padding:20px"><div style="font-size:13px;color:#6B655C;font-weight:500">Saldo de degustações</div><div style="font-family:Sora,sans-serif;font-size:32px;font-weight:600;margin-top:10px">180</div><div style="font-size:12.5px;color:#9A938A;margin-top:4px">180 vitalícios · 3 utilizados</div></div>
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:16px">
+        <div style="font-weight:600;font-size:14px">Configuração da degustação</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Relatório oferecido</label><dc-import name="Select" options="{{ optDegRel }}" hint-size="100%,38px"></dc-import></div>
+          <div><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Preço do relatório completo</label><input placeholder="R$ 0,00" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+        </div>
+        <button onClick="{{ toastSaved }}" style="align-self:flex-end;height:36px;padding:0 16px;border-radius:8px;background:#2F6B4F;color:#fff;font-size:13.5px;font-weight:600;border:0;cursor:pointer" style-hover="background:#24543E">Salvar</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- CLIENTES -->
+  <sc-if value="{{ is.clientes }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <div><h1 style="margin:0;font-family:Sora,sans-serif;font-size:24px;font-weight:600;letter-spacing:-.02em">Clientes</h1><p style="margin:6px 0 0;color:#6B655C;font-size:14px">227 clientes cadastrados</p></div>
+      <div style="display:flex;gap:8px;flex:none">
+        <button onClick="{{ toastImport }}" style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:8px;white-space:nowrap;background:#fff;color:#1C1A17;font-size:13.5px;font-weight:600;border:1px solid #E6E2DA;cursor:pointer" style-hover="background:#F0EDE7">{{ ic.upload }} Importar</button>
+        <button onClick="{{ toastExport }}" style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:8px;white-space:nowrap;background:#fff;color:#1C1A17;font-size:13.5px;font-weight:600;border:1px solid #E6E2DA;cursor:pointer" style-hover="background:#F0EDE7">{{ ic.download }} Exportar</button>
+        <button onClick="{{ toastAdd }}" style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:8px;white-space:nowrap;background:#2F6B4F;color:#fff;font-size:13.5px;font-weight:600;border:0;cursor:pointer" style-hover="background:#24543E">{{ ic.plus }} Adicionar cliente</button>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;overflow-x:auto">
+      <div style="display:flex;gap:12px;padding:14px 16px;border-bottom:1px solid #EFECE6;align-items:flex-end;flex-wrap:wrap">
+        <div style="flex:1"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Nome</label><input placeholder="Nome" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+        <div style="flex:1"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">E-mail</label><input placeholder="E-mail" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+        <div style="width:150px"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Data inicial</label><input placeholder="dd/mm/aaaa" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+        <div style="width:150px"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Data final</label><input placeholder="dd/mm/aaaa" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+        <div style="width:150px"><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Último login</label><input placeholder="dd/mm/aaaa" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+        <button onClick="{{ toastSearch }}" style="height:38px;padding:0 16px;border-radius:8px;background:#1C1A17;color:#fff;font-size:13.5px;font-weight:600;border:0;cursor:pointer">Pesquisar</button>
+      </div>
+      <table style="width:100%;border-collapse:collapse;min-width:720px">
+        <thead><tr>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Cliente</th>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Celular</th>
+          <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Último login</th>
+          <th style="text-align:right;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A;border-bottom:1px solid #E6E2DA">Ações</th>
+        </tr></thead>
+        <tbody>
+        <sc-for list="{{ clientes }}" as="r" hint-placeholder-count="5">
+          <tr style-hover="background:#FAF9F6">
+            <td style="padding:12px 16px;border-bottom:1px solid #EFECE6;font-size:13.5px;vertical-align:middle"><div style="display:flex;align-items:center;gap:12px"><span style="width:36px;height:36px;border-radius:50%;background:#F0EDE7;color:#1C1A17;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">{{ r.ini }}</span><div><div style="font-weight:600">{{ r.name }}</div><div style="font-size:12px;color:#9A938A">{{ r.email }}</div></div></div></td>
+            <td style="padding:12px 16px;border-bottom:1px solid #EFECE6;font-size:13.5px;vertical-align:middle;color:#6B655C">{{ r.cel }}</td>
+            <td style="padding:12px 16px;border-bottom:1px solid #EFECE6;font-size:13.5px;vertical-align:middle;color:#6B655C">{{ r.last }}</td>
+            <td style="padding:12px 16px;border-bottom:1px solid #EFECE6;vertical-align:middle;text-align:right"><div style="display:inline-flex;gap:2px">
+              <button onClick="{{ toastView }}" title="Detalhes" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:0;background:transparent;color:#6B655C;cursor:pointer" style-hover="background:#F0EDE7;color:#1C1A17">{{ ic.eye }}</button>
+              <button onClick="{{ toastMail }}" title="Enviar e-mail" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:0;background:transparent;color:#6B655C;cursor:pointer" style-hover="background:#F0EDE7;color:#1C1A17">{{ ic.mail }}</button>
+              <button onClick="{{ toastRemove }}" title="Remover" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:0;background:transparent;color:#6B655C;cursor:pointer" style-hover="background:#FCEBEA;color:#B3261E">{{ ic.trash }}</button>
+            </div></td>
+          </tr>
+        </sc-for>
+        </tbody>
+      </table>
+    </div>
+  </sc-if>
+
+  <!-- CURSOS -->
+  <sc-if value="{{ is.cursos }}" hint-placeholder-val="{{ false }}">
+    <div><h1 style="margin:0;font-family:Sora,sans-serif;font-size:24px;font-weight:600;letter-spacing:-.02em">Cursos online</h1><p style="margin:6px 0 0;color:#6B655C;font-size:14px">Formações para analistas, líderes e equipes.</p></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px">
+      <sc-for list="{{ cursos }}" as="c" hint-placeholder-count="6">
+        <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;overflow:hidden;display:flex;flex-direction:column">
+          <div style="aspect-ratio:16/9;display:flex;align-items:flex-end;padding:16px;color:#fff;background: {{ c.tone }}"><span style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.18)">Curso online</span></div>
+          <div style="padding:16px;display:flex;flex-direction:column;gap:8px;flex:1">
+            <div style="font-family:Sora,sans-serif;font-weight:600;font-size:15px">{{ c.title }}</div>
+            <div style="font-size:13px;color:#6B655C;line-height:1.45;flex:1">{{ c.desc }}</div>
+            <button onClick="{{ toastOpen }}" style="margin-top:6px;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;border-radius:8px;background:#fff;color:#1C1A17;font-size:13.5px;font-weight:600;border:1px solid #E6E2DA;cursor:pointer" style-hover="background:#F0EDE7">Acessar {{ ic.ext }}</button>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <!-- MENTORES -->
+  <sc-if value="{{ is.mentores }}" hint-placeholder-val="{{ false }}">
+    <div><h1 style="margin:0;font-family:Sora,sans-serif;font-size:24px;font-weight:600;letter-spacing:-.02em">Mentores especialistas</h1><p style="margin:6px 0 0;color:#6B655C;font-size:14px">Conheça os profissionais que vão te guiar na jornada de sucesso.</p></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,320px));gap:16px">
+      <sc-for list="{{ mentores }}" as="m" hint-placeholder-count="3">
+        <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;overflow:hidden">
+          <div style="aspect-ratio:4/3;background:linear-gradient(160deg,#E6E2DA,#CFC9BE);display:flex;align-items:center;justify-content:center;color:#6B655C;font-size:12px">Foto · {{ m.name }}</div>
+          <div style="padding:16px;display:flex;flex-direction:column;gap:6px">
+            <div style="font-family:Sora,sans-serif;font-weight:600;font-size:16px">{{ m.name }}</div>
+            <div style="font-size:13px;color:#6B655C;line-height:1.45">{{ m.role }}</div>
+            <button onClick="{{ toastOpen }}" style="margin-top:8px;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;border-radius:8px;background:#1C1A17;color:#fff;font-size:13.5px;font-weight:600;border:0;cursor:pointer" style-hover="background:#2F6B4F">Agendar mentoria {{ ic.chevR }}</button>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <!-- EAD -->
+  <sc-if value="{{ is.ead }}" hint-placeholder-val="{{ false }}">
+    <div><h1 style="margin:0;font-family:Sora,sans-serif;font-size:24px;font-weight:600;letter-spacing:-.02em">Treinamento</h1><p style="margin:6px 0 0;color:#6B655C;font-size:14px">Capacitação oficial para analistas Perfila.</p></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;align-items:start">
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;overflow:hidden">
+        <div style="aspect-ratio:16/9;background:#1C1A17;display:flex;align-items:center;justify-content:center;position:relative"><span style="width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.3)">{{ playBig }}</span><span style="position:absolute;left:16px;bottom:14px;font-size:12px;color:rgba(255,255,255,.7)">07:05 · Vimeo</span></div>
+        <div style="padding:18px 20px"><div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#9A938A;font-weight:600">Módulo 01 · Aula 1</div><div style="font-family:Sora,sans-serif;font-weight:600;font-size:17px;margin-top:4px">Apresentação da plataforma Perfila</div></div>
+      </div>
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;display:flex;flex-direction:column">
+        <div style="padding:14px 16px;border-bottom:1px solid #EFECE6;font-weight:600;font-size:14px;display:flex;justify-content:space-between"><span>Conteúdo</span><span style="color:#9A938A;font-weight:500;font-size:12.5px">1 de 7 concluídos</span></div>
+        <sc-for list="{{ modules }}" as="m" hint-placeholder-count="7">
+          <button style="display:flex;align-items:center;gap:12px;padding:12px 16px;border:0;border-bottom:1px solid #EFECE6;background:transparent;text-align:left;font:inherit;cursor:pointer" style-hover="background:#FAF9F6">
+            <span style="width:26px;height:26px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background: {{ m.bg }};color: {{ m.fg }}">{{ m.n }}</span>
+            <span style="flex:1;font-size:13.5px;font-weight:500;color:#1C1A17">{{ m.title }}</span>
+            <span style="color:#9A938A;display:flex">{{ ic.chevD }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- INTEGRAÇÕES -->
+  <sc-if value="{{ is.integracoes }}" hint-placeholder-val="{{ false }}">
+    <div><h1 style="margin:0;font-family:Sora,sans-serif;font-size:24px;font-weight:600;letter-spacing:-.02em">Integrações</h1><p style="margin:6px 0 0;color:#6B655C;font-size:14px">Conecte sua plataforma de pagamentos para vender relatórios direto aos clientes.</p></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,340px));gap:16px">
+      <sc-for list="{{ integrations }}" as="it" hint-placeholder-count="3">
+        <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between"><span style="width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:Sora,sans-serif;font-weight:700;font-size:16px;background: {{ it.tone }}">{{ it.letter }}</span><span style="font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:999px;background:#F0EDE7;color:#6B655C">Não conectado</span></div>
+          <div style="font-family:Sora,sans-serif;font-weight:600;font-size:16px">{{ it.name }}</div>
+          <div style="font-size:13px;color:#6B655C;line-height:1.45;flex:1">{{ it.desc }}</div>
+          <button onClick="{{ toastIntegrate }}" style="display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;border-radius:8px;background:#1C1A17;color:#fff;font-size:13.5px;font-weight:600;border:0;cursor:pointer" style-hover="background:#2F6B4F">Integrar</button>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <!-- CONFIGURAÇÕES -->
+  <sc-if value="{{ is.config }}" hint-placeholder-val="{{ false }}">
+    <div><h1 style="margin:0;font-family:Sora,sans-serif;font-size:24px;font-weight:600;letter-spacing:-.02em">Configurações</h1><p style="margin:6px 0 0;color:#6B655C;font-size:14px">Preferências de notificação e comunicação.</p></div>
+    <div style="display:grid;grid-template-columns:minmax(0,860px);gap:16px">
+      <div style="display:flex;gap:12px;padding:12px 16px;border-radius:10px;background:#FDF3E1;color:#7C3A00;font-size:13px;align-items:center"><span style="display:flex;flex:none">{{ ic.alert }}</span><span style="flex:1">Você ainda não possui uma integração com o WhatsApp. As notificações por WhatsApp ficam desativadas até configurar.</span><button onClick="{{ toastWhats }}" style="height:32px;padding:0 12px;border-radius:8px;background:#B45309;color:#fff;font-size:13px;font-weight:600;border:0;cursor:pointer">Configurar</button></div>
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #EFECE6"><div style="font-weight:600;font-size:14px">Notificações</div><button onClick="{{ toastRefresh }}" title="Restaurar padrão" style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid #E6E2DA;background:#fff;color:#6B655C;cursor:pointer" style-hover="background:#F0EDE7">{{ ic.refresh }}</button></div>
+        <div style="display:grid;grid-template-columns:1fr 100px 100px;padding:8px 20px;border-bottom:1px solid #EFECE6;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#9A938A"><span>Notificação</span><span style="text-align:center">E-mail</span><span style="text-align:center">WhatsApp</span></div>
+        <sc-for list="{{ notifs }}" as="n" hint-placeholder-count="3">
+          <div style="display:grid;grid-template-columns:1fr 100px 100px;align-items:center;padding:16px 20px;border-bottom:1px solid #EFECE6">
+            <div><div style="font-weight:600;font-size:13.5px">{{ n.title }}</div><div style="font-size:12.5px;color:#9A938A;margin-top:2px">{{ n.desc }}</div></div>
+            <div style="display:flex;justify-content:center"><button onClick="{{ n.toggleEmail }}" style="width:40px;height:22px;border-radius:11px;border:0;position:relative;cursor:pointer;transition:background .15s;background: {{ n.emailBg }}"><span style="position:absolute;top:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:left .15s;left: {{ n.emailLeft }}"></span></button></div>
+            <div style="display:flex;justify-content:center"><button onClick="{{ n.toggleWa }}" style="width:40px;height:22px;border-radius:11px;border:0;position:relative;cursor:pointer;transition:background .15s;background: {{ n.waBg }}"><span style="position:absolute;top:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:left .15s;left: {{ n.waLeft }}"></span></button></div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px">
+        <div style="padding:16px 20px;border-bottom:1px solid #EFECE6;font-weight:600;font-size:14px">Comunicações da Perfila</div>
+        <label style="display:flex;align-items:center;gap:12px;padding:16px 20px;font-size:13.5px;cursor:pointer"><input type="checkbox" style="width:18px;height:18px;accent-color:#2F6B4F;margin:0">Quero deixar de receber conteúdos e promoções no meu e-mail.</label>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- SUPORTE -->
+  <sc-if value="{{ is.suporte }}" hint-placeholder-val="{{ false }}">
+    <div><h1 style="margin:0;font-family:Sora,sans-serif;font-size:24px;font-weight:600;letter-spacing:-.02em">Suporte</h1><p style="margin:6px 0 0;color:#6B655C;font-size:14px">Envie uma mensagem ou fale direto com o time.</p></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;align-items:start">
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px">
+        <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+          <div><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Assunto</label><input placeholder="Informe o assunto" style="height:38px;padding:0 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%"></div>
+          <div><label style="font-size:12px;font-weight:600;color:#6B655C;margin-bottom:6px;display:block">Mensagem</label><textarea placeholder="Digite sua mensagem" rows="5" style="padding:10px 12px;border:1px solid #E6E2DA;border-radius:8px;background:#fff;font:inherit;font-size:13.5px;color:#1C1A17;outline:none;width:100%;resize:vertical"></textarea></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;padding:14px 24px;border-top:1px solid #EFECE6;background:#FAF9F6;border-radius:0 0 12px 12px"><button onClick="{{ toastSent }}" style="height:36px;padding:0 16px;border-radius:8px;background:#2F6B4F;color:#fff;font-size:13.5px;font-weight:600;border:0;cursor:pointer" style-hover="background:#24543E">Enviar mensagem</button></div>
+      </div>
+      <div style="background:#fff;border:1px solid #E6E2DA;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+        <div style="font-weight:600;font-size:14px">Quer falar com a gente?</div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:13px"><span style="width:36px;height:36px;border-radius:9px;background:#F0EDE7;color:#1C1A17;display:flex;align-items:center;justify-content:center">{{ ic.mail }}</span><div><div style="color:#9A938A;font-size:12px">E-mail</div><div style="font-weight:500">contato@perfila.app</div></div></div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:13px"><span style="width:36px;height:36px;border-radius:9px;background:#E8F3EC;color:#2F6B4F;display:flex;align-items:center;justify-content:center">{{ ic.chat }}</span><div><div style="color:#9A938A;font-size:12px">Suporte comercial · Juliana Rocha</div><div style="font-weight:500">+55 (11) 93341-0392</div></div></div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:13px"><span style="width:36px;height:36px;border-radius:9px;background:#E8F3EC;color:#2F6B4F;display:flex;align-items:center;justify-content:center">{{ ic.headset }}</span><div><div style="color:#9A938A;font-size:12px">Suporte técnico</div><div style="font-weight:500">+55 (11) 93341-0392</div></div></div>
+        <div style="font-size:12px;color:#9A938A;line-height:1.45;padding-top:10px;border-top:1px solid #EFECE6">Horário de atendimento (Brasília): segunda a quinta das 08h às 18h, sexta até 17h.</div>
+      </div>
+    </div>
+  </sc-if>
+
+  </div>
+  <footer style="margin-top:auto;padding:16px 28px;font-size:12px;color:#9A938A;display:flex;justify-content:space-between"><span>© 2026 Perfila</span><span>v1.4.5</span></footer>
+</main>
+
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:50;background:#1C1A17;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.18);display:flex;align-items:center;gap:10px;animation:toastIn .2s ease"><span style="color:#6FBF93;display:flex">{{ ic.check }}</span>{{ toast }}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;startRoute&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;dashboard&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;dashboard&quot;,&quot;envio&quot;,&quot;campanhas&quot;,&quot;campanhasNova&quot;,&quot;dna&quot;,&quot;dnaNovo&quot;,&quot;dnaAberto&quot;,&quot;arquitetura&quot;,&quot;devolutiva&quot;,&quot;beneficios&quot;,&quot;creditos&quot;,&quot;degustacao&quot;,&quot;clientes&quot;,&quot;cursos&quot;,&quot;mentores&quot;,&quot;ead&quot;,&quot;integracoes&quot;,&quot;config&quot;,&quot;suporte&quot;],&quot;section&quot;:&quot;Navegação&quot;},&quot;sidebarCollapsed&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Navegação&quot;}}">
+class Component extends DCLogic {
+  state = { route: null, collapsed: null, toast: '', dl: false, notif: { q_e:false,q_w:false, r_e:false,r_w:false, c_e:true,c_w:true } };
+  P = {
+    dash:'M18 20V10M12 20V4M6 20v-6', zap:'M13 2L3 14h9l-1 8 10-12h-9l1-8z',
+    bag:'M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0',
+    dna:'M6 3v12M18 9a3 3 0 100-6 3 3 0 000 6zM6 21a3 3 0 100-6 3 3 0 000 6zM18 9a9 9 0 01-9 9',
+    layers:'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5',
+    chat:'M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z',
+    star:'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z',
+    card:'M2 5h20v14H2zM2 10h20', gift:'M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z',
+    users:'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75',
+    book:'M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2zM22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z',
+    award:'M12 15a7 7 0 100-14 7 7 0 000 14zM8.21 13.89L7 23l5-3 5 3-1.21-9.12',
+    play:'M12 22a10 10 0 100-20 10 10 0 000 20zM10 8l6 4-6 4V8z', code:'M16 18l6-6-6-6M8 6l-6 6 6 6',
+    sliders:'M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6',
+    headset:'M3 18v-6a9 9 0 0118 0v6M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z',
+    logout:'M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9',
+    search:'M11 19a8 8 0 100-16 8 8 0 000 16zM21 21l-4.35-4.35', plus:'M12 5v14M5 12h14',
+    download:'M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3', upload:'M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12',
+    eye:'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zM12 15a3 3 0 100-6 3 3 0 000 6z',
+    edit:'M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z',
+    trash:'M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6',
+    link:'M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71',
+    copy:'M20 9h-9a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-9a2 2 0 00-2-2zM5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1',
+    mail:'M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zM22 6l-10 7L2 6',
+    chevD:'M6 9l6 6 6-6', chevL:'M15 18l-6-6 6-6', chevR:'M9 18l6-6-6-6', check:'M20 6L9 17l-5-5', menu:'M3 12h18M3 6h18M3 18h18',
+    refresh:'M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15',
+    info:'M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01',
+    alert:'M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01',
+    file:'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8M16 17H8',
+    chart:'M12 20V10M18 20V4M6 20v-4', ext:'M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3',
+    dollar:'M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6'
+  };
+  icon(n, s) { return React.createElement('svg',{key:n+s,width:s,height:s,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:1.8,strokeLinecap:'round',strokeLinejoin:'round'},React.createElement('path',{d:this.P[n]})); }
+  go = r => this.setState({ route: r });
+  say = m => { clearTimeout(this._t); this.setState({ toast: m }); this._t = setTimeout(() => this.setState({ toast: '' }), 2400); };
+  renderVals() {
+    const s = this.state, p = this.props;
+    const route = s.route ?? p.startRoute ?? 'dashboard';
+    const collapsed = s.collapsed ?? (p.sidebarCollapsed ?? false);
+    const ic = Object.fromEntries(Object.keys(this.P).map(k => [k, this.icon(k, 16)]));
+    const titles = { dashboard:'Dashboard', envio:'Envio Rápido', campanhas:'Campanhas', campanhasNova:'Campanhas', dna:'DNA Organizacional', dnaNovo:'DNA Organizacional', dnaAberto:'DNA Organizacional', arquitetura:'Arquitetura de Cargos', devolutiva:'Devolutiva', beneficios:'Programa de Benefícios', creditos:'Créditos', degustacao:'Degustação', clientes:'Clientes', cursos:'Cursos', mentores:'Mentores Especialistas', ead:'EAD', integracoes:'Integrações', config:'Configurações', suporte:'Suporte' };
+    const subs = { campanhasNova:'Nova campanha', dnaNovo:'Novo DNA', dnaAberto:'Deputado Afonso', ead:'Treinamentos' };
+    const parent = { campanhasNova:'campanhas', dnaNovo:'dna', dnaAberto:'dna' };
+    const activeKey = parent[route] || route;
+    const groups = [
+      ['Operação', [['dashboard','Dashboard','dash'],['envio','Envio Rápido','zap'],['campanhas','Campanhas','bag'],['dna','DNA Organizacional','dna'],['arquitetura','Arquitetura de Cargos','layers'],['devolutiva','Devolutiva','chat']]],
+      ['Conta', [['beneficios','Programa de Benefícios','star'],['creditos','Créditos','card'],['degustacao','Degustação','gift'],['clientes','Clientes','users']]],
+      ['Aprendizado', [['cursos','Cursos','book'],['mentores','Mentores Especialistas','award'],['ead','EAD','play']]],
+      ['Sistema', [['integracoes','Integrações','code'],['config','Configurações','sliders'],['suporte','Suporte','headset']]]
+    ];
+    const nav = groups.map(([label, items]) => ({ label, items: items.map(([id, label, i]) => { const a = id === activeKey; return { id, label, icon: this.icon(i, 18), go: () => this.go(id), bg: a ? '#E8F3EC' : 'transparent', fg: a ? '#24543E' : '#4B463F', wt: a ? 600 : 500 }; }) }));
+    const is = Object.fromEntries(Object.keys(titles).map(k => [k, k === route]));
+    const T = m => () => this.say(m);
+    const campaigns = [
+      ['Câmara de Maringá','30/07/2026 19:32',17,17,0],['Capacitação Sarandi','15/06/2026 19:39',19,19,0],['Capacitação Liderança Maringá','09/06/2026 19:02',15,15,0],['Capacitação Liderança Ser. Público','02/06/2026 10:15',9,9,0]
+    ].map(([name,date,total,resp,pend]) => ({ name, date, total, resp, pend, type:'DISC + Tipos Psicológicos + Valores', by:'Valmer Albuquerque', scope:'Global', pct: Math.round(resp/total*100)+'%', pendLabel: pend ? pend+' pendentes' : 'Completa', pendColor: pend ? '#B45309' : '#2F6B4F' }));
+    const dnas = [['Deputado Afonso',69,'08/12/2025 19:08'],['DM Distribuidora de Produtos e Acessórios Ltda',8,'30/10/2024 13:50'],['Klir Imóveis',27,'30/06/2024 12:46'],['DNA Mania Acessórios','—','15/01/2022 14:57']].map(([name,inv,date]) => ({ name, inv, date, by:'Valmer Albuquerque dos Santos' }));
+    const people = [['Elias da Silva Maia','elmaiasilva83@gmail.com','ID',52,74,41,33,'02/12/2025 12:59'],['Antonio Rodrigues Vidal','vidalantonio6167@gmail.com','CS',33,49,57,61,'01/12/2025 11:33'],['Ferdiney Ferreira da Silva','ferdineyryos@gmail.com','DI',65,53,39,43,'03/12/2025 13:25'],['Thais da Silva Muniz','thaismuniz83@gmail.com','DI',58,51,49,42,'01/12/2025 15:49']].map(([name,email,prof,d,i,s2,c,date]) => ({ name, email, prof, d, i, s: s2, c, date, ini: name.split(' ').filter((_,k,a)=>k===0||k===a.length-1).map(w=>w[0]).join('') }));
+    const devolutivas = [['Fernando Brambilla','fernandobrambilla@hotmail.com','Câmara de Maringá','Pausado','','18/08/2026 às 10:14'],['Soni Antonio','sonirlerin@gmail.com','Capacitação Sarandi','Finalizada','02:01:14','18/06/2026 às 13:42'],['Israel','israelelves077@gmail.com','Clientes 2026','Finalizada','03:00:00','23/01/2026 às 08:37'],['Daniel Lebrão Rocha','dlebraoo@gmail.com','Clientes 2026','Pausado','','22/01/2026 às 15:15'],['Michelly Meireles','michelly@gmail.com','Clientes 2026','Finalizada','01:45:10','21/01/2026 às 14:59']].map(([name,email,camp,status,time,date]) => { const done = status === 'Finalizada'; return { name, email, camp, status, time, date, done, hasTime: !!time, bg: done ? '#E8F3EC' : '#FDF3E1', fg: done ? '#2F6B4F' : '#B45309' }; });
+    const clientes = [['Augusto Ribeiro','guto.ribeiro.umr@gmail.com','(44) 99185-1777','—'],['Vantuir Pizani Antonio Junior','vantuir.pizani@gmail.com','(45) 99986-4336','—'],['Murilo Fernando Alves','murilo.ducatti@hotmail.com','(44) 99968-9395','—'],['Karine Oliveira Evangelista Strassacappa','karineoe17@hotmail.com','(44) 99102-2311','24/05/2023 14:57'],['Valmer Albuquerque dos Santos','valmersantos1@gmail.com','(44) 99185-5998','01/09/2026 15:57']].map(([name,email,cel,last]) => ({ name, email, cel, last, ini: name.split(' ').filter((_,k,a)=>k===0||k===a.length-1).map(w=>w[0]).join('') }));
+    const tones = ['#1C1A17','#2F6B4F','#4B463F','#24543E','#6B655C','#1F4B8E'];
+    const cursos = [['Masterclass Anual','Imersão online com Iane Parente e convidados, que vai impulsionar a sua carreira como analista.','MA'],['Curso de Relacionamentos','Descubra, na prática, como lidar com as diferenças e tornar a comunicação mais eficaz.','CR'],['Curso de Liderança','Treinamento baseado no best-seller Decifre e Influencie Pessoas, para extrair o máximo do seu time.','CL'],['Manual do Vendedor','Método prático para vender mais com base no perfil comportamental do cliente.','MV'],['Contratação Estratégica','Como usar o DISC para contratar as pessoas certas para os cargos certos.','CE'],['Coach de Carreira','Entenda o comportamento do seu coachee e crie novas oportunidades de negócios.','CC']].map(([title,desc,abbr],k) => ({ title, desc, abbr, tone: tones[k] }));
+    const mentores = [['Iane Parente','Especializada em Perfil Comportamental'],['Elyano Veras','Especializado em treinamentos e conselheiro de negócios'],['Dani Pires','Especializada em treinamentos e perfis comportamentais']].map(([name,role]) => ({ name, role }));
+    const modules = ['Apresentação','Introdução à Teoria DISC','Gráficos DISC','Tipos Psicológicos','Teoria de Valores','Encerramento','Vendas'].map((title,k) => ({ title: (k<6 ? 'Módulo 0'+(k+1)+' · ' : '') + title, n: k===0 ? '✓' : String(k+1), bg: k===0 ? '#2F6B4F' : '#F0EDE7', fg: k===0 ? '#fff' : '#6B655C' }));
+    const integrations = [['Pagarme','P','#2F6B4F','O Pagar.me é uma fintech brasileira que fornece soluções de pagamento e transações.'],['Hotmart','H','#1C1A17','A Hotmart permite a criação, venda e distribuição de produtos digitais.'],['Guru','G','#4B463F','A mais flexível e completa plataforma de vendas online para gerenciar seu negócio num só lugar.']].map(([name,letter,tone,desc]) => ({ name, letter, tone, desc }));
+    const tierStyle = [['Membro','0 créditos comprados ou 0 utilizados','#F5F3EF','#1C1A17','#6B655C'],['Gold','120 comprados ou 80 utilizados','#FDF3E1','#7C3A00','#B45309'],['Platinum','300 comprados ou 150 utilizados','#EFECE6','#1C1A17','#6B655C'],['Diamond','800 comprados ou 500 utilizados','#E7EEF9','#1F4B8E','#3B63A6'],['Black','1800 comprados ou 1200 utilizados','#1C1A17','#fff','rgba(255,255,255,.65)']];
+    const tiers = tierStyle.map(([name,rule,bg,fg,sub]) => ({ name, rule, bg, fg, sub }));
+    const cell = v => v === 'yes' ? { yes:true } : v === 'no' ? { no:true } : { isText:true, text:v };
+    const benefits = [['Créditos (unidade)',['no','-','-','-','-']],['Assinatura White Label',['no','15%','25%','40%','50%']],['Formação em Analista de Percepção Infantil (Mini Mega Assessment)',['no','15%','25%','50%','yes']],['Formação em Coaching de Carreira (FCC)',['no','15%','25%','50%','yes']],['Jornada do Coach de Carreira',['no','15%','25%','50%','yes']],['Grupo WhatsApp exclusivo',['no','yes','yes','yes','yes']]].map(([name,vals]) => ({ name, cells: vals.map(v => cell(v === '-' ? 'no' : v)) }));
+    const tog = (on) => ({ bg: on ? '#2F6B4F' : '#D6D0C6', left: on ? '20px' : '2px' });
+    const nd = [['q','Questionário respondido','Notificação quando um cliente finaliza o questionário'],['r','Relatório mensal de uso da plataforma','Resumo das informações de uso de créditos, inventário e outros dados'],['c','Compra de créditos recorrente','Notificação de compra de créditos pelo método de recarga automática']];
+    const notifs = nd.map(([k,title,desc]) => { const e = tog(s.notif[k+'_e']), w = tog(s.notif[k+'_w']); return { title, desc, emailBg: e.bg, emailLeft: e.left, waBg: w.bg, waLeft: w.left, toggleEmail: () => this.setState(st => ({ notif: { ...st.notif, [k+'_e']: !st.notif[k+'_e'] } })), toggleWa: () => this.setState(st => ({ notif: { ...st.notif, [k+'_w']: !st.notif[k+'_w'] } })) }; });
+    const dl = tog(s.dl);
+    return {
+      ic, nav, is, route, collapsed, expanded: !collapsed, sbWidth: collapsed ? '68px' : '248px', navJustify: collapsed ? 'center' : 'flex-start',
+      pageTitle: titles[route], pageSub: subs[route] || '', hasSub: !!subs[route],
+      toggleSb: () => this.setState({ collapsed: !collapsed }),
+      goEnvio: () => this.go('envio'), goCampanhas: () => this.go('campanhas'), goCampanhasNova: () => this.go('campanhasNova'), goDna: () => this.go('dna'), goDnaNovo: () => this.go('dnaNovo'), goDnaAberto: () => this.go('dnaAberto'), goCreditos: () => this.go('creditos'), goDegustacao: () => this.go('degustacao'), goBeneficios: () => this.go('beneficios'), goCursos: () => this.go('cursos'),
+      saveCampanha: () => { this.go('campanhas'); this.say('Campanha salva'); }, saveDna: () => { this.go('dna'); this.say('DNA salvo'); },
+      toggleDownload: () => this.setState({ dl: !s.dl }), dlBg: dl.bg, dlLeft: dl.left,
+      toastSair: T('Sessão encerrada (protótipo)'), toastSearch: T('Filtro aplicado'), toastClear: T('Filtros limpos'), toastExport: T('Exportação iniciada'), toastLinks: T('Abrindo meus links'), toastRemovePend: T('Passaportes pendentes removidos'), toastView: T('Abrindo visualização'), toastLink: T('Link copiado'), toastEdit: T('Abrindo edição'), toastReport: T('Gerando relatório'), toastCharts: T('Abrindo gráficos'), toastPdf: T('Download do PDF iniciado'), toastRemove: T('Item removido'), toastAdd: T('Adicionado'), toastImport: T('Selecione um arquivo .csv ou .xlsx'), toastRefresh: T('Atualizado'), toastDup: T('Duplicado'), toastMail: T('E-mail enviado'), toastWhats: T('Abrindo WhatsApp'), toastBuy: T('Redirecionando para compra'), toastSaved: T('Configuração salva'), toastOpen: T('Abrindo…'), toastIntegrate: T('Iniciando integração'), toastSent: T('Mensagem enviada ao suporte'),
+      campaigns, dnas, people, devolutivas, clientes, cursos, cursosTop: cursos.slice(0,3), mentores, modules, integrations, tiers, benefits, notifs,
+      toast: s.toast, hasToast: !!s.toast, optPeriodo:['Mensal','Semanal','Diário'], optIdioma:['Português','English','Español'], optDegust:['Todas','Com degustação','Sem degustação'], optRelTodos:['Todos','DISC','DISC + Tipos Psicológicos + Valores'], optArea:['Selecione','Global','Pessoal','Profissional'], optRel:['DISC + Tipos Psicológicos + Valores','DISC'], optStatus:['Todos','Finalizada','Pausado'], optDegRel:['DISC (resumo)','DISC completo'], playBig: this.icon('play', 32)
+    };
+  }
+}
+</script>
+</body>
+</html>

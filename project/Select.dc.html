@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div ref="{{ rootRef }}" style="position:relative;width:100%">
+  <button onClick="{{ toggle }}" style="display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:0 12px;border-radius:8px;background:#fff;font-family:Figtree,system-ui,sans-serif;color:#1C1A17;cursor:pointer;text-align:left;transition:border-color .12s,box-shadow .12s;height: {{ h }};font-size: {{ fs }};border: {{ border }};box-shadow: {{ shadow }}" style-hover="border-color:#B5AEA4">
+    <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color: {{ valueColor }}">{{ label }}</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:none;color:#9A938A;transition:transform .15s;transform: {{ rot }}"><path d="M6 9l6 6 6-6"></path></svg>
+  </button>
+  <sc-if value="{{ open }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:40;background:#fff;border:1px solid #E6E2DA;border-radius:10px;box-shadow:0 12px 32px rgba(28,26,23,.12);padding:6px;display:flex;flex-direction:column;gap:2px;max-height:240px;overflow-y:auto;animation:ddIn .14s ease">
+      <sc-for list="{{ items }}" as="it" hint-placeholder-count="3">
+        <button onClick="{{ it.pick }}" style="display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;height:34px;padding:0 10px;border:0;border-radius:7px;font-family:Figtree,system-ui,sans-serif;font-size:13.5px;cursor:pointer;text-align:left;background: {{ it.bg }};color: {{ it.fg }};font-weight: {{ it.wt }}" style-hover="background:#F0EDE7">
+          <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ it.label }}</span>
+          <sc-if value="{{ it.active }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2F6B4F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg></sc-if>
+        </button>
+      </sc-for>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:260,&quot;height&quot;:300},&quot;options&quot;:{&quot;editor&quot;:null,&quot;default&quot;:[&quot;Todos&quot;,&quot;Com degustação&quot;,&quot;Sem degustação&quot;],&quot;tsType&quot;:&quot;string[]&quot;},&quot;value&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Todos&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;size&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;md&quot;,&quot;options&quot;:[&quot;md&quot;,&quot;sm&quot;],&quot;tsType&quot;:&quot;'md'|'sm'&quot;},&quot;onChange&quot;:{&quot;editor&quot;:null,&quot;default&quot;:null,&quot;tsType&quot;:&quot;(value:string)=&gt;void&quot;}}">
+class Component extends DCLogic {
+  state = { open: false, value: null };
+  rootRef = React.createRef();
+  componentDidMount() { this._out = e => { if (this.state.open && this.rootRef.current && !this.rootRef.current.contains(e.target)) this.setState({ open: false }); }; document.addEventListener('mousedown', this._out); }
+  componentWillUnmount() { document.removeEventListener('mousedown', this._out); }
+  renderVals() {
+    const p = this.props, opts = p.options ?? ['Todos'];
+    const value = this.state.value ?? p.value ?? opts[0];
+    const sm = p.size === 'sm', open = this.state.open;
+    const placeholderLike = /^selecione/i.test(value);
+    return {
+      rootRef: this.rootRef, open, label: value, h: sm ? '30px' : '38px', fs: sm ? '12.5px' : '13.5px',
+      border: open ? '1px solid #2F6B4F' : '1px solid #E6E2DA', shadow: open ? '0 0 0 3px rgba(47,107,79,.15)' : 'none',
+      rot: open ? 'rotate(180deg)' : 'none', valueColor: placeholderLike ? '#9A938A' : '#1C1A17',
+      toggle: () => this.setState({ open: !open }),
+      items: opts.map(o => { const a = o === value; return { label: o, active: a, bg: a ? '#E8F3EC' : 'transparent', fg: a ? '#24543E' : '#1C1A17', wt: a ? 600 : 500, pick: () => { this.setState({ value: o, open: false }); p.onChange && p.onChange(o); } }; })
+    };
+  }
+}
+</script>
+</body>
+</html>
