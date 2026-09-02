@@ -115,7 +115,7 @@ export function PlanoFecho({ dados, perfil }: PlanoFechoProps) {
                   <p className={styles.acaoTexto}>{acao}</p>
 
                   <p className={styles.compromisso}>
-                    <span className={styles.compromissoRotulo}>Começo em</span>
+                    <span className={[common.eyebrow, styles.compromissoRotulo].join(' ')}>Começo em</span>
                     <span className={styles.compromissoLinha} aria-hidden />
                   </p>
                 </li>
@@ -138,8 +138,14 @@ export function PlanoFecho({ dados, perfil }: PlanoFechoProps) {
           {/* Régua curta: o último gesto verde do documento. */}
           <span className={styles.regua} aria-hidden />
 
+          {/* O número fica fora do <h2>, como nas demais seções: no
+              sumário do PDF e no leitor de tela o título precisa ser só
+              o título, senão a última seção destoa de todas as outras. */}
+          <p className={[common.eyebrow, styles.sobretitulo].join(' ')}>
+            <span className={styles.folio}>{frase.numero}</span> · Para levar com você
+          </p>
           <h2 id="frase-titulo" className={styles.fraseTitulo}>
-            <span className={styles.folio}>{frase.numero}</span> · {frase.titulo}
+            {frase.titulo}
           </h2>
 
           {/* <p> e não <blockquote>: a frase não é citação de ninguém,

@@ -33,8 +33,47 @@ export type ResultadoDisc = {
   total: number
 }
 
+/**
+ * Percentuais inteiros que somam exatamente o total esperado.
+ *
+ * Arredondar cada fator isoladamente produz somas como 100,1 — e o
+ * relatório afirma ao leitor que os quatro somam 100%. Quem confere
+ * na mão encontra o erro. O método do maior resto arredonda para
+ * baixo e distribui as unidades que sobraram para os fatores de maior
+ * parte fracionária, garantindo que a soma feche.
+ */
+function percentuaisInteiros(
+  contadores: Record<FatorDisc, number>,
+  total: number,
+  somaContadores: number,
+): Record<FatorDisc, number> {
+  const exatos = ORDEM_FATORES.map((fator) => ({
+    fator,
+    valor: (contadores[fator] / total) * 100,
+  }))
+
+  const percentuais = { D: 0, I: 0, S: 0, C: 0 } as Record<FatorDisc, number>
+  for (const { fator, valor } of exatos) percentuais[fator] = Math.floor(valor)
+
+  const alvo = Math.round((somaContadores / total) * 100)
+  let faltam = alvo - ORDEM_FATORES.reduce((soma, f) => soma + percentuais[f], 0)
+
+  const porResto = [...exatos].sort((a, b) => {
+    const restoA = a.valor - Math.floor(a.valor)
+    const restoB = b.valor - Math.floor(b.valor)
+    if (restoB !== restoA) return restoB - restoA
+    // Empate no resto: a ordem canônica mantém o resultado estável.
+    return ORDEM_FATORES.indexOf(a.fator) - ORDEM_FATORES.indexOf(b.fator)
+  })
+
+  for (let i = 0; faltam > 0 && i < porResto.length; i += 1, faltam -= 1) {
+    percentuais[porResto[i]!.fator] += 1
+  }
+
+  return percentuais
+}
+
 export function calcularPerfil(respostas: Respostas): ResultadoDisc {
-  const total = questoes.length
   const contadores: Record<FatorDisc, number> = { D: 0, I: 0, S: 0, C: 0 }
 
   for (const questao of questoes) {
@@ -42,10 +81,23 @@ export function calcularPerfil(respostas: Respostas): ResultadoDisc {
     if (escolha) contadores[escolha] += 1
   }
 
-  const percentuais: Record<FatorDisc, number> = { D: 0, I: 0, S: 0, C: 0 }
-  for (const fator of ORDEM_FATORES) {
-    percentuais[fator] = Math.round((contadores[fator] / total) * 1000) / 10
-  }
+  return resultadoDeContadores(contadores, Object.keys(respostas).length)
+}
+
+/**
+ * Mesma conta, a partir dos contadores já somados.
+ *
+ * Serve para quem lê um resultado guardado no banco em vez de
+ * recalcular as respostas — e garante que os dois caminhos produzam
+ * exatamente o mesmo perfil.
+ */
+export function resultadoDeContadores(
+  contadores: Record<FatorDisc, number>,
+  respondidas?: number,
+): ResultadoDisc {
+  const total = questoes.length
+  const somaContadores = ORDEM_FATORES.reduce((soma, f) => soma + contadores[f], 0)
+  const percentuais = percentuaisInteiros(contadores, total, somaContadores)
 
   // Empate é resolvido pela ordem canônica D → I → S → C, para que o
   // mesmo conjunto de respostas produza sempre o mesmo perfil.
@@ -64,7 +116,7 @@ export function calcularPerfil(respostas: Respostas): ResultadoDisc {
     primario,
     secundario,
     combinado: `${primario}${secundario}`,
-    respondidas: Object.keys(respostas).length,
+    respondidas: respondidas ?? ORDEM_FATORES.reduce((soma, f) => soma + contadores[f], 0),
     total,
   }
 }

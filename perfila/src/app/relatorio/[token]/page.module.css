@@ -1,0 +1,88 @@
+/* ============================================================
+   Página do relatório
+   ------------------------------------------------------------
+   O relatório é um documento, não uma tela de aplicação: coluna
+   única, largura de leitura confortável e nenhuma navegação
+   competindo com o conteúdo.
+   ============================================================ */
+
+.pagina {
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+/* Barra de ações — existe só na tela. No papel ela some. */
+.acoes {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-topbar);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+  padding: var(--space-12) var(--space-20);
+  background: rgba(245, 243, 239, 0.9);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.acoesMarca {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-size: var(--fs-13);
+  color: var(--color-text-muted);
+}
+
+.acoesBotoes {
+  display: flex;
+  gap: var(--space-8);
+}
+
+/* O documento em si. A largura vem da medida de leitura, não da
+   janela: linha longa demais cansa e o relatório é texto corrido. */
+.documento {
+  width: 100%;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: var(--space-28) var(--space-20) 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+}
+
+@media (max-width: 560px) {
+  .documento {
+    padding: var(--space-20) var(--space-16) 48px;
+    gap: 40px;
+  }
+}
+
+/* A geometria da página impressa. Os componentes das seções calculam
+   altura útil em milímetros contando com A4 e margens de 20mm — sem
+   esta regra eles estariam apostando no padrão do navegador, que
+   varia. A especificação do produto pede exatamente este formato.
+
+   `@page` não é escopado por CSS Modules: declarar aqui vale para o
+   documento todo, e é por isso que ela mora na página e não em um
+   componente. */
+@page {
+  size: A4;
+  margin: 20mm;
+}
+
+@media print {
+  .acoes {
+    display: none;
+  }
+
+  .pagina {
+    background: transparent;
+  }
+
+  .documento {
+    max-width: none;
+    padding: 0;
+    gap: 0;
+  }
+}

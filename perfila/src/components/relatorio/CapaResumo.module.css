@@ -244,11 +244,6 @@
 
 .papelSelo {
   flex: none;
-  font-size: var(--fs-11);
-  font-weight: var(--fw-semibold);
-  letter-spacing: var(--tracking-wider);
-  text-transform: uppercase;
-  color: var(--color-text-subtle);
 }
 
 .papelTexto {
@@ -275,5 +270,16 @@
   .quadro,
   .combinacao {
     break-inside: avoid;
+  }
+
+  /* As barras DISC são desenhadas só com background. Com a opção
+     "gráficos de plano de fundo" desmarcada — que é o padrão do
+     navegador — elas sairiam em branco, e o gráfico central do
+     relatório viraria quatro faixas vazias. A propriedade é herdada,
+     então declarada aqui alcança o trilho e o preenchimento do Meter
+     e também o realce do fator predominante. */
+  .quadro {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }

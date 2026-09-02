@@ -61,9 +61,11 @@ export function CapaResumo({ dados, perfilPrimario, perfilSecundario }: CapaResu
 
         <div className={styles.capaMiolo}>
           <p className={common.eyebrow}>Inventário comportamental</p>
-          <h2 id="capa-titulo" className={styles.capaTitulo}>
+          {/* O título do documento é h1: as 13 seções são h2 sob ele.
+              Sem isso o PDF circula sem nível 1 e o sumário fica plano. */}
+          <h1 id="capa-titulo" className={styles.capaTitulo}>
             Relatório de perfil comportamental
-          </h2>
+          </h1>
 
           <div className={styles.avaliado}>
             <Avatar>{initials(avaliado.nome)}</Avatar>
@@ -92,23 +94,26 @@ export function CapaResumo({ dados, perfilPrimario, perfilSecundario }: CapaResu
             mede capacidade, inteligência nem desempenho.
           </p>
 
-          <div className={styles.capaDados}>
+          {/* Pares rótulo/valor são uma lista de definições: no leitor de
+              tela "Emitido em" passa a anunciar o termo do valor que vem
+              a seguir, em vez de dois textos soltos lado a lado. */}
+          <dl className={styles.capaDados}>
             <div className={common.dataRow}>
-              <span className={common.dataRowLabel}>Emitido em</span>
-              <span className={common.dataRowValue}>{emitidoEm}</span>
+              <dt className={common.dataRowLabel}>Emitido em</dt>
+              <dd className={common.dataRowValue}>{emitidoEm}</dd>
             </div>
             <div className={common.dataRow}>
-              <span className={common.dataRowLabel}>Facilitador</span>
-              <span className={common.dataRowValue}>
+              <dt className={common.dataRowLabel}>Facilitador</dt>
+              <dd className={common.dataRowValue}>
                 {facilitador.nome}{' '}
                 <span className={common.dataRowExtra}>{facilitador.empresa}</span>
-              </span>
+              </dd>
             </div>
             <div className={common.dataRow}>
-              <span className={common.dataRowLabel}>Contato</span>
-              <span className={common.dataRowValue}>{facilitador.telefone}</span>
+              <dt className={common.dataRowLabel}>Contato</dt>
+              <dd className={common.dataRowValue}>{facilitador.telefone}</dd>
             </div>
-          </div>
+          </dl>
         </div>
       </section>
 
@@ -190,7 +195,7 @@ export function CapaResumo({ dados, perfilPrimario, perfilSecundario }: CapaResu
                 <span>
                   {perfilPrimario.fator} · {perfilPrimario.nome}
                 </span>
-                <span className={styles.papelSelo}>Predominante</span>
+                <span className={[common.eyebrow, styles.papelSelo].join(' ')}>Predominante</span>
               </dt>
               <dd className={[common.prose, styles.papelTexto].join(' ')}>
                 {perfilPrimario.resumo}
@@ -201,7 +206,7 @@ export function CapaResumo({ dados, perfilPrimario, perfilSecundario }: CapaResu
                 <span>
                   {perfilSecundario.fator} · {perfilSecundario.nome}
                 </span>
-                <span className={styles.papelSelo}>Apoio</span>
+                <span className={[common.eyebrow, styles.papelSelo].join(' ')}>Apoio</span>
               </dt>
               <dd className={[common.prose, styles.papelTexto].join(' ')}>
                 {perfilSecundario.resumo}

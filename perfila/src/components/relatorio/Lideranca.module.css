@@ -227,6 +227,26 @@
     margin-top: var(--space-16);
   }
 
+  /* A ressalva existe para impedir que a lista de cargos seja lida
+     como limite de carreira. Separada dela por uma quebra de página,
+     ela deixa de cumprir esse papel — a lista abriria a folha
+     seguinte sozinha. */
+  .nota,
+  .cargosRotulo {
+    break-after: avoid;
+  }
+
+  /* No papel a inversão de superfície some: o painel do gestor é
+     quase da cor da folha. Quem separa a seção passa a ser a borda,
+     então ela engrossa. */
+  .painel {
+    border-width: 2px;
+  }
+
+  .painelCabecalho {
+    border-bottom-width: 2px;
+  }
+
   /* No A4 a coluna é mais estreita: 20px de abertura viraria uma
      mancha de poucas palavras por linha. */
   .abertura {

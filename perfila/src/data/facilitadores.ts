@@ -6,6 +6,7 @@
  */
 
 import { initials } from '@/lib/text'
+import type { FatorDisc } from './dna'
 import type { CodigoRelatorio } from './planos'
 
 export type Facilitador = {
@@ -83,6 +84,15 @@ export type Assessment = {
   concluidoEm?: string
   /** Perfil combinado, quando já calculado. */
   perfil?: string
+  /**
+   * Quantas das 28 respostas caíram em cada fator. Somam 28, então os
+   * percentuais derivados somam 100 — é assim que o instrumento novo
+   * funciona, e é isso que o relatório afirma ao leitor.
+   *
+   * Guardar os contadores em vez do perfil pronto evita que a lista e
+   * o relatório discordem: os dois derivam do mesmo número.
+   */
+  contadores?: Record<FatorDisc, number>
 }
 
 export const assessments: Assessment[] = [
@@ -111,6 +121,7 @@ export const assessments: Assessment[] = [
     expiraEm: '04/09/2026',
     concluidoEm: '29/08/2026',
     perfil: 'ID',
+    contadores: { D: 8, I: 12, S: 3, C: 5 },
   },
   {
     id: 'a3',
@@ -149,6 +160,7 @@ export const assessments: Assessment[] = [
     expiraEm: '01/09/2026',
     concluidoEm: '26/08/2026',
     perfil: 'CS',
+    contadores: { D: 4, I: 5, S: 8, C: 11 },
   },
 ]
 

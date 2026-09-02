@@ -116,11 +116,6 @@
 
 .compromissoRotulo {
   flex: none;
-  font-size: var(--fs-11);
-  font-weight: var(--fw-semibold);
-  letter-spacing: var(--tracking-wider);
-  text-transform: uppercase;
-  color: var(--color-text-subtle);
 }
 
 /* Borda, não fundo: linha para escrever à mão precisa sobreviver
@@ -302,6 +297,12 @@
 @media print {
   .secao + .secao {
     margin-top: var(--space-16);
+  }
+
+  /* A linha para escrever a data à mão precisa ser vista para ser
+     usada. No tom de borda ela quase não imprime. */
+  .compromissoLinha {
+    border-bottom-color: var(--color-text-muted);
   }
 
   /* Título e chamada não podem fechar a folha sem a primeira ação. */
