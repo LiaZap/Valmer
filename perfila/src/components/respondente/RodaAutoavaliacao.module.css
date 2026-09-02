@@ -1,0 +1,38 @@
+.figura {
+  margin: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.svg {
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  overflow: visible;
+}
+
+/* Aro e divisórias são estrutura, não dado: ficam recessivos. */
+.aro {
+  fill: none;
+  stroke: var(--chart-grid);
+  stroke-width: 1;
+}
+
+.divisoria {
+  stroke: var(--chart-grid);
+  stroke-width: 1;
+}
+
+.marca {
+  fill: var(--color-border-strong);
+}
+
+.rotulo {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  fill: var(--color-text-muted);
+}

@@ -97,6 +97,33 @@
   --color-disc-c-tint: #e7eef9;
 
   /* ---------------------------------------------------------
+     6b. COR · Preenchimento de gráfico
+     As cores DISC acima são feitas para texto sobre tinta clara
+     (chips, selos). Como área preenchida lado a lado elas falham
+     nos testes de leitura: o verde perde croma e o azul escurece
+     demais. Estas são as mesmas quatro matizes ajustadas para
+     barra e setor — validadas para faixa de luminosidade, croma,
+     separação sob daltonismo e contraste com a superfície.
+     --------------------------------------------------------- */
+  --chart-disc-d: #b3261e;
+  --chart-disc-i: #d97706;
+  --chart-disc-s: #17845a;
+  --chart-disc-c: #2f6fcc;
+
+  /* Rampa sequencial de matiz única (verde do sistema), clara →
+     escura. Usada onde a cor representa magnitude, como na roda
+     de autoavaliação. */
+  --chart-seq-1: #e8f3ec;
+  --chart-seq-2: #b9dcc7;
+  --chart-seq-3: #7fbf9c;
+  --chart-seq-4: #4e9a72;
+  --chart-seq-5: #2f6b4f;
+
+  /* Trilho e grade — recessivos, nunca competem com o dado. */
+  --chart-track: #efece6;
+  --chart-grid: #e6e2da;
+
+  /* ---------------------------------------------------------
      7. TIPOGRAFIA
      Sora nos títulos (display), Figtree no texto corrido.
      --------------------------------------------------------- */

@@ -39,6 +39,7 @@ export const ICON_PATHS = {
   copy: 'M20 9h-9a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-9a2 2 0 00-2-2zM5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1',
   mail: 'M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zM22 6l-10 7L2 6',
   chevD: 'M6 9l6 6 6-6',
+  chevU: 'M18 15l-6-6-6 6',
   chevL: 'M15 18l-6-6 6-6',
   chevR: 'M9 18l6-6-6-6',
   check: 'M20 6L9 17l-5-5',

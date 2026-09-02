@@ -1,0 +1,76 @@
+.meter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.topo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-12);
+}
+
+/* O rótulo carrega a identidade da medida — a cor da barra só
+   reforça. Por isso ele nunca veste a cor da série. */
+.rotulo {
+  font-size: var(--fs-115);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* O valor fica fora da barra: continua legível quando a medida é
+   baixa ou zero, o que não acontece com o número dentro do
+   preenchimento. */
+.valor {
+  font-family: var(--font-display);
+  font-size: var(--fs-13);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.trilho {
+  height: 10px;
+  border-radius: var(--radius-xs);
+  background: var(--chart-track);
+  overflow: hidden;
+}
+
+/* Ponta arredondada só do lado do dado; a base fica ancorada. */
+.preenchimento {
+  height: 100%;
+  border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+  background: var(--color-accent);
+  transition: width var(--transition-slow) ease;
+}
+
+.zero {
+  background: transparent;
+}
+
+/* Cor por fator DISC — versões calibradas para preenchimento. */
+.fatorD {
+  background: var(--chart-disc-d);
+}
+
+.fatorI {
+  background: var(--chart-disc-i);
+}
+
+.fatorS {
+  background: var(--chart-disc-s);
+}
+
+.fatorC {
+  background: var(--chart-disc-c);
+}
+
+/* Lista de medidas dentro de um card. */
+.grupo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
