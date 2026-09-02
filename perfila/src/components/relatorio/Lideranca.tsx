@@ -92,12 +92,20 @@ export function Lideranca({ narrativa, perfil, avaliado }: LiderancaProps) {
           />
           <div className={styles.corpo}>
             {/* A moldura vem antes da lista: sem ela, uma relação de cargos
-                é lida como limite de carreira. */}
+                é lida como limite de carreira.
+
+                As duas negativas são ressalva, não estilo. É o que separa
+                "leitura de afinidade" de "recomendação de contratação", e é
+                o que protege quem assina o relatório de ser lido como
+                recrutador. Uma revisão de redação já diluiu as duas em
+                "carreira inteira ainda em aberto", e "promessa de vaga"
+                sumiu do produto. Se for reescrever, troque as palavras e
+                mantenha as duas ressalvas nomeadas. */}
             <p className={[common.prose, styles.nota].join(' ')}>
               A lista abaixo reúne funções em que o seu jeito natural de trabalhar encontra menos
-              atrito. Ela não é promessa de vaga nem limite de carreira. Qualquer perfil ocupa
-              qualquer cargo. O que muda é o que pesa mais no dia a dia e o que você precisa
-              compensar com método.
+              atrito. Ela é leitura de afinidade: não promete vaga nenhuma e não limita a sua
+              carreira. Qualquer perfil ocupa qualquer cargo. O que muda é o que pesa mais no dia
+              a dia e o que você precisa compensar com método.
             </p>
 
             <div>
@@ -116,10 +124,13 @@ export function Lideranca({ narrativa, perfil, avaliado }: LiderancaProps) {
               </ul>
             </div>
 
+            {/* Esta frase se ABSTÉM de propósito. Dizer que o cargo atual
+                "continua sendo seu lugar" seria prometer encaixe, coisa que
+                o inventário não mede. Ele só sabe dizer onde há menos
+                atrito. */}
             <p className={[common.prose, styles.fecho].join(' ')}>
-              Se o seu cargo não está nessa lista, isso não diz que você está no lugar errado.
-              Diz que ele pede de você um esforço mais consciente em alguma frente. Esta leitura
-              mostra qual é a frente.
+              Um cargo fora dessa lista não indica desencaixe. Ele pede de você um esforço mais
+              consciente em alguma frente, e esta leitura mostra qual.
             </p>
           </div>
         </Card>
@@ -140,9 +151,9 @@ export function Lideranca({ narrativa, perfil, avaliado }: LiderancaProps) {
             <p className={styles.abertura}>{narrativa.liderancaNatural}</p>
 
             <p className={[common.prose, styles.rodape].join(' ')}>
-              Neste relatório, liderança não significa cargo. É o modo como você influencia
-              decisões e mobiliza as pessoas ao redor, com ou sem equipe formal. O texto descreve
-              a sua tendência e não avalia o seu desempenho.
+              Neste relatório, liderança é o modo como você influencia decisões e mobiliza as
+              pessoas ao redor, com ou sem equipe formal. O texto descreve a sua tendência;
+              desempenho fica para outra conversa.
             </p>
           </div>
         </Card>
@@ -171,11 +182,12 @@ export function Lideranca({ narrativa, perfil, avaliado }: LiderancaProps) {
               </span>
               <span>
                 Daqui em diante o texto muda de interlocutor. Ele fala com quem conduz o trabalho
-                de {nome}, sobre {nome}. Nada nesta página é reservado. Ela existe para ser
-                mostrada e conversada.
+                de {nome}, sobre {nome}. Esta página existe para ser mostrada e conversada
+                abertamente.
               </span>
             </p>
 
+            <p className={[common.eyebrow, styles.listaRotulo].join(' ')}>O que fazer</p>
             <ul className={styles.orientacoes}>
               {perfil.comoLiderar.map((orientacao) => (
                 <li key={orientacao} className={styles.orientacao}>
@@ -187,10 +199,26 @@ export function Lideranca({ narrativa, perfil, avaliado }: LiderancaProps) {
               ))}
             </ul>
 
+            {/* As duas listas são nomeadas por escrito antes de serem
+                diferenciadas por ícone e por fundo: no papel em preto e
+                branco, e para quem não distingue as duas superfícies,
+                o rótulo é o que separa "faça" de "nunca faça". */}
+            <p className={[common.eyebrow, styles.listaRotulo].join(' ')}>O que nunca fazer</p>
+            <ul className={styles.orientacoes}>
+              {perfil.oQueEvitar.map((evitar) => (
+                <li key={evitar} className={[styles.orientacao, styles.evitar].join(' ')}>
+                  <span className={[styles.orientacaoIcone, styles.evitarIcone].join(' ')} aria-hidden>
+                    <Icon name="ban" size={16} strokeWidth={2} />
+                  </span>
+                  <span>{evitar}</span>
+                </li>
+              ))}
+            </ul>
+
             <p className={[common.prose, styles.painelRodape].join(' ')}>
-              Estas orientações descrevem o perfil {perfil.fator} · {perfil.nome}, não uma pessoa
-              inteira. Trate-as como hipótese de trabalho e confirme cada uma na conversa com{' '}
-              {nome}.
+              Estas orientações descrevem o perfil {perfil.fator} · {perfil.nome}, um recorte de
+              comportamento. Trate-as como hipótese de trabalho e confirme cada uma na conversa
+              com {nome}.
             </p>
           </div>
         </div>

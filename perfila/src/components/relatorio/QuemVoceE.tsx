@@ -140,11 +140,18 @@ export function QuemVoceE({ narrativa, perfil }: QuemVoceEProps) {
           />
           <div className={styles.corpo}>
             {/* A moldura de leitura vem antes da lista: sem ela, quatro
-                blocos soltos são lidos como quatro defeitos. */}
+                blocos soltos são lidos como quatro defeitos.
+
+                "nenhum deles é defeito" é ressalva, não estilo. A seção se
+                chama "Pontos de atenção" e o sobretítulo fala em
+                contrapartida, então sem a negativa explícita o leitor entra
+                em quatro parágrafos críticos sem nada na frente. Uma revisão
+                de redação já apagou ela uma vez. Se for reescrever, troque as
+                palavras e mantenha o aviso. */}
             <p className={[common.prose, styles.nota].filter(Boolean).join(' ')}>
-              Os itens abaixo não são defeitos. Cada um mostra como seu estilo se comporta
-              em determinados contextos. São a contrapartida do que você faz bem, e é onde
-              um pouco de atenção deliberada rende mais.
+              Os itens abaixo são a contrapartida do que você faz bem, e nenhum deles é
+              defeito. Cada um mostra como seu estilo se comporta em determinados contextos,
+              e é aí que um pouco de atenção deliberada rende mais.
             </p>
             <ul className={styles.atencoes}>
               {narrativa.desafios.map((desafio) => (

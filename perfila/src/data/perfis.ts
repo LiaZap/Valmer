@@ -8,6 +8,17 @@
  * Os cargos são indicação de ENCAIXE comportamental, não recomendação
  * de carreira nem requisito de contratação. O relatório precisa dizer
  * isso ao leitor.
+ *
+ * NÃO REESCREVA `caracteristicas`, `cargos`, `comoLiderar` nem
+ * `oQueEvitar`. São as palavras do cliente, copiadas literalmente da
+ * especificação, e ele responde por elas na frente de quem compra o
+ * relatório. Uma revisão de estilo já trocou "de confiança absoluta"
+ * por "confiável", "altamente comunicativo" por "comunicativo" e
+ * "Alta Performance" por "Alto Desempenho", achando que estava cortando
+ * superlativo vazio. Estava apagando a intensidade que distingue um
+ * fator do outro, e fazendo o produto divergir do material do cliente
+ * sem ninguém ter decidido isso. O campo `resumo` é o único aqui que é
+ * redação nossa.
  */
 
 import type { PerfilEstatico } from '@/lib/relatorio/tipos'
@@ -33,7 +44,7 @@ export const perfisEstaticos: Record<FatorDisc, PerfilEstatico> = {
       'Gerente Geral de Operações',
       'Empreendedor e Fundador',
       'Gerente de Projetos Complexos',
-      'Líder de Times de Alto Desempenho',
+      'Líder de Times de Alta Performance',
       'Gestor de Crise',
       'Militar e Segurança Pública em nível de gestão',
     ],
@@ -43,7 +54,13 @@ export const perfisEstaticos: Record<FatorDisc, PerfilEstatico> = {
       'Ser direto e objetivo na comunicação',
       'Não ocupar tempo com detalhes desnecessários',
       'Reconhecer conquistas pelo impacto gerado',
-      'Nunca microgerir, dar feedback indireto ou convocar reuniões sem objetivo claro',
+    ],
+    oQueEvitar: [
+      'Microgerir',
+      'Controlar cada passo',
+      'Colocar em cargos sem poder de decisão',
+      'Dar feedback indireto, "envolvido em algodão"',
+      'Criar reuniões sem objetivo claro',
     ],
   },
   I: {
@@ -52,7 +69,7 @@ export const perfisEstaticos: Record<FatorDisc, PerfilEstatico> = {
     resumo:
       'Este fator descreve como a pessoa influencia e se comunica com os outros. O perfil Influente é o comunicador e inspirador, entusiasta, sociável e persuasivo.',
     caracteristicas: [
-      'Extrovertido, entusiasta e comunicativo',
+      'Extrovertido, entusiasta e altamente comunicativo',
       'Excelente capacidade de persuasão e engajamento',
       'Facilidade natural para criar conexões',
       'Otimista e emocionalmente expressivo',
@@ -75,7 +92,13 @@ export const perfisEstaticos: Record<FatorDisc, PerfilEstatico> = {
       'Criar um ambiente social e colaborativo',
       'Deixar espaço para a criatividade',
       'Dar feedbacks positivos antes dos construtivos',
-      'Nunca isolar em trabalho técnico solitário nem cobrar organização sem oferecer suporte',
+    ],
+    oQueEvitar: [
+      'Isolar em trabalho técnico solitário',
+      'Dar apenas críticas, sem elogios',
+      'Criar um ambiente frio e distante',
+      'Cobrar organização excessiva sem oferecer suporte',
+      'Ignorar as contribuições criativas',
     ],
   },
   S: {
@@ -84,7 +107,7 @@ export const perfisEstaticos: Record<FatorDisc, PerfilEstatico> = {
     resumo:
       'Este fator descreve como a pessoa responde ao ritmo e à consistência. O perfil Estável é o planejador e colaborador, paciente, leal e confiável.',
     caracteristicas: [
-      'Paciente, leal e confiável',
+      'Paciente, leal e de confiança absoluta',
       'Excelente ouvinte e mediador natural',
       'Prefere ambientes estáveis e previsíveis',
       'Alta capacidade de manter relacionamentos longos',
@@ -107,7 +130,13 @@ export const perfisEstaticos: Record<FatorDisc, PerfilEstatico> = {
       'Criar um espaço de confiança para que ele fale',
       'Valorizar a lealdade e o esforço demonstrados',
       'Atribuir tarefas com papel claro dentro da equipe',
-      'Nunca mudar tudo de repente sem explicação nem cobrar resultados sem apoio emocional',
+    ],
+    oQueEvitar: [
+      'Mudar tudo de repente sem explicação',
+      'Pressionar com urgências constantes',
+      'Ignorar contribuições silenciosas',
+      'Criar ambientes de conflito aberto',
+      'Cobrar resultados sem suporte emocional',
     ],
   },
   C: {
@@ -134,12 +163,18 @@ export const perfisEstaticos: Record<FatorDisc, PerfilEstatico> = {
       'Gestor da Qualidade em ISO e processos',
     ],
     comoLiderar: [
-      'Estabelecer expectativas claras e métricas definidas',
+      'Dar expectativas claras e métricas definidas',
       'Respeitar o ritmo de análise antes da decisão',
       'Dar acesso aos dados e às informações necessárias',
       'Reconhecer a qualidade e a precisão do trabalho',
-      'Valorizar o domínio técnico acumulado',
-      'Nunca pressionar por decisão sem dados nem criticar o perfeccionismo sem entender sua origem',
+      'Valorizar o expertise técnico acumulado',
+    ],
+    oQueEvitar: [
+      'Pressionar para decidir sem dados suficientes',
+      'Criar um ambiente caótico',
+      'Ignorar o processo em favor da velocidade',
+      'Criticar o perfeccionismo sem entender sua origem',
+      'Colocar em cargos de alta exposição emocional',
     ],
   },
 }

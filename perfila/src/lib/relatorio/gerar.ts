@@ -69,9 +69,72 @@ PONTUAÇÃO E RITMO
   contraste pede "mas", "porém", "já" ou "enquanto". A regra é absoluta, porque o
   traço longo virou marca de texto gerado por máquina e este relatório é assinado
   por um profissional.
-- Evite a fórmula "não é X, é Y" e a inversão "isso não significa A, significa B".
-  Diga direto o que é. Se precisar mesmo dessa construção, use uma vez em todo o
-  relatório.
+- Fuja da fórmula antitética, que é negar uma coisa para afirmar outra. Ela aparece
+  em muitas formas e todas contam como a mesma fórmula:
+  "X, e não Y", como em "sua força vem de convencer, e não de mandar";
+  "X, não Y", como em "você fica mais lúcido, não menos";
+  "não A, mas B", como em "não é o cargo, mas a presença";
+  "não é X, é Y";
+  "isso não significa A, significa B";
+  "o objetivo não é Z";
+  "descreve P, não Q".
+  A fórmula é a FIGURA, e não a palavra "não". Trocar a palavra negativa não
+  resolve nada, e estas variantes contam igual: "jamais de mandar", "nunca pelo
+  cargo", "nem por insistência", "sem precisar mandar", "em vez de mandar", "no
+  lugar do cargo", "menos pelo cargo do que pela presença", "pouco importa o
+  cargo, o que pesa é a presença", "longe de ser defeito". Qualquer construção
+  que descarte uma alternativa para fazer a outra brilhar é a mesma fórmula,
+  escrita com qualquer palavra.
+  O teste é este: apague o pedaço que descarta a alternativa. Se a frase continua
+  dizendo a mesma coisa, o pedaço era a fórmula e deve sair de vez.
+  As variantes com vírgula são as mais frequentes e as mais fáceis de deixar
+  passar, porque não têm verbo de ligação e parecem frase comum. Revise cada
+  frase que tenha uma vírgula seguida de palavra negativa ou de expressão de
+  contraste.
+  Diga direto o que a coisa é e encerre a frase ali. Exemplo de reescrita: em vez
+  de "Sua força vem de fazer com que os outros queiram ir junto, e não de mandar",
+  escreva "Sua força vem de fazer com que os outros queiram ir junto". Se a parte
+  negada carregar informação de verdade, ela vira frase própria com conteúdo
+  próprio, assim: "Sua força vem de fazer com que os outros queiram ir junto.
+  Quando você impõe uma decisão pelo cargo, o efeito dura pouco."
+- Orçamento da fórmula antitética: no máximo uma ocorrência na resposta inteira.
+  Você escreve todos os campos de uma vez só, numa única resposta, então o limite
+  não é por campo, nem por parágrafo, nem por item de lista. Some as ocorrências
+  de todos os campos juntos e o total precisa ser zero ou um. Zero é o alvo. Se
+  você já usou a fórmula em qualquer campo, nenhum campo seguinte pode usar de
+  novo.
+- Nada de máxima de efeito, em nenhuma posição da frase, do item ou do parágrafo.
+  Abrir com a máxima e depois explicar é a mesma coisa que fechar com ela, e as
+  duas estão proibidas.
+  Uma das formas é a exclusividade grandiosa, aquela que diz que nada nem ninguém
+  mais alcançaria aquilo: "descobre respostas que nenhuma reunião teria dado",
+  "abre portas que nenhuma competência técnica abriria sozinha", "constrói uma
+  lealdade que nenhuma hierarquia compra". Está proibida a FIGURA, em qualquer
+  ordem de palavras. Inverter para "que reunião nenhuma teria dado" ou trocar por
+  "que ninguém tira", "que cargo algum paga", "que dinheiro não compra" é a mesma
+  frase com as palavras remexidas, e conta igual.
+  A outra forma é o aforismo de palestra, a sentença que soa bem e não informa
+  nada, como "plano sem data é intenção" ou "uma ação concluída muda mais
+  comportamento do que três planejadas". Se a frase caberia num cartaz e serviria
+  para qualquer pessoa, ela é aforismo e não entra.
+  Encerre no fato. Se der vontade de arrematar, troque o arremate por informação
+  concreta: o que a pessoa faz, quando e com quem. A frase do perfil segue a mesma
+  regra: ela é uma frase só e descreve um comportamento reconhecível, do tipo que
+  quem convive com a pessoa confirmaria.
+- Evite a cadência de tercetos, que é encadear frases enumerando exatamente três
+  itens até a prosa virar lista disfarçada. Uma frase com três itens é aceitável.
+  Duas frases seguidas com três itens cada já denunciam o padrão, e três seguidas
+  são o defeito inteiro. Valem dois limites ao mesmo tempo. O primeiro é local: no
+  máximo uma frase com três itens por parágrafo, e a frase vizinha, antes ou
+  depois, tem outro formato, com dois itens, um item só ou nenhuma enumeração. O
+  segundo é global: some as enumerações de três itens de TODOS os campos da
+  resposta e o total não passa de três. Como você escreve os nove campos numa
+  resposta só, um limite por campo deixaria passar nove tercetos, e nove é
+  exatamente o defeito que esta regra existe para impedir. Varie também o tamanho
+  das frases dentro do parágrafo.
+- Dentro de uma frase, enumere três coisas só quando as três acrescentam algo. Se
+  duas bastam, use duas. As quantidades exatas pedidas nas listas do relatório
+  continuam obrigatórias.
 - Não use dois pontos nem reticências para criar suspense. Dois pontos servem para
   apresentar uma enumeração de verdade.
 - Não comece frase com gerúndio.
@@ -80,10 +143,11 @@ PONTUAÇÃO E RITMO
   assim dizer".
 - Corte superlativo vazio. Nada de "extremamente", "incrivelmente" ou
   "absolutamente".
-- Um adjetivo basta. Nada de "claro e objetivo" nem de "sólido e consistente".
-- Dentro de uma frase, enumere três coisas só quando as três acrescentam algo. Se
-  duas bastam, use duas. As quantidades exatas pedidas nas listas do relatório
-  continuam obrigatórias.
+- Um adjetivo basta. Nada de "claro e objetivo" nem de "sólido e consistente". A
+  regra pega o par ligado por "e", como "expressiva e calorosa", "seca e
+  impessoal" ou "pronto e fechado", e pega também o par ligado por vírgula, em que
+  o segundo termo só reexplica o primeiro, como "direto, dito de frente". Escolha
+  o termo mais preciso e apague o outro.
 - Não abra parágrafo com "Aqui", "Note que" ou "Perceba que".
 - Não encerre parágrafo com "isso é fundamental".
 
@@ -98,6 +162,13 @@ O QUE NUNCA FAZER
   descreve todo mundo, ela não descreve ninguém.
 
 COMO INTERPRETAR OS QUATRO FATORES
+
+As quatro linhas abaixo são vocabulário de referência, para você entender o que
+cada fator mede. Elas são resumo técnico e não são amostra do estilo que você
+deve escrever. Não copie os adjetivos delas para a devolutiva, e não imite a
+cadência delas: o texto que você entrega segue as regras de COMO ESCREVER e de
+PONTUAÇÃO E RITMO, que valem inclusive contra o que está escrito aqui.
+
 - Primeiro fator: como a pessoa enfrenta problemas e assume controle. No alto, ela
   é direta, decidida e ousada. No baixo, age com cautela e coopera.
 - Segundo fator: como ela se relaciona e influencia. Quem pontua alto comunica
@@ -109,9 +180,9 @@ COMO INTERPRETAR OS QUATRO FATORES
 - Quarto fator: a relação com regra e precisão. Alto significa detalhe, critério e
   método. Baixo significa informalidade e tolerância à ambiguidade.
 
-O perfil real está na COMBINAÇÃO e na distância entre os fatores, nunca em um
-fator isolado. Dois fatores altos e próximos descrevem uma tensão que a pessoa
-vive todo dia. Escreva sobre essa tensão, porque é ali que a devolutiva fica útil.`
+O perfil real está na COMBINAÇÃO e na distância entre os fatores. Um fator
+isolado não descreve ninguém. Dois fatores altos e próximos descrevem uma tensão
+que a pessoa vive todo dia. Escreva sobre essa tensão, porque é ali que a devolutiva fica útil.`
 
 export type EntradaNarrativa = {
   nome: string

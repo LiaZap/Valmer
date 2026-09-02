@@ -43,6 +43,9 @@ export const ICON_PATHS = {
   chevL: 'M15 18l-6-6 6-6',
   chevR: 'M9 18l6-6-6-6',
   check: 'M20 6L9 17l-5-5',
+  /* Círculo cortado na diagonal: o sinal de proibição que todo mundo já
+     lê sem legenda, e que sobrevive à impressão em preto e branco. */
+  ban: 'M12 22a10 10 0 100-20 10 10 0 000 20zM5.6 5.6l12.8 12.8',
   menu: 'M3 12h18M3 6h18M3 18h18',
   refresh: 'M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15',
   info: 'M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01',

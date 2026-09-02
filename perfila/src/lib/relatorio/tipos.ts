@@ -97,4 +97,16 @@ export type PerfilEstatico = {
   cargos: string[]
   /** Orientações ao gestor sobre como conduzir este perfil. */
   comoLiderar: string[]
+  /**
+   * O que o gestor NUNCA deve fazer com este perfil.
+   *
+   * Campo próprio, e não mais um item de `comoLiderar`, por dois motivos.
+   * O primeiro é que as cinco cláusulas do cliente cabem inteiras aqui: ao
+   * serem espremidas numa linha só, três das cinco eram descartadas em cada
+   * perfil, e a especificação chama esta seção de "o diferencial mais
+   * solicitado por gestores e empresas". O segundo é o ícone: uma orientação
+   * que começa por "Nunca" atrás de um sinal de confirmação diz uma coisa e
+   * mostra a contrária.
+   */
+  oQueEvitar: string[]
 }

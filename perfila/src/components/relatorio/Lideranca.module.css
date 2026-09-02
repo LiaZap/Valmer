@@ -205,6 +205,32 @@
   color: var(--color-accent);
 }
 
+/* Rótulo de cada uma das duas listas do painel do gestor. */
+.listaRotulo {
+  margin-bottom: var(--space-10);
+  color: var(--color-text-muted);
+}
+
+.listaRotulo + .orientacoes {
+  margin-bottom: var(--space-20);
+}
+
+/* A lista do que evitar é a mesma ficha, rebaixada: fundo mais
+   apagado e borda mais leve. Ela precisa ser lida DEPOIS do que
+   fazer, e nunca com o mesmo peso. */
+.evitar {
+  background: var(--color-surface-muted);
+  border-color: var(--color-border-soft);
+  color: var(--color-text-muted);
+}
+
+/* O ícone de proibição fica em tinta neutra, e não no acento. Um
+   traço fino no laranja da marca dá 2,52:1 sobre o creme, abaixo do
+   piso de 3:1 para elemento de interface. */
+.evitarIcone {
+  color: var(--color-text-subtle);
+}
+
 .painelRodape {
   max-width: 68ch;
 }
@@ -232,7 +258,10 @@
      ela deixa de cumprir esse papel — a lista abriria a folha
      seguinte sozinha. */
   .nota,
-  .cargosRotulo {
+  .cargosRotulo,
+  /* "O que nunca fazer" sozinho no pé da folha inverteria o sentido
+     da lista que abre a folha seguinte. */
+  .listaRotulo {
     break-after: avoid;
   }
 

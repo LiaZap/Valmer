@@ -79,11 +79,17 @@ export function Motivadores({ narrativa, perfil }: MotivadoresProps) {
   return (
     <div className={styles.grupo}>
       {/* A moldura vem antes dos três textos: sem ela, "ambiente ideal"
-          é lido como exigência e "como você se comunica" como veredito. */}
+          é lido como exigência e "como você se comunica" como veredito.
+
+          A segunda frase é ressalva, não estilo. Uma revisão de redação já
+          apagou ela uma vez por parecer construção repetitiva, e o relatório
+          passou a descrever preferência sem avisar que era preferência.
+          Se for reescrever, troque as palavras e mantenha o aviso. */}
       <p className={[common.prose, styles.abertura].join(' ')}>
         Três leituras curtas sobre o mesmo eixo. Elas cobrem o que te dá energia, onde ela rende
-        mais e como ela aparece na sua fala. São tendências do perfil {perfil.nome}. Descrevem
-        preferências, não limites.
+        mais e como ela aparece na sua fala. São tendências do perfil {perfil.nome} e descrevem
+        preferências. O que você é capaz de fazer é outra medida, fora do alcance deste
+        relatório.
       </p>
 
       {BLOCOS.map((bloco) => {
