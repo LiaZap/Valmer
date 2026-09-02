@@ -95,7 +95,7 @@ export function Lideranca({ narrativa, perfil, avaliado }: LiderancaProps) {
                 é lida como limite de carreira. */}
             <p className={[common.prose, styles.nota].join(' ')}>
               A lista abaixo reúne funções em que o seu jeito natural de trabalhar encontra menos
-              atrito. Não é promessa de vaga nem limite de carreira: qualquer perfil ocupa
+              atrito. Ela não é promessa de vaga nem limite de carreira. Qualquer perfil ocupa
               qualquer cargo. O que muda é o que pesa mais no dia a dia e o que você precisa
               compensar com método.
             </p>
@@ -117,9 +117,9 @@ export function Lideranca({ narrativa, perfil, avaliado }: LiderancaProps) {
             </div>
 
             <p className={[common.prose, styles.fecho].join(' ')}>
-              Se o seu cargo não está aqui, isso não diz que você está no lugar errado. Diz que
-              ele pede de você um esforço mais consciente em alguma frente — e saber qual frente
-              é o que essa leitura entrega.
+              Se o seu cargo não está nessa lista, isso não diz que você está no lugar errado.
+              Diz que ele pede de você um esforço mais consciente em alguma frente. Esta leitura
+              mostra qual é a frente.
             </p>
           </div>
         </Card>
@@ -140,9 +140,9 @@ export function Lideranca({ narrativa, perfil, avaliado }: LiderancaProps) {
             <p className={styles.abertura}>{narrativa.liderancaNatural}</p>
 
             <p className={[common.prose, styles.rodape].join(' ')}>
-              Liderança, aqui, não é cargo: é o modo como você influencia decisões e mobiliza as
-              pessoas ao redor, com ou sem equipe formal. O texto descreve a sua tendência, não
-              uma avaliação do seu desempenho.
+              Neste relatório, liderança não significa cargo. É o modo como você influencia
+              decisões e mobiliza as pessoas ao redor, com ou sem equipe formal. O texto descreve
+              a sua tendência e não avalia o seu desempenho.
             </p>
           </div>
         </Card>
@@ -170,8 +170,8 @@ export function Lideranca({ narrativa, perfil, avaliado }: LiderancaProps) {
                 <Icon name="users" size={16} />
               </span>
               <span>
-                Daqui em diante o texto muda de interlocutor: fala com quem conduz o trabalho de{' '}
-                {nome}, sobre {nome}. Nada nesta página é reservado — ela existe para ser
+                Daqui em diante o texto muda de interlocutor. Ele fala com quem conduz o trabalho
+                de {nome}, sobre {nome}. Nada nesta página é reservado. Ela existe para ser
                 mostrada e conversada.
               </span>
             </p>

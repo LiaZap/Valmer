@@ -81,9 +81,9 @@ export function Motivadores({ narrativa, perfil }: MotivadoresProps) {
       {/* A moldura vem antes dos três textos: sem ela, "ambiente ideal"
           é lido como exigência e "como você se comunica" como veredito. */}
       <p className={[common.prose, styles.abertura].join(' ')}>
-        Três leituras curtas sobre o mesmo eixo: o que te dá energia, onde ela rende mais e como
-        ela aparece na sua fala. São tendências do perfil {perfil.nome} — descrevem preferências,
-        não limites.
+        Três leituras curtas sobre o mesmo eixo. Elas cobrem o que te dá energia, onde ela rende
+        mais e como ela aparece na sua fala. São tendências do perfil {perfil.nome}. Descrevem
+        preferências, não limites.
       </p>
 
       {BLOCOS.map((bloco) => {

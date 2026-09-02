@@ -142,8 +142,9 @@ export function QuemVoceE({ narrativa, perfil }: QuemVoceEProps) {
             {/* A moldura de leitura vem antes da lista: sem ela, quatro
                 blocos soltos são lidos como quatro defeitos. */}
             <p className={[common.prose, styles.nota].filter(Boolean).join(' ')}>
-              Nada aqui é defeito. São as contrapartidas naturais do que você faz bem — e é
-              onde um pouco de atenção deliberada rende mais.
+              Os itens abaixo não são defeitos. Cada um mostra como seu estilo se comporta
+              em determinados contextos. São a contrapartida do que você faz bem, e é onde
+              um pouco de atenção deliberada rende mais.
             </p>
             <ul className={styles.atencoes}>
               {narrativa.desafios.map((desafio) => (

@@ -180,6 +180,7 @@ export function Assessment({ token, nome }: { token: string; nome: string }) {
                 rotulo={NOMES_FATORES[fator]}
                 valor={resultado.percentuais[fator]}
                 fator={fator}
+                sufixo="%"
               />
             ))}
           </MeterGroup>

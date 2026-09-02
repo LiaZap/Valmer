@@ -96,8 +96,8 @@ export function PlanoFecho({ dados, perfil }: PlanoFechoProps) {
                 terceiros são lidas como tarefa atribuída, não como escolha. */}
             <p className={[common.prose, styles.abertura].join(' ')}>
               As três ações abaixo partem do perfil {perfil.fator} · {perfil.nome} e do que você
-              respondeu — não são tarefas que alguém atribuiu a você. Cada uma tem uma linha em
-              branco para datar o começo, porque plano sem data é intenção.
+              respondeu. São escolhas suas, não tarefas que alguém atribuiu a você. Cada uma tem
+              uma linha em branco para datar o começo, porque plano sem data é intenção.
             </p>
 
             <ol className={styles.acoes}>
@@ -124,8 +124,7 @@ export function PlanoFecho({ dados, perfil }: PlanoFechoProps) {
 
             <p className={[common.prose, styles.fechoNota].join(' ')}>
               Escolha uma para começar nesta semana. As três ao mesmo tempo raramente sobrevivem
-              ao primeiro mês — e uma ação concluída muda mais comportamento do que três
-              planejadas.
+              ao primeiro mês. Uma ação concluída muda mais comportamento do que três planejadas.
             </p>
           </div>
         </Card>

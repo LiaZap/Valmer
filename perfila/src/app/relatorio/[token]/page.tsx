@@ -13,6 +13,7 @@ import { resultadoDeContadores } from '@/lib/disc'
 import { secoesDoNivel, type DadosRelatorio } from '@/lib/relatorio/tipos'
 import { AcoesRelatorio } from './AcoesRelatorio'
 import styles from './page.module.css'
+import tema from './tema-impacto.module.css'
 
 export const metadata: Metadata = {
   title: 'Perfila · Relatório de perfil comportamental',
@@ -62,8 +63,11 @@ export default async function RelatorioPage({
   // da liderança, e o plano de desenvolvimento só existe a partir do S3.
   const visiveis = new Set(secoesDoNivel(assessment.tipoRelatorio).map((secao) => secao.id))
 
+  // O relatório é o único artefato que chega ao cliente final do
+  // facilitador, então ele veste a marca da Impacto Academy. O tema
+  // redefine os tokens neste escopo; o resto do produto não muda.
   return (
-    <div className={styles.pagina}>
+    <div className={`${styles.pagina} ${tema.tema}`}>
       <div className={styles.acoes}>
         <span className={styles.acoesMarca}>
           <LogoMark size={16} />

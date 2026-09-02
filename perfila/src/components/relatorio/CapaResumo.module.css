@@ -46,7 +46,7 @@
   height: var(--space-8);
   flex: none;
   border-radius: var(--radius-full);
-  background: var(--color-accent);
+  background: var(--color-realce);
 }
 
 .capaMiolo {

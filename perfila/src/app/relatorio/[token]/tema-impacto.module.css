@@ -1,0 +1,94 @@
+/* ============================================================
+   Tema Impacto Academy — escopado ao relatório
+   ------------------------------------------------------------
+   O relatório é o único artefato que sai da plataforma e chega ao
+   cliente final do facilitador, então ele veste a marca da Impacto
+   Academy. O resto do produto continua no sistema da Perfila.
+
+   Como funciona: esta classe redefine os mesmos tokens semânticos
+   que os componentes já consomem. Nenhum componente do relatório
+   precisou ser alterado, e trocar a marca de novo é trocar este
+   arquivo.
+
+   As quatro cores da marca são navy #0B1E3D, laranja #F47B20,
+   preto #080D14 e branco #F8F6F1.
+   ============================================================ */
+
+.tema {
+  /* ---------- Superfícies ----------
+     O branco da marca (#F8F6F1) é creme, então ele vira o fundo da
+     página e o branco puro fica para os cards. Sem essa separação os
+     cards sumiriam no fundo. */
+  --color-bg: #f8f6f1;
+  --color-surface: #ffffff;
+  --color-surface-muted: #fbfaf7;
+  --color-surface-sunken: #f8f6f1;
+  --color-hover: #f1eee7;
+
+  --color-border: #e4e0d7;
+  --color-border-soft: #eeebe4;
+  --color-border-strong: #cfc9bc;
+
+  /* ---------- Texto ----------
+     Os cinzas são puxados para o navy em vez de neutros: assim o
+     documento inteiro parece da mesma família, e não a marca colada
+     sobre um layout cinza. Medidos sobre o creme: 12,4:1, 6,7:1 e
+     4,1:1. */
+  --color-text: #080d14;
+  --color-text-secondary: #22303f;
+  --color-text-muted: #46586e;
+  --color-text-subtle: #6b7a8d;
+  --color-text-placeholder: #95a0ae;
+
+  /* ---------- Superfície escura ----------
+     O bloco escuro do relatório passa a ser navy, não quase-preto. */
+  --color-ink: #0b1e3d;
+  --color-on-ink: #f8f6f1;
+  --color-on-ink-75: rgba(248, 246, 241, 0.78);
+  --color-on-ink-70: rgba(248, 246, 241, 0.74);
+  --color-on-ink-65: rgba(248, 246, 241, 0.7);
+  --color-on-ink-55: rgba(248, 246, 241, 0.62);
+  --color-on-ink-30: rgba(248, 246, 241, 0.34);
+  --color-on-ink-18: rgba(248, 246, 241, 0.2);
+  --color-on-ink-14: rgba(248, 246, 241, 0.16);
+  --color-on-ink-12: rgba(248, 246, 241, 0.14);
+
+  /* ---------- Acento ----------
+     O acento que carrega TEXTO é o navy, não o laranja. Medido, o
+     laranja sobre o creme dá 2,52:1, abaixo até do piso de 3:1 para
+     elemento de interface: como texto ou traço fino ele seria
+     ilegível. O laranja aparece onde tem contraste de sobra, que é
+     sobre o navy (6,08:1), e como preenchimento decorativo. */
+  --color-accent: #0b1e3d;
+  --color-accent-hover: #163150;
+  --color-accent-strong: #0b1e3d;
+  --color-accent-tint: #e9edf3;
+  --color-accent-tint-border: #d3dbe6;
+  --color-accent-on-dark: #f47b20;
+  --color-accent-ring: rgba(11, 30, 61, 0.18);
+  --color-accent-glow: rgba(244, 123, 32, 0.45);
+
+  /* O laranja da marca, para régua, ponto e preenchimento sobre
+     escuro. Nunca para texto sobre o creme. */
+  --color-realce: #f47b20;
+
+  /* ---------- Gráfico ----------
+     As quatro cores dos fatores ficam como estão: foram validadas
+     para faixa de luminosidade, croma, separação sob daltonismo e
+     contraste, e continuam passando sobre o creme.
+
+     O laranja da marca NÃO entra aqui. Ele e o âmbar do fator
+     Influência têm ΔE 5,2 em visão normal, contra um piso de 15:
+     lado a lado, ninguém distingue os dois, e o leitor passaria a
+     ler o acento da marca como se fosse um fator. */
+  --chart-track: #eeebe4;
+  --chart-grid: #e4e0d7;
+
+  /* Rampa sequencial reancorada no navy, para a roda e qualquer
+     leitura de magnitude dentro do relatório. */
+  --chart-seq-1: #e9edf3;
+  --chart-seq-2: #c2cddd;
+  --chart-seq-3: #8098b8;
+  --chart-seq-4: #3f5c85;
+  --chart-seq-5: #0b1e3d;
+}

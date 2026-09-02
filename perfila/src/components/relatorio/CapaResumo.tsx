@@ -90,7 +90,7 @@ export function CapaResumo({ dados, perfilPrimario, perfilSecundario }: CapaResu
         <div className={styles.capaFecho}>
           <p className={[common.prose, styles.capaNota].join(' ')}>
             Este documento descreve tendências de comportamento a partir da sua própria
-            percepção no momento em que respondeu ao inventário. Ele fala de preferências: não
+            percepção no momento em que respondeu ao inventário. Ele trata de preferências. Não
             mede capacidade, inteligência nem desempenho.
           </p>
 
@@ -125,7 +125,7 @@ export function CapaResumo({ dados, perfilPrimario, perfilSecundario }: CapaResu
         <p className={[common.prose, styles.comoLer].join(' ')}>
           Cada uma das {resultado.total} respostas conta para um único fator, por isso os quatro
           percentuais somam 100%. Quanto mais alta a barra, mais aquele comportamento aparece
-          primeiro em você. Base desta leitura: {resultado.respondidas} de {resultado.total}{' '}
+          primeiro em você. Esta leitura considera {resultado.respondidas} de {resultado.total}{' '}
           respostas.
         </p>
 
@@ -166,6 +166,7 @@ export function CapaResumo({ dados, perfilPrimario, perfilSecundario }: CapaResu
                     rotulo={`${fator} · ${NOMES_FATORES[fator]}`}
                     valor={resultado.percentuais[fator]}
                     fator={fator}
+                    sufixo="%"
                   />
                 </div>
               )
@@ -181,8 +182,8 @@ export function CapaResumo({ dados, perfilPrimario, perfilSecundario }: CapaResu
                 {nomePrimario} com {nomeSecundario}
               </h3>
               <p className={common.prose}>
-                A sigla junta seus dois fatores mais altos, na ordem em que aparecem:{' '}
-                {resultado.primario} à frente, com {resultado.percentuais[resultado.primario]}%,
+                A sigla junta seus dois fatores mais altos na ordem em que aparecem.{' '}
+                {resultado.primario} vem à frente, com {resultado.percentuais[resultado.primario]}%,
                 e {resultado.secundario} logo atrás, com{' '}
                 {resultado.percentuais[resultado.secundario]}%.
               </p>

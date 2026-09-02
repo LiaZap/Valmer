@@ -18,7 +18,7 @@ export const perfisEstaticos: Record<FatorDisc, PerfilEstatico> = {
     fator: 'D',
     nome: 'Dominância',
     resumo:
-      'Fator que descreve como a pessoa enfrenta problemas e assume o controle — o perfil Dominante é o executor e comandante, direto, decidido e ousado, movido por desafios e resultados concretos.',
+      'Este fator descreve como a pessoa enfrenta problemas e assume o controle. O perfil Dominante é o executor e comandante, direto, decidido e ousado, movido por desafios e resultados concretos.',
     caracteristicas: [
       'Direto, assertivo e orientado a resultados',
       'Toma decisões rápidas, mesmo com informação incompleta',
@@ -33,7 +33,7 @@ export const perfisEstaticos: Record<FatorDisc, PerfilEstatico> = {
       'Gerente Geral de Operações',
       'Empreendedor e Fundador',
       'Gerente de Projetos Complexos',
-      'Líder de Times de Alta Performance',
+      'Líder de Times de Alto Desempenho',
       'Gestor de Crise',
       'Militar e Segurança Pública em nível de gestão',
     ],
@@ -50,9 +50,9 @@ export const perfisEstaticos: Record<FatorDisc, PerfilEstatico> = {
     fator: 'I',
     nome: 'Influência',
     resumo:
-      'Fator que descreve como a pessoa influencia e se comunica com os outros — o perfil Influente é o comunicador e inspirador, entusiasta, sociável e persuasivo.',
+      'Este fator descreve como a pessoa influencia e se comunica com os outros. O perfil Influente é o comunicador e inspirador, entusiasta, sociável e persuasivo.',
     caracteristicas: [
-      'Extrovertido, entusiasta e altamente comunicativo',
+      'Extrovertido, entusiasta e comunicativo',
       'Excelente capacidade de persuasão e engajamento',
       'Facilidade natural para criar conexões',
       'Otimista e emocionalmente expressivo',
@@ -82,9 +82,9 @@ export const perfisEstaticos: Record<FatorDisc, PerfilEstatico> = {
     fator: 'S',
     nome: 'Estabilidade',
     resumo:
-      'Fator que descreve como a pessoa responde ao ritmo e à consistência — o perfil Estável é o planejador e colaborador, paciente, leal e confiável.',
+      'Este fator descreve como a pessoa responde ao ritmo e à consistência. O perfil Estável é o planejador e colaborador, paciente, leal e confiável.',
     caracteristicas: [
-      'Paciente, leal e de confiança absoluta',
+      'Paciente, leal e confiável',
       'Excelente ouvinte e mediador natural',
       'Prefere ambientes estáveis e previsíveis',
       'Alta capacidade de manter relacionamentos longos',
@@ -114,7 +114,7 @@ export const perfisEstaticos: Record<FatorDisc, PerfilEstatico> = {
     fator: 'C',
     nome: 'Conformidade',
     resumo:
-      'Fator que descreve como a pessoa segue regras e busca precisão — o perfil Conforme é o analista e estrategista, analítico, preciso e sistemático.',
+      'Este fator descreve como a pessoa segue regras e busca precisão. O perfil Conforme é o analista e estrategista, analítico, preciso e sistemático.',
     caracteristicas: [
       'Analítico, meticuloso e orientado à qualidade',
       'Exige dados e evidências antes de decidir',
@@ -134,11 +134,11 @@ export const perfisEstaticos: Record<FatorDisc, PerfilEstatico> = {
       'Gestor da Qualidade em ISO e processos',
     ],
     comoLiderar: [
-      'Dar expectativas claras e métricas definidas',
+      'Estabelecer expectativas claras e métricas definidas',
       'Respeitar o ritmo de análise antes da decisão',
       'Dar acesso aos dados e às informações necessárias',
       'Reconhecer a qualidade e a precisão do trabalho',
-      'Valorizar o expertise técnico acumulado',
+      'Valorizar o domínio técnico acumulado',
       'Nunca pressionar por decisão sem dados nem criticar o perfeccionismo sem entender sua origem',
     ],
   },

@@ -16,6 +16,12 @@ type MeterProps = {
   maximo?: number
   /** Pinta a barra com a cor do fator DISC; sem isso usa o acento. */
   fator?: FatorDisc
+  /**
+   * Unidade colada ao número. No relatório os contadores por fator
+   * também somam 28, então "28" sozinho ao lado da barra pode ser
+   * lido como quantidade de respostas em vez de percentual.
+   */
+  sufixo?: string
 }
 
 /**
@@ -25,14 +31,17 @@ type MeterProps = {
  * número fica ao lado do rótulo, fora da barra — assim continua
  * legível mesmo quando o valor é zero.
  */
-export function Meter({ rotulo, valor, maximo = 100, fator }: MeterProps) {
+export function Meter({ rotulo, valor, maximo = 100, fator, sufixo = '' }: MeterProps) {
   const proporcao = Math.max(0, Math.min(1, valor / maximo))
 
   return (
     <div className={styles.meter}>
       <div className={styles.topo}>
         <span className={styles.rotulo}>{rotulo}</span>
-        <span className={styles.valor}>{valor}</span>
+        <span className={styles.valor}>
+          {valor}
+          {sufixo}
+        </span>
       </div>
       <div
         className={styles.trilho}

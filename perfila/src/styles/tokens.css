@@ -65,6 +65,13 @@
   --color-accent-ring: rgba(47, 107, 79, 0.15); /* anel de foco */
   --color-accent-glow: rgba(47, 107, 79, 0.55); /* halo decorativo no card escuro */
 
+  /* Realce de marca: formas decorativas sólidas (régua de fecho,
+     ponto ao lado do nome). Existe separado do acento porque uma
+     marca pode ter uma cor de destaque que não serve para texto —
+     é o caso do laranja da Impacto Academy no relatório. Aqui ele
+     acompanha o acento, então nada muda no produto. */
+  --color-realce: var(--color-accent);
+
   /* ---------------------------------------------------------
      5. COR · Status
      Vermelho (destrutivo), âmbar (atenção), azul (informação).
