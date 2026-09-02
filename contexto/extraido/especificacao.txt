@@ -1,0 +1,918 @@
+Especificações Técnicas — Plataforma DISC Impacto Academy
+Documento Técnico Confidencial · Versão 1.0
+Especificações Completas
+Plataforma DISC
+Impacto Academy
+Documento de especificações técnicas, comportamentais e funcionais para desenvolvimento da plataforma proprietária de assessment comportamental. Este documento contém tudo que o desenvolvedor precisa saber para construir a plataforma do zero.
+Produto Plataforma de Assessment DISC
+Cliente Impacto Academy · Valmer Albuquerque
+Contato (44) 99159-5998
+Seções 12 seções detalhadas
+Índice do documento
+01
+Visão geral e contexto do produto
+02
+Tipos de usuário e permissões
+03
+Fluxo completo do sistema
+04
+A metodologia DISC explicada
+05
+Os 4 perfis: características completas
+06
+Banco de questões — todos os blocos
+07
+Lógica de pontuação e cálculo
+08
+Encaixe de cargos por perfil
+09
+Estilo de liderança por perfil
+10
+Integração com IA (Claude API)
+11
+Estrutura do relatório PDF
+12
+Banco de dados e modelo de negócio
+01 · Visão Geral
+O que é este produto
+Uma plataforma SaaS de assessment comportamental baseada na metodologia DISC, com relatórios gerados por Inteligência Artificial, sistema de créditos para parceiros e operação white-label completa.
+Nota para o desenvolvedor: O dono do produto (Valmer Albuquerque) é um especialista em comportamento humano e liderança com 22 anos de experiência. Ele hoje utiliza a plataforma CIS da FEBRACIS para gerar relatórios de perfil comportamental e paga por crédito para isso. O objetivo é construir uma plataforma própria que replique esta funcionalidade com mais profundidade, sem dependência externa, com a marca Impacto Academy e com narrativa de relatório gerada por IA. Você (desenvolvedor) não precisa entender a parte comportamental — este documento explica tudo. Sua responsabilidade é construir a infraestrutura técnica.
+🎯
+Objetivo principal
+Autonomia total no assessment
+Valmer usa os relatórios DISC nos seus treinamentos de liderança e mentoria. Hoje paga por crédito para outra empresa. Quer ter a própria plataforma para gerar esses relatórios sem custo recorrente externo.
+💼
+Mercado B2B
+Venda de pacotes para empresas
+Empresas compram pacotes de créditos e usam para avaliar seus colaboradores e líderes. Cada crédito = 1 relatório gerado. Empresas acessam via painel próprio.
+🤝
+Rede de parceiros
+Facilitadores revendem
+Consultores e facilitadores de RH compram créditos no atacado e revendem os relatórios para seus clientes. Cada facilitador tem painel próprio com sua marca.
+Referências de mercado utilizadas como inspiração: Sólides Profiler (modelo de negócio com créditos, link único, painel do facilitador), TTI Success Insights (profundidade científica, múltiplas dimensões de análise, estilo de liderança e competências). A plataforma Impacto Academy combina o modelo de negócio da Sólides com a profundidade da TTI, com o diferencial de narrativa gerada por IA.
+02 · Usuários e Permissões
+3 tipos de usuário
+A plataforma tem 3 perfis de acesso com permissões e telas completamente distintas.
+Tipo
+Quem é
+O que pode fazer
+Como acessa
+Admin
+VALMER
+Valmer (dono da plataforma). Único admin.
+Tudo: criar facilitadores, vender créditos, ver relatórios de todos, editar banco de questões, ver métricas gerais, configurar preços, exportar dados.
+Login com email + senha + 2FA
+Facilitador
+PARCEIRO/EMPRESA
+Consultor, empresa de RH, gestor de empresa que comprou pacote de créditos.
+Ver saldo de créditos, criar avaliados, enviar links de assessment, acessar relatórios dos seus avaliados, fazer download de PDFs, ver histórico de uso.
+Login com email + senha. Recebe acesso após admin ativar a conta.
+Avaliado
+COLABORADOR/ALUNO
+Pessoa que vai responder o assessment.
+Acessar o link do assessment, responder as questões, visualizar o próprio resultado online. Não precisa de login — acessa por link único com token.
+Link único enviado por email ou WhatsApp pelo facilitador. Sem cadastro.
+03 · Fluxo do Sistema
+Como tudo funciona
+Fluxo completo do sistema do primeiro acesso até o relatório entregue.
+01
+Admin cria conta do facilitador
+Valmer (admin) acessa o painel e cria uma conta para o facilitador (empresa ou consultor). Define o pacote de créditos comprado. O facilitador recebe email com login e senha temporária.
+02
+Facilitador acessa o painel e cria um avaliado
+O facilitador faz login, vê seu saldo de créditos e clica em "Novo Assessment". Preenche nome e email do avaliado e seleciona o tipo de relatório desejado (S1, S2, S3 ou S4). O sistema consome automaticamente o número de créditos correspondente.
+03
+Sistema gera link único e envia por email
+Um link único com token criptografado é gerado para aquele avaliado específico. O sistema envia automaticamente por email com o texto configurado pelo facilitador. O facilitador também pode copiar o link e enviar manualmente (ex: WhatsApp). O link expira em 7 dias se não utilizado.
+04
+Avaliado acessa o link e responde o questionário
+O avaliado abre o link no celular ou computador, sem precisar criar conta ou fazer login. Vê uma tela de boas-vindas com nome e logo da plataforma, depois responde as questões conforme o tipo de relatório. O progresso é salvo a cada questão — se fechar e abrir de novo pelo mesmo link, retorna de onde parou. Ao terminar, vê uma mensagem de conclusão.
+05
+Sistema calcula o perfil e chama a API da IA
+Ao submeter a última questão, o backend executa o algoritmo de cálculo do perfil DISC (descrito na seção 07). Com o resultado, monta o payload e faz uma chamada à API do Claude (Anthropic) com o prompt específico para geração da narrativa. O relatório fica em status "Gerando..." enquanto aguarda resposta da IA.
+06
+Relatório gerado e disponibilizado
+Com a narrativa da IA recebida, o sistema consolida os dados e gera: (a) Dashboard online do avaliado — acessível pelo próprio link do assessment após conclusão, (b) PDF premium disponível para download pelo facilitador no painel. Facilitador recebe notificação por email de que o relatório está pronto.
+07
+Facilitador acessa e entrega ao cliente
+O facilitador faz login no painel, vê o relatório pronto, baixa o PDF e entrega ao seu cliente. O PDF tem a marca Impacto Academy. O avaliado também pode acessar o dashboard online pelo link original a qualquer momento.
+04 · Metodologia DISC
+O que é DISC
+— explicação para o desenvolvedor
+Você não precisa entender profundamente DISC para programar — mas precisa entender a estrutura para implementar corretamente o cálculo e o banco de dados.
+DISC em termos técnicos: É um modelo psicométrico que classifica o comportamento humano em 4 dimensões. Cada pessoa tem um nível (de 0 a 100%) em cada uma das 4 dimensões. O "perfil" é determinado pela dimensão com maior pontuação (perfil primário) e segunda maior (perfil secundário). No banco de dados, você vai armazenar 4 números decimais por avaliado, de 0.0 a 100.0, que somam 200 (cada resposta distribui pontos entre os 4 fatores).
+Fator D
+Dominância
+Como a pessoa enfrenta problemas e assume controle. Alta pontuação: direto, decidido, ousado. Baixa: cauteloso, cooperativo.
+Fator I
+Influência
+Como a pessoa influencia e se comunica com outros. Alta pontuação: entusiasta, sociável, persuasivo. Baixa: reservado, lógico.
+Fator S
+Estabilidade
+Como a pessoa responde ao ritmo e consistência. Alta pontuação: paciente, leal, confiável. Baixa: dinâmico, adaptável.
+Fator C
+Conformidade
+Como a pessoa segue regras e busca precisão. Alta pontuação: analítico, preciso, sistemático. Baixa: independente, espontâneo.
+05 · Os 4 Perfis Completos
+Características detalhadas por perfil
+Estas informações são usadas pela IA para gerar a narrativa do relatório. O desenvolvedor precisa passá-las como contexto no prompt da API.
+D
+Dominante
+EXECUTOR · COMANDANTE
+Características principais
+Direto, assertivo e orientado a resultados
+Toma decisões rápidas, mesmo com informação incompleta
+Alta competitividade e necessidade de controle
+Prefere ambientes de desafio constante
+Pouca paciência para processos lentos
+Pontos fortes
+Liderança natural em situações de crise
+Foco absoluto em metas e entregas
+Capacidade de mobilizar equipes rapidamente
+Coragem para tomar decisões difíceis
+Pontos de atenção
+Pode parecer autoritário ou impaciente
+Dificuldade em ouvir opiniões divergentes
+Tende a atropelar processos e pessoas
+Baixa empatia em situações de pressão
+O que o motiva
+Poder, autonomia e desafios novos
+Reconhecimento por resultados entregues
+Projetos com alto impacto e visibilidade
+O que o desmotiva
+Microgestão e falta de autonomia
+Reuniões sem pauta e sem decisão
+Ambientes sem metas claras
+I
+Influente
+COMUNICADOR · INSPIRADOR
+Características principais
+Extrovertido, entusiasta e altamente comunicativo
+Excelente capacidade de persuasão e engajamento
+Facilidade natural para criar conexões
+Otimista e emocionalmente expressivo
+Criativo e gerador de ideias
+Pontos fortes
+Clima positivo e motivador na equipe
+Venda, apresentação e comunicação públicas
+Capacidade de mobilizar emocionalmente
+Adaptabilidade social e empatia situacional
+Pontos de atenção
+Tendência a deixar tarefas incompletas
+Dificuldade com foco e organização
+Pode prometer mais do que consegue entregar
+Dificuldade em lidar com rejeição
+O que o motiva
+Reconhecimento público e aprovação social
+Projetos criativos e com pessoas
+Ambientes dinâmicos e colaborativos
+O que o desmotiva
+Trabalho isolado e repetitivo
+Críticas sem reconhecimento prévio
+Ambientes muito rígidos e formais
+S
+Estável
+PLANEJADOR · COLABORADOR
+Características principais
+Paciente, leal e de confiança absoluta
+Excelente ouvinte e mediador natural
+Prefere ambientes estáveis e previsíveis
+Alta capacidade de manter relacionamentos longos
+Comprometido com o time antes de si mesmo
+Pontos fortes
+Confiabilidade e consistência nas entregas
+Construção e manutenção de relacionamentos
+Suporte emocional à equipe
+Execução disciplinada de processos
+Pontos de atenção
+Resistência a mudanças repentinas
+Dificuldade em dizer não ou confrontar
+Pode acumular ressentimentos silenciosamente
+Dificuldade em tomar iniciativa sem direcionamento
+O que o motiva
+Estabilidade, segurança e harmonia
+Reconhecimento pela lealdade e esforço
+Trabalho em equipe unida
+O que o desmotiva
+Conflitos internos na equipe
+Mudanças constantes sem explicação
+Falta de reconhecimento pelo esforço
+C
+Conforme
+ANALISTA · ESTRATEGISTA
+Características principais
+Analítico, meticuloso e orientado à qualidade
+Exige dados e evidências antes de decidir
+Alta capacidade de planejamento e estruturação
+Introvertido e reservado emocionalmente
+Forte tendência perfeccionista
+Pontos fortes
+Análise profunda e identificação de erros
+Planejamento estratégico e estruturado
+Alta precisão nas entregas
+Capacidade de aprendizado técnico rápido
+Pontos de atenção
+Paralisia por análise — dificuldade em decidir
+Pode ser percebido como frio ou distante
+Crítico excessivo com erros alheios e próprios
+Dificuldade em delegar (medo do erro)
+O que o motiva
+Qualidade, precisão e excelência técnica
+Clareza nas expectativas e regras
+Projetos com alto nível de complexidade
+O que o desmotiva
+Ambiguidade e falta de processos claros
+Pressão por velocidade sem qualidade
+Ambiente muito emocional e impulsivo
+06 · Banco de Questões
+As questões
+do assessment
+28 questões situacionais. Cada questão tem 4 opções correspondendo aos perfis D, I, S e C. O avaliado escolhe apenas 1 opção por questão.
+Como implementar: Cada questão tem 4 opções. Cada opção está mapeada a um fator DISC (D, I, S ou C). Quando o avaliado escolhe uma opção, o sistema incrementa +1 no fator correspondente. Ao final, os 4 contadores são normalizados para percentual (0-100%). Veja seção 07 para a fórmula de cálculo.
+Bloco 1 — Comportamento no Trabalho (Q01–Q07)
+7 questões · Situações do dia a dia
+Q01
+Quando você recebe um projeto novo com prazo curto, sua reação mais natural é:
+D
+Partir para a ação imediatamente, definindo o que precisa ser feito
+I
+Reunir a equipe para alinhar e criar entusiasmo coletivo
+S
+Entender bem o escopo antes de começar, para não ter retrabalho
+C
+Mapear todos os riscos e montar um plano detalhado antes de executar
+Q02
+Em uma reunião de equipe com opiniões divergentes, você geralmente:
+D
+Toma uma posição clara e defende seu ponto de vista com firmeza
+I
+Tenta aproximar os lados e criar um ambiente mais leve para o debate
+S
+Ouve todos com atenção antes de emitir qualquer opinião
+C
+Apresenta dados e fatos para embasar a discussão tecnicamente
+Q03
+Quando você precisa delegar uma tarefa importante para alguém, você:
+D
+Define claramente o resultado esperado e deixa a pessoa descobrir o caminho
+I
+Conversa com entusiasmo sobre a tarefa e motiva a pessoa a assumir o desafio
+S
+Explica o passo a passo com calma e se coloca à disposição para apoiar
+C
+Fornece todas as informações, checklists e padrões de qualidade esperados
+Q04
+Diante de um problema inesperado que precisa de solução rápida, você:
+D
+Decide rapidamente e age — prefere errar e corrigir do que esperar
+I
+Chama as pessoas envolvidas e busca uma saída criativa em conjunto
+S
+Busca entender a causa raiz antes de propor qualquer solução
+C
+Analisa as alternativas com critério antes de escolher o melhor caminho
+Q05
+Quanto à sua forma de dar feedback para alguém da equipe, você costuma:
+D
+Ser direto e objetivo, mesmo que o feedback seja difícil de ouvir
+I
+Começar valorizando os pontos positivos e usar uma abordagem empática
+S
+Esperar o momento certo, num ambiente seguro e de confiança
+C
+Estruturar o feedback com exemplos concretos e dados antes de conversar
+Q06
+Quando você está sob pressão e com muitas demandas simultâneas, você tende a:
+D
+Focar nas tarefas de maior impacto e cortar o que não é prioritário
+I
+Pedir ajuda ao time e dividir as tarefas com energia positiva
+S
+Manter a calma e seguir a rotina — não gosta de quebrar processos
+C
+Reorganizar as prioridades de forma lógica e sistemática
+Q07
+Ao iniciar um novo trabalho em uma empresa ou equipe nova, você normalmente:
+D
+Já começa mostrando resultados rapidamente para demonstrar competência
+I
+Investe tempo em conhecer e criar vínculos com todos da equipe primeiro
+S
+Observa a cultura e os processos antes de propor qualquer mudança
+C
+Estuda a fundo os processos, dados e histórico da empresa
+Bloco 2 — Liderança e Relacionamentos (Q08–Q14)
+7 questões · Situações de liderança
+Q08
+Seu estilo natural ao liderar uma equipe é:
+D
+Definir metas claras, cobrar resultados e empoderar quem entrega
+I
+Inspirar, engajar e criar um ambiente de alta energia e colaboração
+S
+Dar suporte constante, ouvir as necessidades individuais e construir confiança
+C
+Estabelecer processos claros, métricas de qualidade e padrões de excelência
+Q09
+Quando um membro da sua equipe comete um erro sério, você:
+D
+Aponta o erro diretamente e cobra a solução imediata
+I
+Conversa de forma positiva, focando no aprendizado e no próximo passo
+S
+Entende o que aconteceu com empatia antes de qualquer cobrança
+C
+Analisa as causas do erro e propõe um processo para que não se repita
+Q10
+Na hora de motivar alguém que está desmotivado, você prefere:
+D
+Dar um desafio novo e estimulante para a pessoa se reinventar
+I
+Conversar, elogiar o potencial da pessoa e criar entusiasmo pelo futuro
+S
+Ouvir com atenção o que a pessoa está sentindo e oferecer apoio genuíno
+C
+Apresentar dados que mostrem a evolução da pessoa e um plano de desenvolvimento
+Q11
+Quando há conflito entre dois membros da equipe, você normalmente:
+D
+Toma uma posição clara e define o que vai acontecer para resolver logo
+I
+Reúne os dois, cria um clima de conversa positiva e busca reconciliação
+S
+Ouve cada lado separadamente com paciência antes de qualquer intervenção
+C
+Investiga os fatos, identifica a causa raiz e propõe uma solução justa e estruturada
+Q12
+Sua maior fonte de satisfação profissional vem de:
+D
+Superar metas desafiadoras e ver resultados concretos
+I
+Influenciar pessoas e ser reconhecido pelo impacto que gera
+S
+Ver sua equipe crescendo e se sentir útil para o sucesso coletivo
+C
+Entregar trabalhos de alta qualidade e resolver problemas complexos
+Q13
+Quando você precisa comunicar uma decisão difícil para sua equipe, você:
+D
+Vai direto ao ponto — comunica a decisão e o racional de forma objetiva
+I
+Cria um contexto positivo, trata o impacto emocional antes de comunicar
+S
+Conversa individualmente com os mais impactados antes do anúncio geral
+C
+Prepara uma apresentação completa com dados, contexto e próximos passos
+Q14
+Na construção de uma equipe, você prioriza contratar pessoas que:
+D
+São altamente orientadas a resultados e não têm medo de desafios
+I
+Têm boa comunicação, energia positiva e fit cultural com o time
+S
+São confiáveis, leais e comprometidas com o trabalho em equipe
+C
+Têm competência técnica comprovada e alto nível de organização
+Bloco 3 — Tomada de Decisão (Q15–Q21)
+7 questões · Como decide e age
+Q15
+Quando precisa tomar uma decisão importante, você geralmente:
+D
+Decide com agilidade — acredita que uma decisão feita agora vale mais que a perfeita amanhã
+I
+Consulta pessoas de confiança para sentir as perspectivas antes de decidir
+S
+Pensa bem e considera o impacto da decisão nas pessoas envolvidas
+C
+Pesquisa profundamente, coleta dados e só decide quando tem segurança suficiente
+Q16
+Quando seu projeto enfrenta um obstáculo sério no meio do caminho, você:
+D
+Enfrenta de frente — o obstáculo não vai te parar
+I
+Busca alternativas criativas e engaja o time para encontrar uma saída
+S
+Reavalia o plano com cuidado e busca uma solução que minimize os impactos
+C
+Analisa as causas do obstáculo e cria um plano alternativo bem estruturado
+Q17
+Sua postura diante de regras e processos estabelecidos é:
+D
+Seguir quando fazem sentido — mas não hesita em questionar os que travam o resultado
+I
+Adaptar conforme a situação — as pessoas importam mais que os processos
+S
+Respeitar e seguir — acredita que processos criam estabilidade e previsibilidade
+C
+Seguir rigorosamente — regras existem por uma razão e precisam ser cumpridas
+Q18
+Ao apresentar uma ideia nova para alguém, você costuma:
+D
+Ir direto ao ponto — qual é o resultado e por que vale a pena
+I
+Criar entusiasmo e contar a história da ideia de forma envolvente
+S
+Explicar como a ideia vai impactar positivamente as pessoas envolvidas
+C
+Apresentar dados, pesquisas e uma análise completa que sustente a ideia
+Q19
+Quando você recebe uma crítica ao seu trabalho, sua primeira reação é:
+D
+Responder com firmeza — defende seu ponto se acredita que está certo
+I
+Sentir o impacto emocional primeiro — críticas te afetam mais do que você gostaria
+S
+Ouvir com atenção e avaliar com cuidado antes de responder
+C
+Analisar friamente se a crítica tem base — e só então aceitar ou refutar
+Q20
+Em um projeto de longo prazo, o que mais te preocupa é:
+D
+Que as coisas fiquem lentas demais e percam o ritmo
+I
+Que o time perca o engajamento e a energia ao longo do tempo
+S
+Que mudanças inesperadas desestabilizem a equipe e os processos
+C
+Que a qualidade caia por causa da pressão de tempo
+Q21
+Diante de uma mudança significativa na organização, sua postura natural é:
+D
+Ver como oportunidade — gosta de ambientes em transformação
+I
+Engajar as pessoas na mudança e ajudar a criar adesão coletiva
+S
+Precisar de tempo para assimilar — mudanças precisam de um ritmo respeitoso
+C
+Questionar o porquê, entender os dados por trás e só depois apoiar
+Bloco 4 — Autoconhecimento (Q22–Q28)
+7 questões · Como você se vê
+Q22
+As pessoas que convivem com você profissionalmente mais te descrevem como:
+D
+Determinado, focado e que sempre entrega o que promete
+I
+Animado, comunicativo e que motiva todo mundo ao redor
+S
+Confiável, paciente e que sempre apoia o time nos momentos difíceis
+C
+Criterioso, organizado e que mantém a qualidade em tudo que faz
+Q23
+Qual das situações abaixo mais te gera desconforto no trabalho?
+D
+Ser controlado ou ter sua autonomia limitada
+I
+Trabalhar sozinho por longos períodos sem interação social
+S
+Conviver com conflitos constantes e ambiente de alta pressão
+C
+Ter que entregar algo sem ter o tempo necessário para fazer bem feito
+Q24
+Quando você está no seu melhor, as pessoas ao redor percebem que você:
+D
+Está no modo de alta performance — foco total em resultados e eficiência
+I
+Está irradiando energia positiva e movendo o ambiente ao redor
+S
+Está sendo o porto seguro de todos — apoio, equilíbrio e generosidade
+C
+Está no estado de maestria — cada detalhe no lugar, padrão mais alto
+Q25
+Qual habilidade você acredita ser seu maior diferencial profissional?
+D
+A capacidade de tomar decisões rápidas e mover as coisas com velocidade
+I
+A habilidade de engajar, persuadir e conectar pessoas a uma causa
+S
+A consistência, lealdade e capacidade de construir relações duradouras
+C
+A capacidade de análise, planejamento e execução com alta qualidade
+Q26
+No ambiente ideal de trabalho, você prefere:
+D
+Alta autonomia, metas claras e liberdade para executar do seu jeito
+I
+Ambiente colaborativo, descontraído e com muito espaço para criatividade
+S
+Equipe unida, processos claros e clima de confiança e estabilidade
+C
+Expectativas claras, padrões de qualidade definidos e espaço para aprofundamento
+Q27
+Quando você pensa no seu desenvolvimento profissional, você mais deseja:
+D
+Crescer em posições de liderança com mais poder e responsabilidade
+I
+Ampliar seu impacto — influenciar mais pessoas e ter mais visibilidade
+S
+Construir uma carreira sólida em uma empresa onde se sinta valorizado
+C
+Tornar-se referência técnica na sua área de atuação
+Q28
+Qual frase mais representa a forma como você enxerga liderança?
+D
+"Liderar é ter a coragem de tomar decisões difíceis e aceitar a responsabilidade pelos resultados"
+I
+"Liderar é inspirar pessoas a acreditarem no impossível e mover-se juntas em direção a ele"
+S
+"Liderar é servir — colocar as pessoas à frente e criar o ambiente para que elas floresçam"
+C
+"Liderar é construir sistemas excelentes onde as pessoas encontram clareza para dar o seu melhor"
+07 · Lógica de Cálculo
+Como calcular
+o perfil
+Algoritmo completo de pontuação e determinação do perfil a ser implementado no backend.
+Algoritmo de cálculo (implementar no backend):
+// algoritmo de cálculo do perfil DISC
+// 1. CONTAGEM DE RESPOSTAS
+contador = { D: 0, I: 0, S: 0, C: 0 }
+// Para cada resposta do avaliado:
+contador[resposta.fator] += 1
+// 2. CÁLCULO DOS PERCENTUAIS
+// Total de questões = 28
+percentual_D = (contador.D / 28) * 100
+percentual_I = (contador.I / 28) * 100
+percentual_S = (contador.S / 28) * 100
+percentual_C = (contador.C / 28) * 100
+// 3. DETERMINAÇÃO DO PERFIL PRIMÁRIO
+perfil_primario = fator_com_maior_percentual
+// Ex: se D=40%, I=25%, S=20%, C=15% → perfil_primario = "D"
+// 4. DETERMINAÇÃO DO PERFIL SECUNDÁRIO
+perfil_secundario = fator_com_segundo_maior_percentual
+// Ex: continuando → perfil_secundario = "I"
+// 5. NOME DO PERFIL COMBINADO
+perfil_combinado = perfil_primario + "/" + perfil_secundario
+// Ex: "D/I", "I/S", "S/C", "C/D", etc.
+// 6. DADOS PARA O RELATÓRIO
+resultado = {
+nome_avaliado: string,
+percentual_D: float, // ex: 42.8
+percentual_I: float, // ex: 25.0
+percentual_S: float, // ex: 17.8
+percentual_C: float, // ex: 14.3
+perfil_primario: "D" | "I" | "S" | "C",
+perfil_secundario: "D" | "I" | "S" | "C",
+perfil_combinado: string, // ex: "D/I"
+data_realizacao: datetime
+}
+// 7. ESTE OBJETO É PASSADO PARA A API DA IA
+// Ver seção 10 para o prompt completo
+Regra de empate: Se dois fatores tiverem o mesmo percentual, o sistema deve apresentar ambos como primários (ex: "D=I") e gerar a narrativa considerando os dois igualmente dominantes. Usar flag empate: true no payload da IA.
+08 · Encaixe de Cargos
+Onde cada perfil se encaixa melhor
+Esta seção aparece no relatório indicando quais funções e cargos são mais naturais para o perfil do avaliado. O desenvolvedor deve armazenar esta tabela e exibir no relatório conforme o perfil calculado.
+Perfil D — Dominante
+Cargos de alto encaixe
+CEO e Diretor Executivo
+Diretor Comercial / Head de Vendas
+Gerente Geral de Operações
+Empreendedor / Fundador
+Gerente de Projetos Complexos
+Líder de Times de Alta Performance
+Gestor de Crise
+Militar e Segurança Pública (nível gestão)
+Cargos de baixo encaixe
+Atendimento ao cliente (requer paciência)
+Cargos altamente regulados e repetitivos
+Posições com microgestão intensa
+Perfil I — Influente
+Cargos de alto encaixe
+Vendedor e Consultor Comercial
+Treinador e Facilitador
+Marketing e Comunicação
+Relações Públicas
+Recursos Humanos (Recrutamento)
+Professor e Palestrante
+Influenciador Digital e Criador de Conteúdo
+Liderança de Comunidades
+Cargos de baixo encaixe
+Análise de dados e contabilidade
+Trabalho técnico isolado de longo prazo
+Controle de qualidade rigoroso
+Perfil S — Estável
+Cargos de alto encaixe
+Psicólogo e Assistente Social
+Enfermagem e Cuidados em Saúde
+Recursos Humanos (Gestão de Pessoas)
+Professor do Ensino Básico
+Coordenador de Projetos Colaborativos
+Atendimento ao Cliente Premium
+Mediador e Conselheiro
+Operações e Logística
+Cargos de baixo encaixe
+Vendas de alta pressão e ciclo curto
+Ambientes de mudança constante
+Cargos de gestão de crise
+Perfil C — Conforme
+Cargos de alto encaixe
+Analista de Dados e BI
+Engenheiro e Arquiteto
+Contador e Auditor
+Desenvolvedor de Software
+Jurídico e Compliance
+Planejamento Estratégico
+Pesquisador e Cientista
+Gestor da Qualidade (ISO, processos)
+Cargos de baixo encaixe
+Liderança de alto contato social
+Vendas com improviso constante
+Gestão de crise sem dados
+09 · Estilo de Liderança
+Como liderar cada perfil
+Esta seção aparece no relatório do facilitador ensinando COMO gerir um colaborador com este perfil. É o diferencial mais solicitado por gestores e empresas.
+Perfil
+Como LÍDER deste perfil age
+Como GERIR alguém com este perfil
+O que NUNCA fazer
+D — Dominante
+Define metas desafiadoras, delega com autonomia, cobra por resultados e não por processos. Toma decisões rapidamente e assume a frente em momentos de crise.
+Dar autonomia real. Dar desafios que valham a pena. Ser direto e objetivo. Não perder tempo com detalhes desnecessários na comunicação. Reconhecer conquistas com impacto.
+Microgerir, controlar cada passo, colocar em cargos sem poder de decisão, dar feedback indireto ou "envolvido em algodão", criar reuniões sem objetivo claro.
+I — Influente
+Inspira e motiva com energia alta, usa storytelling, cria cultura positiva. Prefere resolver conflitos com conversa e entusiasmo. Representa bem a empresa externamente.
+Dar reconhecimento público frequente. Envolver em projetos com pessoas e comunicação. Criar um ambiente social e colaborativo. Deixar espaço para criatividade. Dar feedbacks positivos antes dos construtivos.
+Isolá-lo em trabalho técnico solitário, dar apenas críticas sem elogios, criar ambiente frio e distante, cobrar organização excessiva sem suporte, ignorar suas contribuições criativas.
+S — Estável
+Cria ambiente seguro e de confiança. Apoia individualmente cada membro. Resolve conflitos com paciência. Mantém a consistência da equipe em momentos de turbulência.
+Dar estabilidade e previsibilidade. Avisar mudanças com antecedência. Criar espaço de confiança para falar. Valorizar a lealdade e o esforço. Dar tarefas com papel claro na equipe.
+Mudar tudo de repente sem explicação, pressionar com urgências constantes, ignorar contribuições silenciosas, criar ambientes de conflito aberto, cobrar resultados sem suporte emocional.
+C — Conforme
+Define padrões de qualidade, cria processos estruturados, resolve problemas com análise profunda. Exige excelência de si mesmo e da equipe. Referência técnica natural.
+Dar expectativas claras e métricas definidas. Respeitar o ritmo de análise antes de decidir. Dar acesso a dados e informações. Reconhecer a qualidade e precisão do trabalho. Valorizar o expertise técnico.
+Pressionar para decidir sem dados suficientes, criar um ambiente caótico, ignorar o processo em favor da velocidade, criticar o perfeccionismo sem entender sua origem, colocar em cargos de alta exposição emocional.
+10 · Integração com IA
+Como usar a Claude API
+A narrativa do relatório é gerada pela API do Claude (Anthropic). O desenvolvedor precisa implementar esta chamada após o cálculo do perfil.
+API utilizada: Anthropic Claude API · Endpoint: https://api.anthropic.com/v1/messages · Modelo: claude-sonnet-4-20250514 · A chave de API fica no servidor (nunca exposta no frontend).
+// chamada da API — backend Node.js
+const response = await fetch("https://api.anthropic.com/v1/messages", {
+method: "POST",
+headers: {
+"Content-Type": "application/json",
+"x-api-key": process.env.ANTHROPIC_API_KEY
+,
+"anthropic-version": "2023-06-01"
+},
+body: JSON.stringify({
+model: "claude-sonnet-4-20250514"
+,
+max_tokens: 2000,
+system: `Você é um especialista em comportamento humano e desenvolvimento de liderança
+com 20 anos de experiência. Você interpreta resultados de assessments DISC e
+gera relatórios de perfil comportamental em português brasileiro.
+Seu relatório deve ser: profundo, personalizado, respeitoso e orientado ao
+desenvolvimento. Nunca use linguagem clínica ou fria. Use linguagem de liderança,
+desenvolvimento humano e transformação pessoal. Não mencione a metodologia DISC
+pelo nome no texto narrativo — use linguagem natural.`
+,
+messages: [{
+role: "user",
+content: `Gere um relatório completo de perfil comportamental para:
+Nome: ${resultado.nome_avaliado}
+Perfil Primário: ${resultado.perfil_primario}
+Perfil Secundário: ${resultado.perfil_secundario}
+Percentual D (Dominância): ${resultado.percentual_D}%
+Percentual I (Influência): ${resultado.percentual_I}%
+Percentual S (Estabilidade): ${resultado.percentual_S}%
+Percentual C (Conformidade): ${resultado.percentual_C}%
+Gere exatamente as seguintes seções em JSON:
+{
+"resumo_perfil": "Parágrafo de 3-4 frases descrevendo a essência do perfil desta pessoa",
+"pontos_fortes": ["lista com 5 pontos fortes específicos para este perfil combinado"],
+"desafios": ["lista com 4 pontos de atenção e desenvolvimento"],
+"motivadores": "Parágrafo de 2-3 frases sobre o que motiva e engaja esta pessoa",
+"ambiente_ideal": "Parágrafo de 2-3 frases sobre o ambiente de trabalho onde esta pessoa performa melhor",
+"estilo_comunicacao": "Parágrafo de 2-3 frases sobre como esta pessoa se comunica e prefere ser comunicada",
+"lideranca_natural": "Parágrafo de 2-3 frases sobre o estilo natural de liderança desta pessoa",
+"plano_desenvolvimento": ["lista com 3 ações práticas de desenvolvimento específicas para este perfil"],
+"frase_perfil": "Uma frase marcante que captura a essência desta pessoa (tipo: 'Você é alguém que...')"
+}
+Responda APENAS com o JSON válido, sem texto antes ou depois.`
+}]
+})
+})
+11 · Estrutura do Relatório
+O que o PDF
+precisa ter
+Estrutura completa do relatório PDF gerado pela plataforma. Ordem das seções e conteúdo de cada uma.
+#
+Seção do Relatório
+Conteúdo
+Fonte dos dados
+1
+Capa
+Logo Impacto Academy, nome do avaliado, data, tipo de relatório, perfil identificado (ex: "D/I")
+Banco de dados
+2
+Resumo do Perfil
+Gráfico de barras com os 4 percentuais DISC (D, I, S, C), perfil primário e secundário em destaque
+Algoritmo de cálculo
+3
+Quem você é
+Parágrafo narrativo gerado pela IA (campo: resumo_perfil)
+Claude API
+4
+Seus pontos fortes
+Lista de 5 pontos fortes gerados pela IA (campo: pontos_fortes)
+Claude API
+5
+Pontos de atenção
+Lista de 4 desafios e pontos de desenvolvimento (campo: desafios)
+Claude API
+6
+O que te move
+Narrativa sobre motivadores intrínsecos (campo: motivadores)
+Claude API
+7
+Seu ambiente ideal
+Descrição do ambiente onde a pessoa performa melhor (campo: ambiente_ideal)
+Claude API
+8
+Como você se comunica
+Estilo de comunicação e como prefere ser comunicado (campo: estilo_comunicacao)
+Claude API
+9
+Seu estilo de liderança
+Como esta pessoa lidera naturalmente (campo: lideranca_natural)
+Claude API
+10
+Onde você se encaixa
+Lista de cargos e funções de alto encaixe para o perfil (tabela da seção 08)
+Tabela estática por perfil
+11
+Como liderar este perfil
+Orientações para o gestor sobre como gerir este perfil (tabela da seção 09)
+Tabela estática por perfil
+12
+Plano de desenvolvimento
+3 ações práticas de desenvolvimento geradas pela IA (campo: plano_desenvolvimento)
+Claude API
+13
+Frase do perfil
+Frase marcante final gerada pela IA (campo: frase_perfil)
+Claude API
+14
+Rodapé
+Gerado por Impacto Academy · impactoacademy.com.br · (44) 99159-5998
+Estático
+Geração do PDF: Usar a biblioteca puppeteer (Node.js) para renderizar uma página HTML e exportar como PDF. Ou usar a biblioteca jsPDF + html2canvas no backend. O PDF deve ter tamanho A4, margens de 20mm, fontes embutidas e cores da identidade visual: Azul marinho #0B1E3D, Laranja #F47B20, Preto #080D14, Branco #F8F6F1.
+12 · Banco de Dados e Negócio
+Modelo de dados e modelo de negócio
+Stack recomendada: Next.js 14+ (App Router) · PostgreSQL · Prisma ORM · NextAuth.js · Stripe (pagamentos) · Resend (emails transacionais) · Puppeteer (geração de PDF) · Hosted em VPS Linux com Nginx + PM2.
+Tabelas principais do banco de dados
+TABLE: users
+-- admins e facilitadores
+id
+UUID PRIMARY KEY
+name
+VARCHAR(255)
+email
+VARCHAR(255) UNIQUE
+role
+ENUM('admin','facilitador')
+credits_balance
+INTEGER DEFAULT 0
+-- saldo de créditos
+company_name
+VARCHAR(255)
+-- nome da empresa/consultoria
+active
+BOOLEAN DEFAULT true
+created_at
+TIMESTAMP
+TABLE: assessments
+-- cada avaliação criada
+id
+UUID PRIMARY KEY
+token
+VARCHAR(128) UNIQUE
+-- token do link único
+facilitador_id
+UUID REFERENCES users(id)
+avaliado_nome
+VARCHAR(255)
+avaliado_email
+VARCHAR(255)
+tipo_relatorio
+ENUM('S1','S2','S3','S4')
+status
+ENUM('pendente','em_andamento','concluido','expirado')
+credits_used
+INTEGER
+expires_at
+TIMESTAMP
+-- 7 dias após criação
+completed_at
+TIMESTAMP
+created_at
+TIMESTAMP
+TABLE: results
+-- resultado calculado de cada assessment
+id
+UUID PRIMARY KEY
+assessment_id
+UUID REFERENCES assessments(id)
+percentual_d
+DECIMAL(5,2)
+percentual_i
+DECIMAL(5,2)
+percentual_s
+DECIMAL(5,2)
+percentual_c
+DECIMAL(5,2)
+perfil_primario
+CHAR(1)
+-- 'D','I','S' ou 'C'
+perfil_secundario
+CHAR(1)
+narrativa_ia
+JSONB
+-- JSON completo retornado pelo Claude
+pdf_url
+TEXT
+-- URL do PDF gerado no storage
+created_at
+TIMESTAMP
+TABLE: answers
+-- respostas individuais
+id
+UUID PRIMARY KEY
+assessment_id
+UUID REFERENCES assessments(id)
+question_num
+INTEGER
+-- 1 a 28
+fator_escolhido
+CHAR(1)
+-- 'D','I','S' ou 'C'
+answered_at
+TIMESTAMP
+TABLE: credit_transactions
+-- histórico financeiro
+id
+UUID PRIMARY KEY
+user_id
+UUID REFERENCES users(id)
+tipo
+ENUM('compra','uso','estorno','bonus')
+quantidade
+INTEGER
+descricao
+TEXT
+assessment_id
+UUID REFERENCES assessments(id)
+-- quando tipo='uso'
+created_at
+TIMESTAMP
+Tabela de preços e créditos por tipo de relatório
+Tipo
+Nome
+Créditos consumidos
+Conteúdo do relatório
+Preço sugerido de revenda
+S1
+Perfil Essencial
+1 crédito
+DISC + Narrativa IA básica + Encaixe de cargos
+R$97 – R$147
+S2
+Perfil Completo
+2 créditos
+S1 + Estilo de liderança + Como gerir este perfil
+R$147 – R$197
+S3
+Perfil Executivo
+3 créditos
+S2 + Plano de Desenvolvimento Individual (PDI)
+R$197 – R$297
+S4
+Perfil Estratégico
+4 créditos
+S3 + Dashboard online do avaliado + Histórico de evolução
+R$297 – R$497
+Pacotes de créditos para facilitadores
+Pacote
+Créditos
+Preço de venda (Valmer cobra)
+Custo por crédito
+Público-alvo
+Starter
+10 créditos
+R$290
+R$29/crédito
+Consultores iniciando, testando a ferramenta
+Pro
+50 créditos
+R$990
+R$19,90/crédito
+Consultores ativos, empresas médias
+Business
+100 créditos
+R$1.790
+R$17,90/crédito
+Consultoras de RH, empresas maiores
+Enterprise
+500 créditos
+R$6.990
+R$13,98/crédito
+Grandes empresas, contratos anuais
+IMPACTO ACADEMY · DOCUMENTO CONFIDENCIAL · Valmer Albuquerque · (44) 99159-5998

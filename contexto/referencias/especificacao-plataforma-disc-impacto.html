@@ -1,0 +1,1980 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Especificações Técnicas — Plataforma DISC Impacto Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@600;700&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F7F5F0;
+  --surface: #FFFFFF;
+  --surface2: #F0EDE6;
+  --navy: #0B1E3D;
+  --navy-light: #1C3566;
+  --orange: #E8621A;
+  --orange-light: #F47B20;
+  --orange-dim: rgba(232,98,26,0.08);
+  --orange-border: rgba(232,98,26,0.25);
+  --text: #1A1614;
+  --muted: #6B6560;
+  --border: #DDD9D0;
+  --green: #166534;
+  --green-bg: #F0FDF4;
+  --red: #991B1B;
+  --red-bg: #FEF2F2;
+  --blue: #1E3A8A;
+  --blue-bg: #EFF6FF;
+  --purple: #581C87;
+  --purple-bg: #FAF5FF;
+  --yellow-bg: #FEFCE8;
+  --yellow: #713F12;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'IBM Plex Sans', sans-serif;
+  line-height: 1.6;
+}
+
+/* CAPA */
+.cover {
+  background: var(--navy);
+  color: white;
+  padding: 80px 64px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cover::after {
+  content: '';
+  position: absolute;
+  right: -100px; top: -100px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(232,98,26,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.cover-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--orange-light);
+  margin-bottom: 32px;
+}
+
+.cover h1 {
+  font-family: 'IBM Plex Serif', serif;
+  font-size: clamp(36px, 5vw, 60px);
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  max-width: 800px;
+}
+
+.cover h1 span { color: var(--orange-light); }
+
+.cover-desc {
+  font-size: 16px;
+  color: rgba(255,255,255,0.65);
+  max-width: 600px;
+  line-height: 1.8;
+  margin-bottom: 48px;
+}
+
+.cover-meta {
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.cover-meta-item {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+}
+
+.cover-meta-item strong {
+  display: block;
+  font-size: 15px;
+  color: white;
+  margin-bottom: 2px;
+}
+
+/* ÍNDICE */
+.toc {
+  background: var(--surface);
+  border-bottom: 3px solid var(--orange);
+  padding: 48px 64px;
+}
+
+.toc h2 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+.toc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.toc-item {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.toc-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--orange);
+  flex-shrink: 0;
+  font-weight: 500;
+}
+
+/* MAIN */
+.main { max-width: 1100px; margin: 0 auto; padding: 0 64px 80px; }
+
+/* SECTION */
+.spec-section {
+  padding: 64px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.spec-section:last-child { border-bottom: none; }
+
+.section-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--orange);
+  background: var(--orange-dim);
+  border: 1px solid var(--orange-border);
+  padding: 5px 14px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.section-h2 {
+  font-family: 'IBM Plex Serif', serif;
+  font-size: clamp(26px, 3.5vw, 40px);
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 12px;
+  color: var(--navy);
+}
+
+.section-h2 span { color: var(--orange); }
+
+.section-lead {
+  font-size: 15px;
+  color: var(--muted);
+  max-width: 680px;
+  line-height: 1.8;
+  margin-bottom: 40px;
+}
+
+/* NOTA PARA DESENVOLVEDOR */
+.dev-note {
+  background: var(--blue-bg);
+  border-left: 4px solid var(--blue);
+  border-radius: 0 8px 8px 0;
+  padding: 18px 24px;
+  margin-bottom: 24px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--blue);
+}
+
+.dev-note strong { font-weight: 600; }
+
+.context-note {
+  background: var(--orange-dim);
+  border-left: 4px solid var(--orange);
+  border-radius: 0 8px 8px 0;
+  padding: 18px 24px;
+  margin-bottom: 24px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #7C2D12;
+}
+
+/* CARDS */
+.cards-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.cards-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.cards-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.spec-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 24px;
+}
+
+.spec-card.highlight {
+  border-color: var(--orange-border);
+  background: var(--orange-dim);
+}
+
+.card-icon { font-size: 24px; margin-bottom: 14px; }
+
+.card-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.spec-card h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 10px;
+}
+
+.spec-card p, .spec-card li {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.spec-card ul { list-style: none; }
+.spec-card ul li::before { content: '→ '; color: var(--orange); }
+
+/* TABELA */
+.spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-bottom: 32px;
+  background: var(--surface);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.spec-table thead tr {
+  background: var(--navy);
+  color: white;
+}
+
+.spec-table th {
+  padding: 14px 20px;
+  text-align: left;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.spec-table td {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.6;
+}
+
+.spec-table tr:last-child td { border-bottom: none; }
+.spec-table tbody tr:hover { background: var(--surface2); }
+
+/* PERFIS DISC */
+.disc-profiles {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.disc-profile-card {
+  border-radius: 14px;
+  padding: 32px;
+  border: 2px solid;
+}
+
+.disc-d { background: #FEF2F2; border-color: #FECACA; }
+.disc-i { background: #FEFCE8; border-color: #FEF08A; }
+.disc-s { background: #F0FDF4; border-color: #BBF7D0; }
+.disc-c { background: #EFF6FF; border-color: #BFDBFE; }
+
+.disc-letter {
+  font-family: 'IBM Plex Serif', serif;
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.disc-d .disc-letter { color: #DC2626; }
+.disc-i .disc-letter { color: #CA8A04; }
+.disc-s .disc-letter { color: #16A34A; }
+.disc-c .disc-letter { color: #2563EB; }
+
+.disc-profile-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+
+.disc-profile-nick {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+.disc-sub-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 14px 0 8px;
+}
+
+.disc-profile-card p, .disc-profile-card li {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.65;
+}
+
+.disc-profile-card ul { list-style: none; padding: 0; }
+.disc-profile-card ul li { padding: 3px 0; }
+.disc-d ul li::before { content: '◆ '; color: #DC2626; font-size: 10px; }
+.disc-i ul li::before { content: '◆ '; color: #CA8A04; font-size: 10px; }
+.disc-s ul li::before { content: '◆ '; color: #16A34A; font-size: 10px; }
+.disc-c ul li::before { content: '◆ '; color: #2563EB; font-size: 10px; }
+
+/* LISTA DE QUESTÕES */
+.questions-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+
+.qblock-header {
+  background: var(--navy);
+  color: white;
+  padding: 18px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.qblock-header h4 {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.qblock-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+}
+
+.qblock-body { padding: 28px; }
+
+.question-item {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.question-item:last-child { border-bottom: none; }
+
+.question-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--orange);
+  margin-bottom: 6px;
+}
+
+.question-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--navy);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.question-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.q-opt {
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.q-opt-letter {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.opt-d { background: #FEE2E2; color: #DC2626; }
+.opt-i { background: #FEF9C3; color: #A16207; }
+.opt-s { background: #DCFCE7; color: #15803D; }
+.opt-c { background: #DBEAFE; color: #1D4ED8; }
+
+/* COMPETÊNCIAS */
+.competencias-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.comp-pill {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 12px;
+  color: var(--navy);
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.comp-pill.grupo-1 { border-top: 3px solid #DC2626; }
+.comp-pill.grupo-2 { border-top: 3px solid #CA8A04; }
+.comp-pill.grupo-3 { border-top: 3px solid #16A34A; }
+.comp-pill.grupo-4 { border-top: 3px solid #2563EB; }
+.comp-pill.grupo-5 { border-top: 3px solid var(--orange); }
+
+/* FLUXO */
+.flow-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+  margin-bottom: 32px;
+}
+
+.flow-step {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 24px;
+  padding-bottom: 32px;
+  position: relative;
+}
+
+.flow-step::before {
+  content: '';
+  position: absolute;
+  left: 27px;
+  top: 56px;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+}
+
+.flow-step:last-child::before { display: none; }
+
+.flow-dot {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.flow-dot.orange { background: var(--orange); }
+
+.flow-content {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.flow-content h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 8px;
+}
+
+.flow-content p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* PROMPT EXEMPLO */
+.prompt-box {
+  background: #0F172A;
+  border-radius: 12px;
+  padding: 32px;
+  margin-bottom: 32px;
+  position: relative;
+}
+
+.prompt-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #64748B;
+  margin-bottom: 16px;
+}
+
+.prompt-box pre {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  line-height: 1.8;
+  color: #E2E8F0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.prompt-box .highlight-text { color: #FB923C; }
+.prompt-box .variable { color: #86EFAC; }
+.prompt-box .comment { color: #64748B; }
+
+/* MODELO DE NEGÓCIO */
+.pricing-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 32px;
+}
+
+.pricing-table th, .pricing-table td {
+  padding: 16px 20px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.pricing-table thead th {
+  background: var(--navy);
+  color: white;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.pricing-table tbody tr:last-child td { border-bottom: none; }
+.pricing-table tbody tr:nth-child(even) { background: var(--surface2); }
+
+/* ENCAIXE DE CARGOS */
+.encaixe-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.encaixe-card {
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid;
+}
+
+.encaixe-d { background: #FEF2F2; border-color: #FECACA; }
+.encaixe-i { background: #FEFCE8; border-color: #FEF08A; }
+.encaixe-s { background: #F0FDF4; border-color: #BBF7D0; }
+.encaixe-c { background: #EFF6FF; border-color: #BFDBFE; }
+
+.encaixe-card h4 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.encaixe-d h4 { color: #DC2626; }
+.encaixe-i h4 { color: #A16207; }
+.encaixe-s h4 { color: #16A34A; }
+.encaixe-c h4 { color: #1D4ED8; }
+
+.encaixe-card ul { list-style: none; }
+.encaixe-card li { font-size: 12px; color: var(--text); padding: 3px 0; line-height: 1.5; }
+.encaixe-card li::before { content: '• '; color: var(--muted); }
+
+/* DB SCHEMA */
+.schema-block {
+  background: #0F172A;
+  border-radius: 12px;
+  padding: 28px 32px;
+  margin-bottom: 16px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  line-height: 1.8;
+  color: #CBD5E1;
+}
+
+.schema-table-name { color: #60A5FA; font-weight: 600; font-size: 13px; }
+.schema-field { color: #86EFAC; }
+.schema-type { color: #FCD34D; }
+.schema-comment { color: #475569; }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .cover, .toc, .main { padding-left: 24px; padding-right: 24px; }
+  .toc-grid { grid-template-columns: 1fr; }
+  .cards-3, .cards-4, .competencias-grid { grid-template-columns: repeat(2, 1fr); }
+  .cards-2, .disc-profiles, .encaixe-grid { grid-template-columns: 1fr; }
+  .question-options { grid-template-columns: 1fr; }
+  .spec-table { font-size: 11px; }
+  .spec-table th, .spec-table td { padding: 10px 12px; }
+}
+
+/* PRINT */
+@media print {
+  body { background: white; }
+  .cover { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+
+<!-- CAPA -->
+<div class="cover">
+  <div class="cover-label">Documento Técnico Confidencial · Versão 1.0</div>
+  <h1>Especificações Completas<br><span>Plataforma DISC</span><br>Impacto Academy</h1>
+  <p class="cover-desc">Documento de especificações técnicas, comportamentais e funcionais para desenvolvimento da plataforma proprietária de assessment comportamental. Este documento contém tudo que o desenvolvedor precisa saber para construir a plataforma do zero.</p>
+  <div class="cover-meta">
+    <div class="cover-meta-item"><strong>Produto</strong>Plataforma de Assessment DISC</div>
+    <div class="cover-meta-item"><strong>Cliente</strong>Impacto Academy · Valmer Albuquerque</div>
+    <div class="cover-meta-item"><strong>Contato</strong>(44) 99159-5998</div>
+    <div class="cover-meta-item"><strong>Seções</strong>12 seções detalhadas</div>
+  </div>
+</div>
+
+<!-- ÍNDICE -->
+<div class="toc">
+  <h2>Índice do documento</h2>
+  <div class="toc-grid">
+    <div class="toc-item"><span class="toc-num">01</span>Visão geral e contexto do produto</div>
+    <div class="toc-item"><span class="toc-num">02</span>Tipos de usuário e permissões</div>
+    <div class="toc-item"><span class="toc-num">03</span>Fluxo completo do sistema</div>
+    <div class="toc-item"><span class="toc-num">04</span>A metodologia DISC explicada</div>
+    <div class="toc-item"><span class="toc-num">05</span>Os 4 perfis: características completas</div>
+    <div class="toc-item"><span class="toc-num">06</span>Banco de questões — todos os blocos</div>
+    <div class="toc-item"><span class="toc-num">07</span>Lógica de pontuação e cálculo</div>
+    <div class="toc-item"><span class="toc-num">08</span>Encaixe de cargos por perfil</div>
+    <div class="toc-item"><span class="toc-num">09</span>Estilo de liderança por perfil</div>
+    <div class="toc-item"><span class="toc-num">10</span>Integração com IA (Claude API)</div>
+    <div class="toc-item"><span class="toc-num">11</span>Estrutura do relatório PDF</div>
+    <div class="toc-item"><span class="toc-num">12</span>Banco de dados e modelo de negócio</div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- =================== 01 =================== -->
+<div class="spec-section">
+  <div class="section-tag">01 · Visão Geral</div>
+  <h2 class="section-h2">O que é <span>este produto</span></h2>
+  <p class="section-lead">Uma plataforma SaaS de assessment comportamental baseada na metodologia DISC, com relatórios gerados por Inteligência Artificial, sistema de créditos para parceiros e operação white-label completa.</p>
+
+  <div class="dev-note">
+    <strong>Nota para o desenvolvedor:</strong> O dono do produto (Valmer Albuquerque) é um especialista em comportamento humano e liderança com 22 anos de experiência. Ele hoje utiliza a plataforma CIS da FEBRACIS para gerar relatórios de perfil comportamental e paga por crédito para isso. O objetivo é construir uma plataforma própria que replique esta funcionalidade com mais profundidade, sem dependência externa, com a marca Impacto Academy e com narrativa de relatório gerada por IA. Você (desenvolvedor) não precisa entender a parte comportamental — este documento explica tudo. Sua responsabilidade é construir a infraestrutura técnica.
+  </div>
+
+  <div class="cards-3">
+    <div class="spec-card">
+      <div class="card-icon">🎯</div>
+      <div class="card-label">Objetivo principal</div>
+      <h4>Autonomia total no assessment</h4>
+      <p>Valmer usa os relatórios DISC nos seus treinamentos de liderança e mentoria. Hoje paga por crédito para outra empresa. Quer ter a própria plataforma para gerar esses relatórios sem custo recorrente externo.</p>
+    </div>
+    <div class="spec-card">
+      <div class="card-icon">💼</div>
+      <div class="card-label">Mercado B2B</div>
+      <h4>Venda de pacotes para empresas</h4>
+      <p>Empresas compram pacotes de créditos e usam para avaliar seus colaboradores e líderes. Cada crédito = 1 relatório gerado. Empresas acessam via painel próprio.</p>
+    </div>
+    <div class="spec-card">
+      <div class="card-icon">🤝</div>
+      <div class="card-label">Rede de parceiros</div>
+      <h4>Facilitadores revendem</h4>
+      <p>Consultores e facilitadores de RH compram créditos no atacado e revendem os relatórios para seus clientes. Cada facilitador tem painel próprio com sua marca.</p>
+    </div>
+  </div>
+
+  <div class="context-note">
+    <strong>Referências de mercado utilizadas como inspiração:</strong> Sólides Profiler (modelo de negócio com créditos, link único, painel do facilitador), TTI Success Insights (profundidade científica, múltiplas dimensões de análise, estilo de liderança e competências). A plataforma Impacto Academy combina o modelo de negócio da Sólides com a profundidade da TTI, com o diferencial de narrativa gerada por IA.
+  </div>
+</div>
+
+<!-- =================== 02 =================== -->
+<div class="spec-section">
+  <div class="section-tag">02 · Usuários e Permissões</div>
+  <h2 class="section-h2">3 tipos de <span>usuário</span></h2>
+  <p class="section-lead">A plataforma tem 3 perfis de acesso com permissões e telas completamente distintas.</p>
+
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>Tipo</th>
+        <th>Quem é</th>
+        <th>O que pode fazer</th>
+        <th>Como acessa</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Admin</strong><br><span style="font-size:11px;color:var(--orange);font-family:'IBM Plex Mono',monospace;">VALMER</span></td>
+        <td>Valmer (dono da plataforma). Único admin.</td>
+        <td>Tudo: criar facilitadores, vender créditos, ver relatórios de todos, editar banco de questões, ver métricas gerais, configurar preços, exportar dados.</td>
+        <td>Login com email + senha + 2FA</td>
+      </tr>
+      <tr>
+        <td><strong>Facilitador</strong><br><span style="font-size:11px;color:#2563EB;font-family:'IBM Plex Mono',monospace;">PARCEIRO/EMPRESA</span></td>
+        <td>Consultor, empresa de RH, gestor de empresa que comprou pacote de créditos.</td>
+        <td>Ver saldo de créditos, criar avaliados, enviar links de assessment, acessar relatórios dos seus avaliados, fazer download de PDFs, ver histórico de uso.</td>
+        <td>Login com email + senha. Recebe acesso após admin ativar a conta.</td>
+      </tr>
+      <tr>
+        <td><strong>Avaliado</strong><br><span style="font-size:11px;color:#16A34A;font-family:'IBM Plex Mono',monospace;">COLABORADOR/ALUNO</span></td>
+        <td>Pessoa que vai responder o assessment.</td>
+        <td>Acessar o link do assessment, responder as questões, visualizar o próprio resultado online. Não precisa de login — acessa por link único com token.</td>
+        <td>Link único enviado por email ou WhatsApp pelo facilitador. Sem cadastro.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- =================== 03 =================== -->
+<div class="spec-section">
+  <div class="section-tag">03 · Fluxo do Sistema</div>
+  <h2 class="section-h2">Como tudo <span>funciona</span></h2>
+  <p class="section-lead">Fluxo completo do sistema do primeiro acesso até o relatório entregue.</p>
+
+  <div class="flow-steps">
+    <div class="flow-step">
+      <div class="flow-dot">01</div>
+      <div class="flow-content">
+        <h4>Admin cria conta do facilitador</h4>
+        <p>Valmer (admin) acessa o painel e cria uma conta para o facilitador (empresa ou consultor). Define o pacote de créditos comprado. O facilitador recebe email com login e senha temporária.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot">02</div>
+      <div class="flow-content">
+        <h4>Facilitador acessa o painel e cria um avaliado</h4>
+        <p>O facilitador faz login, vê seu saldo de créditos e clica em "Novo Assessment". Preenche nome e email do avaliado e seleciona o tipo de relatório desejado (S1, S2, S3 ou S4). O sistema consome automaticamente o número de créditos correspondente.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot">03</div>
+      <div class="flow-content">
+        <h4>Sistema gera link único e envia por email</h4>
+        <p>Um link único com token criptografado é gerado para aquele avaliado específico. O sistema envia automaticamente por email com o texto configurado pelo facilitador. O facilitador também pode copiar o link e enviar manualmente (ex: WhatsApp). O link expira em 7 dias se não utilizado.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot orange">04</div>
+      <div class="flow-content">
+        <h4>Avaliado acessa o link e responde o questionário</h4>
+        <p>O avaliado abre o link no celular ou computador, sem precisar criar conta ou fazer login. Vê uma tela de boas-vindas com nome e logo da plataforma, depois responde as questões conforme o tipo de relatório. O progresso é salvo a cada questão — se fechar e abrir de novo pelo mesmo link, retorna de onde parou. Ao terminar, vê uma mensagem de conclusão.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot">05</div>
+      <div class="flow-content">
+        <h4>Sistema calcula o perfil e chama a API da IA</h4>
+        <p>Ao submeter a última questão, o backend executa o algoritmo de cálculo do perfil DISC (descrito na seção 07). Com o resultado, monta o payload e faz uma chamada à API do Claude (Anthropic) com o prompt específico para geração da narrativa. O relatório fica em status "Gerando..." enquanto aguarda resposta da IA.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot">06</div>
+      <div class="flow-content">
+        <h4>Relatório gerado e disponibilizado</h4>
+        <p>Com a narrativa da IA recebida, o sistema consolida os dados e gera: (a) Dashboard online do avaliado — acessível pelo próprio link do assessment após conclusão, (b) PDF premium disponível para download pelo facilitador no painel. Facilitador recebe notificação por email de que o relatório está pronto.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot">07</div>
+      <div class="flow-content">
+        <h4>Facilitador acessa e entrega ao cliente</h4>
+        <p>O facilitador faz login no painel, vê o relatório pronto, baixa o PDF e entrega ao seu cliente. O PDF tem a marca Impacto Academy. O avaliado também pode acessar o dashboard online pelo link original a qualquer momento.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =================== 04 =================== -->
+<div class="spec-section">
+  <div class="section-tag">04 · Metodologia DISC</div>
+  <h2 class="section-h2">O que é <span>DISC</span> — explicação para o desenvolvedor</h2>
+  <p class="section-lead">Você não precisa entender profundamente DISC para programar — mas precisa entender a estrutura para implementar corretamente o cálculo e o banco de dados.</p>
+
+  <div class="dev-note">
+    <strong>DISC em termos técnicos:</strong> É um modelo psicométrico que classifica o comportamento humano em 4 dimensões. Cada pessoa tem um nível (de 0 a 100%) em cada uma das 4 dimensões. O "perfil" é determinado pela dimensão com maior pontuação (perfil primário) e segunda maior (perfil secundário). No banco de dados, você vai armazenar 4 números decimais por avaliado, de 0.0 a 100.0, que somam 200 (cada resposta distribui pontos entre os 4 fatores).
+  </div>
+
+  <div class="cards-4">
+    <div class="spec-card">
+      <div class="card-label" style="color:#DC2626;">Fator D</div>
+      <h4 style="color:#DC2626;">Dominância</h4>
+      <p>Como a pessoa enfrenta problemas e assume controle. Alta pontuação: direto, decidido, ousado. Baixa: cauteloso, cooperativo.</p>
+    </div>
+    <div class="spec-card">
+      <div class="card-label" style="color:#A16207;">Fator I</div>
+      <h4 style="color:#A16207;">Influência</h4>
+      <p>Como a pessoa influencia e se comunica com outros. Alta pontuação: entusiasta, sociável, persuasivo. Baixa: reservado, lógico.</p>
+    </div>
+    <div class="spec-card">
+      <div class="card-label" style="color:#16A34A;">Fator S</div>
+      <h4 style="color:#16A34A;">Estabilidade</h4>
+      <p>Como a pessoa responde ao ritmo e consistência. Alta pontuação: paciente, leal, confiável. Baixa: dinâmico, adaptável.</p>
+    </div>
+    <div class="spec-card">
+      <div class="card-label" style="color:#1D4ED8;">Fator C</div>
+      <h4 style="color:#1D4ED8;">Conformidade</h4>
+      <p>Como a pessoa segue regras e busca precisão. Alta pontuação: analítico, preciso, sistemático. Baixa: independente, espontâneo.</p>
+    </div>
+  </div>
+</div>
+
+<!-- =================== 05 =================== -->
+<div class="spec-section">
+  <div class="section-tag">05 · Os 4 Perfis Completos</div>
+  <h2 class="section-h2">Características detalhadas <span>por perfil</span></h2>
+  <p class="section-lead">Estas informações são usadas pela IA para gerar a narrativa do relatório. O desenvolvedor precisa passá-las como contexto no prompt da API.</p>
+
+  <div class="disc-profiles">
+    <div class="disc-profile-card disc-d">
+      <div class="disc-letter">D</div>
+      <div class="disc-profile-name">Dominante</div>
+      <div class="disc-profile-nick">EXECUTOR · COMANDANTE</div>
+
+      <div class="disc-sub-title">Características principais</div>
+      <ul>
+        <li>Direto, assertivo e orientado a resultados</li>
+        <li>Toma decisões rápidas, mesmo com informação incompleta</li>
+        <li>Alta competitividade e necessidade de controle</li>
+        <li>Prefere ambientes de desafio constante</li>
+        <li>Pouca paciência para processos lentos</li>
+      </ul>
+
+      <div class="disc-sub-title">Pontos fortes</div>
+      <ul>
+        <li>Liderança natural em situações de crise</li>
+        <li>Foco absoluto em metas e entregas</li>
+        <li>Capacidade de mobilizar equipes rapidamente</li>
+        <li>Coragem para tomar decisões difíceis</li>
+      </ul>
+
+      <div class="disc-sub-title">Pontos de atenção</div>
+      <ul>
+        <li>Pode parecer autoritário ou impaciente</li>
+        <li>Dificuldade em ouvir opiniões divergentes</li>
+        <li>Tende a atropelar processos e pessoas</li>
+        <li>Baixa empatia em situações de pressão</li>
+      </ul>
+
+      <div class="disc-sub-title">O que o motiva</div>
+      <ul>
+        <li>Poder, autonomia e desafios novos</li>
+        <li>Reconhecimento por resultados entregues</li>
+        <li>Projetos com alto impacto e visibilidade</li>
+      </ul>
+
+      <div class="disc-sub-title">O que o desmotiva</div>
+      <ul>
+        <li>Microgestão e falta de autonomia</li>
+        <li>Reuniões sem pauta e sem decisão</li>
+        <li>Ambientes sem metas claras</li>
+      </ul>
+    </div>
+
+    <div class="disc-profile-card disc-i">
+      <div class="disc-letter">I</div>
+      <div class="disc-profile-name">Influente</div>
+      <div class="disc-profile-nick">COMUNICADOR · INSPIRADOR</div>
+
+      <div class="disc-sub-title">Características principais</div>
+      <ul>
+        <li>Extrovertido, entusiasta e altamente comunicativo</li>
+        <li>Excelente capacidade de persuasão e engajamento</li>
+        <li>Facilidade natural para criar conexões</li>
+        <li>Otimista e emocionalmente expressivo</li>
+        <li>Criativo e gerador de ideias</li>
+      </ul>
+
+      <div class="disc-sub-title">Pontos fortes</div>
+      <ul>
+        <li>Clima positivo e motivador na equipe</li>
+        <li>Venda, apresentação e comunicação públicas</li>
+        <li>Capacidade de mobilizar emocionalmente</li>
+        <li>Adaptabilidade social e empatia situacional</li>
+      </ul>
+
+      <div class="disc-sub-title">Pontos de atenção</div>
+      <ul>
+        <li>Tendência a deixar tarefas incompletas</li>
+        <li>Dificuldade com foco e organização</li>
+        <li>Pode prometer mais do que consegue entregar</li>
+        <li>Dificuldade em lidar com rejeição</li>
+      </ul>
+
+      <div class="disc-sub-title">O que o motiva</div>
+      <ul>
+        <li>Reconhecimento público e aprovação social</li>
+        <li>Projetos criativos e com pessoas</li>
+        <li>Ambientes dinâmicos e colaborativos</li>
+      </ul>
+
+      <div class="disc-sub-title">O que o desmotiva</div>
+      <ul>
+        <li>Trabalho isolado e repetitivo</li>
+        <li>Críticas sem reconhecimento prévio</li>
+        <li>Ambientes muito rígidos e formais</li>
+      </ul>
+    </div>
+
+    <div class="disc-profile-card disc-s">
+      <div class="disc-letter">S</div>
+      <div class="disc-profile-name">Estável</div>
+      <div class="disc-profile-nick">PLANEJADOR · COLABORADOR</div>
+
+      <div class="disc-sub-title">Características principais</div>
+      <ul>
+        <li>Paciente, leal e de confiança absoluta</li>
+        <li>Excelente ouvinte e mediador natural</li>
+        <li>Prefere ambientes estáveis e previsíveis</li>
+        <li>Alta capacidade de manter relacionamentos longos</li>
+        <li>Comprometido com o time antes de si mesmo</li>
+      </ul>
+
+      <div class="disc-sub-title">Pontos fortes</div>
+      <ul>
+        <li>Confiabilidade e consistência nas entregas</li>
+        <li>Construção e manutenção de relacionamentos</li>
+        <li>Suporte emocional à equipe</li>
+        <li>Execução disciplinada de processos</li>
+      </ul>
+
+      <div class="disc-sub-title">Pontos de atenção</div>
+      <ul>
+        <li>Resistência a mudanças repentinas</li>
+        <li>Dificuldade em dizer não ou confrontar</li>
+        <li>Pode acumular ressentimentos silenciosamente</li>
+        <li>Dificuldade em tomar iniciativa sem direcionamento</li>
+      </ul>
+
+      <div class="disc-sub-title">O que o motiva</div>
+      <ul>
+        <li>Estabilidade, segurança e harmonia</li>
+        <li>Reconhecimento pela lealdade e esforço</li>
+        <li>Trabalho em equipe unida</li>
+      </ul>
+
+      <div class="disc-sub-title">O que o desmotiva</div>
+      <ul>
+        <li>Conflitos internos na equipe</li>
+        <li>Mudanças constantes sem explicação</li>
+        <li>Falta de reconhecimento pelo esforço</li>
+      </ul>
+    </div>
+
+    <div class="disc-profile-card disc-c">
+      <div class="disc-letter">C</div>
+      <div class="disc-profile-name">Conforme</div>
+      <div class="disc-profile-nick">ANALISTA · ESTRATEGISTA</div>
+
+      <div class="disc-sub-title">Características principais</div>
+      <ul>
+        <li>Analítico, meticuloso e orientado à qualidade</li>
+        <li>Exige dados e evidências antes de decidir</li>
+        <li>Alta capacidade de planejamento e estruturação</li>
+        <li>Introvertido e reservado emocionalmente</li>
+        <li>Forte tendência perfeccionista</li>
+      </ul>
+
+      <div class="disc-sub-title">Pontos fortes</div>
+      <ul>
+        <li>Análise profunda e identificação de erros</li>
+        <li>Planejamento estratégico e estruturado</li>
+        <li>Alta precisão nas entregas</li>
+        <li>Capacidade de aprendizado técnico rápido</li>
+      </ul>
+
+      <div class="disc-sub-title">Pontos de atenção</div>
+      <ul>
+        <li>Paralisia por análise — dificuldade em decidir</li>
+        <li>Pode ser percebido como frio ou distante</li>
+        <li>Crítico excessivo com erros alheios e próprios</li>
+        <li>Dificuldade em delegar (medo do erro)</li>
+      </ul>
+
+      <div class="disc-sub-title">O que o motiva</div>
+      <ul>
+        <li>Qualidade, precisão e excelência técnica</li>
+        <li>Clareza nas expectativas e regras</li>
+        <li>Projetos com alto nível de complexidade</li>
+      </ul>
+
+      <div class="disc-sub-title">O que o desmotiva</div>
+      <ul>
+        <li>Ambiguidade e falta de processos claros</li>
+        <li>Pressão por velocidade sem qualidade</li>
+        <li>Ambiente muito emocional e impulsivo</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- =================== 06 =================== -->
+<div class="spec-section">
+  <div class="section-tag">06 · Banco de Questões</div>
+  <h2 class="section-h2">As <span>questões</span> do assessment</h2>
+  <p class="section-lead">28 questões situacionais. Cada questão tem 4 opções correspondendo aos perfis D, I, S e C. O avaliado escolhe apenas 1 opção por questão.</p>
+
+  <div class="dev-note">
+    <strong>Como implementar:</strong> Cada questão tem 4 opções. Cada opção está mapeada a um fator DISC (D, I, S ou C). Quando o avaliado escolhe uma opção, o sistema incrementa +1 no fator correspondente. Ao final, os 4 contadores são normalizados para percentual (0-100%). Veja seção 07 para a fórmula de cálculo.
+  </div>
+
+  <div class="questions-block">
+    <div class="qblock-header">
+      <h4>Bloco 1 — Comportamento no Trabalho (Q01–Q07)</h4>
+      <div class="qblock-meta">7 questões · Situações do dia a dia</div>
+    </div>
+    <div class="qblock-body">
+
+      <div class="question-item">
+        <div class="question-num">Q01</div>
+        <div class="question-text">Quando você recebe um projeto novo com prazo curto, sua reação mais natural é:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Partir para a ação imediatamente, definindo o que precisa ser feito</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Reunir a equipe para alinhar e criar entusiasmo coletivo</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Entender bem o escopo antes de começar, para não ter retrabalho</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Mapear todos os riscos e montar um plano detalhado antes de executar</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q02</div>
+        <div class="question-text">Em uma reunião de equipe com opiniões divergentes, você geralmente:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Toma uma posição clara e defende seu ponto de vista com firmeza</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Tenta aproximar os lados e criar um ambiente mais leve para o debate</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Ouve todos com atenção antes de emitir qualquer opinião</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Apresenta dados e fatos para embasar a discussão tecnicamente</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q03</div>
+        <div class="question-text">Quando você precisa delegar uma tarefa importante para alguém, você:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Define claramente o resultado esperado e deixa a pessoa descobrir o caminho</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Conversa com entusiasmo sobre a tarefa e motiva a pessoa a assumir o desafio</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Explica o passo a passo com calma e se coloca à disposição para apoiar</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Fornece todas as informações, checklists e padrões de qualidade esperados</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q04</div>
+        <div class="question-text">Diante de um problema inesperado que precisa de solução rápida, você:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Decide rapidamente e age — prefere errar e corrigir do que esperar</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Chama as pessoas envolvidas e busca uma saída criativa em conjunto</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Busca entender a causa raiz antes de propor qualquer solução</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Analisa as alternativas com critério antes de escolher o melhor caminho</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q05</div>
+        <div class="question-text">Quanto à sua forma de dar feedback para alguém da equipe, você costuma:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Ser direto e objetivo, mesmo que o feedback seja difícil de ouvir</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Começar valorizando os pontos positivos e usar uma abordagem empática</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Esperar o momento certo, num ambiente seguro e de confiança</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Estruturar o feedback com exemplos concretos e dados antes de conversar</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q06</div>
+        <div class="question-text">Quando você está sob pressão e com muitas demandas simultâneas, você tende a:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Focar nas tarefas de maior impacto e cortar o que não é prioritário</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Pedir ajuda ao time e dividir as tarefas com energia positiva</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Manter a calma e seguir a rotina — não gosta de quebrar processos</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Reorganizar as prioridades de forma lógica e sistemática</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q07</div>
+        <div class="question-text">Ao iniciar um novo trabalho em uma empresa ou equipe nova, você normalmente:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Já começa mostrando resultados rapidamente para demonstrar competência</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Investe tempo em conhecer e criar vínculos com todos da equipe primeiro</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Observa a cultura e os processos antes de propor qualquer mudança</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Estuda a fundo os processos, dados e histórico da empresa</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="questions-block">
+    <div class="qblock-header">
+      <h4>Bloco 2 — Liderança e Relacionamentos (Q08–Q14)</h4>
+      <div class="qblock-meta">7 questões · Situações de liderança</div>
+    </div>
+    <div class="qblock-body">
+
+      <div class="question-item">
+        <div class="question-num">Q08</div>
+        <div class="question-text">Seu estilo natural ao liderar uma equipe é:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Definir metas claras, cobrar resultados e empoderar quem entrega</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Inspirar, engajar e criar um ambiente de alta energia e colaboração</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Dar suporte constante, ouvir as necessidades individuais e construir confiança</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Estabelecer processos claros, métricas de qualidade e padrões de excelência</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q09</div>
+        <div class="question-text">Quando um membro da sua equipe comete um erro sério, você:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Aponta o erro diretamente e cobra a solução imediata</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Conversa de forma positiva, focando no aprendizado e no próximo passo</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Entende o que aconteceu com empatia antes de qualquer cobrança</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Analisa as causas do erro e propõe um processo para que não se repita</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q10</div>
+        <div class="question-text">Na hora de motivar alguém que está desmotivado, você prefere:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Dar um desafio novo e estimulante para a pessoa se reinventar</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Conversar, elogiar o potencial da pessoa e criar entusiasmo pelo futuro</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Ouvir com atenção o que a pessoa está sentindo e oferecer apoio genuíno</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Apresentar dados que mostrem a evolução da pessoa e um plano de desenvolvimento</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q11</div>
+        <div class="question-text">Quando há conflito entre dois membros da equipe, você normalmente:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Toma uma posição clara e define o que vai acontecer para resolver logo</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Reúne os dois, cria um clima de conversa positiva e busca reconciliação</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Ouve cada lado separadamente com paciência antes de qualquer intervenção</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Investiga os fatos, identifica a causa raiz e propõe uma solução justa e estruturada</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q12</div>
+        <div class="question-text">Sua maior fonte de satisfação profissional vem de:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Superar metas desafiadoras e ver resultados concretos</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Influenciar pessoas e ser reconhecido pelo impacto que gera</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Ver sua equipe crescendo e se sentir útil para o sucesso coletivo</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Entregar trabalhos de alta qualidade e resolver problemas complexos</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q13</div>
+        <div class="question-text">Quando você precisa comunicar uma decisão difícil para sua equipe, você:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Vai direto ao ponto — comunica a decisão e o racional de forma objetiva</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Cria um contexto positivo, trata o impacto emocional antes de comunicar</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Conversa individualmente com os mais impactados antes do anúncio geral</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Prepara uma apresentação completa com dados, contexto e próximos passos</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q14</div>
+        <div class="question-text">Na construção de uma equipe, você prioriza contratar pessoas que:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>São altamente orientadas a resultados e não têm medo de desafios</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Têm boa comunicação, energia positiva e fit cultural com o time</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>São confiáveis, leais e comprometidas com o trabalho em equipe</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Têm competência técnica comprovada e alto nível de organização</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="questions-block">
+    <div class="qblock-header">
+      <h4>Bloco 3 — Tomada de Decisão (Q15–Q21)</h4>
+      <div class="qblock-meta">7 questões · Como decide e age</div>
+    </div>
+    <div class="qblock-body">
+
+      <div class="question-item">
+        <div class="question-num">Q15</div>
+        <div class="question-text">Quando precisa tomar uma decisão importante, você geralmente:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Decide com agilidade — acredita que uma decisão feita agora vale mais que a perfeita amanhã</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Consulta pessoas de confiança para sentir as perspectivas antes de decidir</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Pensa bem e considera o impacto da decisão nas pessoas envolvidas</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Pesquisa profundamente, coleta dados e só decide quando tem segurança suficiente</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q16</div>
+        <div class="question-text">Quando seu projeto enfrenta um obstáculo sério no meio do caminho, você:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Enfrenta de frente — o obstáculo não vai te parar</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Busca alternativas criativas e engaja o time para encontrar uma saída</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Reavalia o plano com cuidado e busca uma solução que minimize os impactos</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Analisa as causas do obstáculo e cria um plano alternativo bem estruturado</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q17</div>
+        <div class="question-text">Sua postura diante de regras e processos estabelecidos é:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Seguir quando fazem sentido — mas não hesita em questionar os que travam o resultado</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Adaptar conforme a situação — as pessoas importam mais que os processos</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Respeitar e seguir — acredita que processos criam estabilidade e previsibilidade</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Seguir rigorosamente — regras existem por uma razão e precisam ser cumpridas</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q18</div>
+        <div class="question-text">Ao apresentar uma ideia nova para alguém, você costuma:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Ir direto ao ponto — qual é o resultado e por que vale a pena</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Criar entusiasmo e contar a história da ideia de forma envolvente</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Explicar como a ideia vai impactar positivamente as pessoas envolvidas</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Apresentar dados, pesquisas e uma análise completa que sustente a ideia</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q19</div>
+        <div class="question-text">Quando você recebe uma crítica ao seu trabalho, sua primeira reação é:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Responder com firmeza — defende seu ponto se acredita que está certo</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Sentir o impacto emocional primeiro — críticas te afetam mais do que você gostaria</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Ouvir com atenção e avaliar com cuidado antes de responder</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Analisar friamente se a crítica tem base — e só então aceitar ou refutar</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q20</div>
+        <div class="question-text">Em um projeto de longo prazo, o que mais te preocupa é:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Que as coisas fiquem lentas demais e percam o ritmo</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Que o time perca o engajamento e a energia ao longo do tempo</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Que mudanças inesperadas desestabilizem a equipe e os processos</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Que a qualidade caia por causa da pressão de tempo</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q21</div>
+        <div class="question-text">Diante de uma mudança significativa na organização, sua postura natural é:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Ver como oportunidade — gosta de ambientes em transformação</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Engajar as pessoas na mudança e ajudar a criar adesão coletiva</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Precisar de tempo para assimilar — mudanças precisam de um ritmo respeitoso</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Questionar o porquê, entender os dados por trás e só depois apoiar</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="questions-block">
+    <div class="qblock-header">
+      <h4>Bloco 4 — Autoconhecimento (Q22–Q28)</h4>
+      <div class="qblock-meta">7 questões · Como você se vê</div>
+    </div>
+    <div class="qblock-body">
+
+      <div class="question-item">
+        <div class="question-num">Q22</div>
+        <div class="question-text">As pessoas que convivem com você profissionalmente mais te descrevem como:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Determinado, focado e que sempre entrega o que promete</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Animado, comunicativo e que motiva todo mundo ao redor</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Confiável, paciente e que sempre apoia o time nos momentos difíceis</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Criterioso, organizado e que mantém a qualidade em tudo que faz</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q23</div>
+        <div class="question-text">Qual das situações abaixo mais te gera desconforto no trabalho?</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Ser controlado ou ter sua autonomia limitada</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Trabalhar sozinho por longos períodos sem interação social</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Conviver com conflitos constantes e ambiente de alta pressão</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Ter que entregar algo sem ter o tempo necessário para fazer bem feito</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q24</div>
+        <div class="question-text">Quando você está no seu melhor, as pessoas ao redor percebem que você:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Está no modo de alta performance — foco total em resultados e eficiência</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Está irradiando energia positiva e movendo o ambiente ao redor</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Está sendo o porto seguro de todos — apoio, equilíbrio e generosidade</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Está no estado de maestria — cada detalhe no lugar, padrão mais alto</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q25</div>
+        <div class="question-text">Qual habilidade você acredita ser seu maior diferencial profissional?</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>A capacidade de tomar decisões rápidas e mover as coisas com velocidade</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>A habilidade de engajar, persuadir e conectar pessoas a uma causa</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>A consistência, lealdade e capacidade de construir relações duradouras</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>A capacidade de análise, planejamento e execução com alta qualidade</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q26</div>
+        <div class="question-text">No ambiente ideal de trabalho, você prefere:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Alta autonomia, metas claras e liberdade para executar do seu jeito</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Ambiente colaborativo, descontraído e com muito espaço para criatividade</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Equipe unida, processos claros e clima de confiança e estabilidade</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Expectativas claras, padrões de qualidade definidos e espaço para aprofundamento</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q27</div>
+        <div class="question-text">Quando você pensa no seu desenvolvimento profissional, você mais deseja:</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>Crescer em posições de liderança com mais poder e responsabilidade</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>Ampliar seu impacto — influenciar mais pessoas e ter mais visibilidade</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>Construir uma carreira sólida em uma empresa onde se sinta valorizado</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>Tornar-se referência técnica na sua área de atuação</div>
+        </div>
+      </div>
+
+      <div class="question-item">
+        <div class="question-num">Q28</div>
+        <div class="question-text">Qual frase mais representa a forma como você enxerga liderança?</div>
+        <div class="question-options">
+          <div class="q-opt"><div class="q-opt-letter opt-d">D</div>"Liderar é ter a coragem de tomar decisões difíceis e aceitar a responsabilidade pelos resultados"</div>
+          <div class="q-opt"><div class="q-opt-letter opt-i">I</div>"Liderar é inspirar pessoas a acreditarem no impossível e mover-se juntas em direção a ele"</div>
+          <div class="q-opt"><div class="q-opt-letter opt-s">S</div>"Liderar é servir — colocar as pessoas à frente e criar o ambiente para que elas floresçam"</div>
+          <div class="q-opt"><div class="q-opt-letter opt-c">C</div>"Liderar é construir sistemas excelentes onde as pessoas encontram clareza para dar o seu melhor"</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- =================== 07 =================== -->
+<div class="spec-section">
+  <div class="section-tag">07 · Lógica de Cálculo</div>
+  <h2 class="section-h2">Como <span>calcular</span> o perfil</h2>
+  <p class="section-lead">Algoritmo completo de pontuação e determinação do perfil a ser implementado no backend.</p>
+
+  <div class="dev-note">
+    <strong>Algoritmo de cálculo (implementar no backend):</strong>
+  </div>
+
+  <div class="prompt-box">
+    <div class="prompt-label">// algoritmo de cálculo do perfil DISC</div>
+    <pre>
+<span class="comment">// 1. CONTAGEM DE RESPOSTAS</span>
+<span class="variable">contador = { D: 0, I: 0, S: 0, C: 0 }</span>
+
+<span class="comment">// Para cada resposta do avaliado:</span>
+<span class="variable">contador[resposta.fator] += 1</span>
+
+<span class="comment">// 2. CÁLCULO DOS PERCENTUAIS</span>
+<span class="comment">// Total de questões = 28</span>
+<span class="variable">percentual_D = (contador.D / 28) * 100</span>
+<span class="variable">percentual_I = (contador.I / 28) * 100</span>
+<span class="variable">percentual_S = (contador.S / 28) * 100</span>
+<span class="variable">percentual_C = (contador.C / 28) * 100</span>
+
+<span class="comment">// 3. DETERMINAÇÃO DO PERFIL PRIMÁRIO</span>
+<span class="variable">perfil_primario = fator_com_maior_percentual</span>
+<span class="comment">// Ex: se D=40%, I=25%, S=20%, C=15% → perfil_primario = "D"</span>
+
+<span class="comment">// 4. DETERMINAÇÃO DO PERFIL SECUNDÁRIO</span>
+<span class="variable">perfil_secundario = fator_com_segundo_maior_percentual</span>
+<span class="comment">// Ex: continuando → perfil_secundario = "I"</span>
+
+<span class="comment">// 5. NOME DO PERFIL COMBINADO</span>
+<span class="variable">perfil_combinado = perfil_primario + "/" + perfil_secundario</span>
+<span class="comment">// Ex: "D/I", "I/S", "S/C", "C/D", etc.</span>
+
+<span class="comment">// 6. DADOS PARA O RELATÓRIO</span>
+<span class="highlight-text">resultado = {</span>
+<span class="variable">  nome_avaliado: string,</span>
+<span class="variable">  percentual_D: float,  // ex: 42.8</span>
+<span class="variable">  percentual_I: float,  // ex: 25.0</span>
+<span class="variable">  percentual_S: float,  // ex: 17.8</span>
+<span class="variable">  percentual_C: float,  // ex: 14.3</span>
+<span class="variable">  perfil_primario: "D" | "I" | "S" | "C",</span>
+<span class="variable">  perfil_secundario: "D" | "I" | "S" | "C",</span>
+<span class="variable">  perfil_combinado: string,  // ex: "D/I"</span>
+<span class="variable">  data_realizacao: datetime</span>
+<span class="highlight-text">}</span>
+
+<span class="comment">// 7. ESTE OBJETO É PASSADO PARA A API DA IA</span>
+<span class="comment">// Ver seção 10 para o prompt completo</span>
+    </pre>
+  </div>
+
+  <div class="dev-note">
+    <strong>Regra de empate:</strong> Se dois fatores tiverem o mesmo percentual, o sistema deve apresentar ambos como primários (ex: "D=I") e gerar a narrativa considerando os dois igualmente dominantes. Usar flag <code>empate: true</code> no payload da IA.
+  </div>
+</div>
+
+<!-- =================== 08 =================== -->
+<div class="spec-section">
+  <div class="section-tag">08 · Encaixe de Cargos</div>
+  <h2 class="section-h2">Onde cada perfil <span>se encaixa melhor</span></h2>
+  <p class="section-lead">Esta seção aparece no relatório indicando quais funções e cargos são mais naturais para o perfil do avaliado. O desenvolvedor deve armazenar esta tabela e exibir no relatório conforme o perfil calculado.</p>
+
+  <div class="encaixe-grid">
+    <div class="encaixe-card encaixe-d">
+      <h4>Perfil D — Dominante</h4>
+      <div class="disc-sub-title" style="color:#991B1B;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin:10px 0 8px;">Cargos de alto encaixe</div>
+      <ul>
+        <li>CEO e Diretor Executivo</li>
+        <li>Diretor Comercial / Head de Vendas</li>
+        <li>Gerente Geral de Operações</li>
+        <li>Empreendedor / Fundador</li>
+        <li>Gerente de Projetos Complexos</li>
+        <li>Líder de Times de Alta Performance</li>
+        <li>Gestor de Crise</li>
+        <li>Militar e Segurança Pública (nível gestão)</li>
+      </ul>
+      <div class="disc-sub-title" style="color:#991B1B;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin:14px 0 8px;">Cargos de baixo encaixe</div>
+      <ul>
+        <li>Atendimento ao cliente (requer paciência)</li>
+        <li>Cargos altamente regulados e repetitivos</li>
+        <li>Posições com microgestão intensa</li>
+      </ul>
+    </div>
+
+    <div class="encaixe-card encaixe-i">
+      <h4>Perfil I — Influente</h4>
+      <div class="disc-sub-title" style="color:#92400E;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin:10px 0 8px;">Cargos de alto encaixe</div>
+      <ul>
+        <li>Vendedor e Consultor Comercial</li>
+        <li>Treinador e Facilitador</li>
+        <li>Marketing e Comunicação</li>
+        <li>Relações Públicas</li>
+        <li>Recursos Humanos (Recrutamento)</li>
+        <li>Professor e Palestrante</li>
+        <li>Influenciador Digital e Criador de Conteúdo</li>
+        <li>Liderança de Comunidades</li>
+      </ul>
+      <div class="disc-sub-title" style="color:#92400E;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin:14px 0 8px;">Cargos de baixo encaixe</div>
+      <ul>
+        <li>Análise de dados e contabilidade</li>
+        <li>Trabalho técnico isolado de longo prazo</li>
+        <li>Controle de qualidade rigoroso</li>
+      </ul>
+    </div>
+
+    <div class="encaixe-card encaixe-s">
+      <h4>Perfil S — Estável</h4>
+      <div class="disc-sub-title" style="color:#14532D;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin:10px 0 8px;">Cargos de alto encaixe</div>
+      <ul>
+        <li>Psicólogo e Assistente Social</li>
+        <li>Enfermagem e Cuidados em Saúde</li>
+        <li>Recursos Humanos (Gestão de Pessoas)</li>
+        <li>Professor do Ensino Básico</li>
+        <li>Coordenador de Projetos Colaborativos</li>
+        <li>Atendimento ao Cliente Premium</li>
+        <li>Mediador e Conselheiro</li>
+        <li>Operações e Logística</li>
+      </ul>
+      <div class="disc-sub-title" style="color:#14532D;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin:14px 0 8px;">Cargos de baixo encaixe</div>
+      <ul>
+        <li>Vendas de alta pressão e ciclo curto</li>
+        <li>Ambientes de mudança constante</li>
+        <li>Cargos de gestão de crise</li>
+      </ul>
+    </div>
+
+    <div class="encaixe-card encaixe-c">
+      <h4>Perfil C — Conforme</h4>
+      <div class="disc-sub-title" style="color:#1E3A8A;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin:10px 0 8px;">Cargos de alto encaixe</div>
+      <ul>
+        <li>Analista de Dados e BI</li>
+        <li>Engenheiro e Arquiteto</li>
+        <li>Contador e Auditor</li>
+        <li>Desenvolvedor de Software</li>
+        <li>Jurídico e Compliance</li>
+        <li>Planejamento Estratégico</li>
+        <li>Pesquisador e Cientista</li>
+        <li>Gestor da Qualidade (ISO, processos)</li>
+      </ul>
+      <div class="disc-sub-title" style="color:#1E3A8A;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin:14px 0 8px;">Cargos de baixo encaixe</div>
+      <ul>
+        <li>Liderança de alto contato social</li>
+        <li>Vendas com improviso constante</li>
+        <li>Gestão de crise sem dados</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- =================== 09 =================== -->
+<div class="spec-section">
+  <div class="section-tag">09 · Estilo de Liderança</div>
+  <h2 class="section-h2">Como liderar cada <span>perfil</span></h2>
+  <p class="section-lead">Esta seção aparece no relatório do facilitador ensinando COMO gerir um colaborador com este perfil. É o diferencial mais solicitado por gestores e empresas.</p>
+
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>Perfil</th>
+        <th>Como LÍDER deste perfil age</th>
+        <th>Como GERIR alguém com este perfil</th>
+        <th>O que NUNCA fazer</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong style="color:#DC2626;">D — Dominante</strong></td>
+        <td>Define metas desafiadoras, delega com autonomia, cobra por resultados e não por processos. Toma decisões rapidamente e assume a frente em momentos de crise.</td>
+        <td>Dar autonomia real. Dar desafios que valham a pena. Ser direto e objetivo. Não perder tempo com detalhes desnecessários na comunicação. Reconhecer conquistas com impacto.</td>
+        <td>Microgerir, controlar cada passo, colocar em cargos sem poder de decisão, dar feedback indireto ou "envolvido em algodão", criar reuniões sem objetivo claro.</td>
+      </tr>
+      <tr>
+        <td><strong style="color:#A16207;">I — Influente</strong></td>
+        <td>Inspira e motiva com energia alta, usa storytelling, cria cultura positiva. Prefere resolver conflitos com conversa e entusiasmo. Representa bem a empresa externamente.</td>
+        <td>Dar reconhecimento público frequente. Envolver em projetos com pessoas e comunicação. Criar um ambiente social e colaborativo. Deixar espaço para criatividade. Dar feedbacks positivos antes dos construtivos.</td>
+        <td>Isolá-lo em trabalho técnico solitário, dar apenas críticas sem elogios, criar ambiente frio e distante, cobrar organização excessiva sem suporte, ignorar suas contribuições criativas.</td>
+      </tr>
+      <tr>
+        <td><strong style="color:#16A34A;">S — Estável</strong></td>
+        <td>Cria ambiente seguro e de confiança. Apoia individualmente cada membro. Resolve conflitos com paciência. Mantém a consistência da equipe em momentos de turbulência.</td>
+        <td>Dar estabilidade e previsibilidade. Avisar mudanças com antecedência. Criar espaço de confiança para falar. Valorizar a lealdade e o esforço. Dar tarefas com papel claro na equipe.</td>
+        <td>Mudar tudo de repente sem explicação, pressionar com urgências constantes, ignorar contribuições silenciosas, criar ambientes de conflito aberto, cobrar resultados sem suporte emocional.</td>
+      </tr>
+      <tr>
+        <td><strong style="color:#1D4ED8;">C — Conforme</strong></td>
+        <td>Define padrões de qualidade, cria processos estruturados, resolve problemas com análise profunda. Exige excelência de si mesmo e da equipe. Referência técnica natural.</td>
+        <td>Dar expectativas claras e métricas definidas. Respeitar o ritmo de análise antes de decidir. Dar acesso a dados e informações. Reconhecer a qualidade e precisão do trabalho. Valorizar o expertise técnico.</td>
+        <td>Pressionar para decidir sem dados suficientes, criar um ambiente caótico, ignorar o processo em favor da velocidade, criticar o perfeccionismo sem entender sua origem, colocar em cargos de alta exposição emocional.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- =================== 10 =================== -->
+<div class="spec-section">
+  <div class="section-tag">10 · Integração com IA</div>
+  <h2 class="section-h2">Como usar a <span>Claude API</span></h2>
+  <p class="section-lead">A narrativa do relatório é gerada pela API do Claude (Anthropic). O desenvolvedor precisa implementar esta chamada após o cálculo do perfil.</p>
+
+  <div class="dev-note">
+    <strong>API utilizada:</strong> Anthropic Claude API · Endpoint: <code>https://api.anthropic.com/v1/messages</code> · Modelo: <code>claude-sonnet-4-20250514</code> · A chave de API fica no servidor (nunca exposta no frontend).
+  </div>
+
+  <div class="prompt-box">
+    <div class="prompt-label">// chamada da API — backend Node.js</div>
+    <pre>
+<span class="highlight-text">const response = await fetch("https://api.anthropic.com/v1/messages", {</span>
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "x-api-key": <span class="variable">process.env.ANTHROPIC_API_KEY</span>,
+    "anthropic-version": "2023-06-01"
+  },
+  body: JSON.stringify({
+    model: <span class="variable">"claude-sonnet-4-20250514"</span>,
+    max_tokens: 2000,
+    system: <span class="highlight-text">`Você é um especialista em comportamento humano e desenvolvimento de liderança
+com 20 anos de experiência. Você interpreta resultados de assessments DISC e
+gera relatórios de perfil comportamental em português brasileiro.
+Seu relatório deve ser: profundo, personalizado, respeitoso e orientado ao
+desenvolvimento. Nunca use linguagem clínica ou fria. Use linguagem de liderança,
+desenvolvimento humano e transformação pessoal. Não mencione a metodologia DISC
+pelo nome no texto narrativo — use linguagem natural.`</span>,
+    messages: [{
+      role: "user",
+      content: <span class="highlight-text">`Gere um relatório completo de perfil comportamental para:
+      
+Nome: <span class="variable">${resultado.nome_avaliado}</span>
+Perfil Primário: <span class="variable">${resultado.perfil_primario}</span>
+Perfil Secundário: <span class="variable">${resultado.perfil_secundario}</span>
+Percentual D (Dominância): <span class="variable">${resultado.percentual_D}%</span>
+Percentual I (Influência): <span class="variable">${resultado.percentual_I}%</span>
+Percentual S (Estabilidade): <span class="variable">${resultado.percentual_S}%</span>
+Percentual C (Conformidade): <span class="variable">${resultado.percentual_C}%</span>
+
+Gere exatamente as seguintes seções em JSON:
+{
+  "resumo_perfil": "Parágrafo de 3-4 frases descrevendo a essência do perfil desta pessoa",
+  "pontos_fortes": ["lista com 5 pontos fortes específicos para este perfil combinado"],
+  "desafios": ["lista com 4 pontos de atenção e desenvolvimento"],
+  "motivadores": "Parágrafo de 2-3 frases sobre o que motiva e engaja esta pessoa",
+  "ambiente_ideal": "Parágrafo de 2-3 frases sobre o ambiente de trabalho onde esta pessoa performa melhor",
+  "estilo_comunicacao": "Parágrafo de 2-3 frases sobre como esta pessoa se comunica e prefere ser comunicada",
+  "lideranca_natural": "Parágrafo de 2-3 frases sobre o estilo natural de liderança desta pessoa",
+  "plano_desenvolvimento": ["lista com 3 ações práticas de desenvolvimento específicas para este perfil"],
+  "frase_perfil": "Uma frase marcante que captura a essência desta pessoa (tipo: 'Você é alguém que...')"
+}
+
+Responda APENAS com o JSON válido, sem texto antes ou depois.`</span>
+    }]
+  })
+<span class="highlight-text">})</span>
+    </pre>
+  </div>
+</div>
+
+<!-- =================== 11 =================== -->
+<div class="spec-section">
+  <div class="section-tag">11 · Estrutura do Relatório</div>
+  <h2 class="section-h2">O que o <span>PDF</span> precisa ter</h2>
+  <p class="section-lead">Estrutura completa do relatório PDF gerado pela plataforma. Ordem das seções e conteúdo de cada uma.</p>
+
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Seção do Relatório</th>
+        <th>Conteúdo</th>
+        <th>Fonte dos dados</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td><strong>Capa</strong></td>
+        <td>Logo Impacto Academy, nome do avaliado, data, tipo de relatório, perfil identificado (ex: "D/I")</td>
+        <td>Banco de dados</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><strong>Resumo do Perfil</strong></td>
+        <td>Gráfico de barras com os 4 percentuais DISC (D, I, S, C), perfil primário e secundário em destaque</td>
+        <td>Algoritmo de cálculo</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td><strong>Quem você é</strong></td>
+        <td>Parágrafo narrativo gerado pela IA (campo: resumo_perfil)</td>
+        <td>Claude API</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td><strong>Seus pontos fortes</strong></td>
+        <td>Lista de 5 pontos fortes gerados pela IA (campo: pontos_fortes)</td>
+        <td>Claude API</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td><strong>Pontos de atenção</strong></td>
+        <td>Lista de 4 desafios e pontos de desenvolvimento (campo: desafios)</td>
+        <td>Claude API</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td><strong>O que te move</strong></td>
+        <td>Narrativa sobre motivadores intrínsecos (campo: motivadores)</td>
+        <td>Claude API</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td><strong>Seu ambiente ideal</strong></td>
+        <td>Descrição do ambiente onde a pessoa performa melhor (campo: ambiente_ideal)</td>
+        <td>Claude API</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td><strong>Como você se comunica</strong></td>
+        <td>Estilo de comunicação e como prefere ser comunicado (campo: estilo_comunicacao)</td>
+        <td>Claude API</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td><strong>Seu estilo de liderança</strong></td>
+        <td>Como esta pessoa lidera naturalmente (campo: lideranca_natural)</td>
+        <td>Claude API</td>
+      </tr>
+      <tr>
+        <td>10</td>
+        <td><strong>Onde você se encaixa</strong></td>
+        <td>Lista de cargos e funções de alto encaixe para o perfil (tabela da seção 08)</td>
+        <td>Tabela estática por perfil</td>
+      </tr>
+      <tr>
+        <td>11</td>
+        <td><strong>Como liderar este perfil</strong></td>
+        <td>Orientações para o gestor sobre como gerir este perfil (tabela da seção 09)</td>
+        <td>Tabela estática por perfil</td>
+      </tr>
+      <tr>
+        <td>12</td>
+        <td><strong>Plano de desenvolvimento</strong></td>
+        <td>3 ações práticas de desenvolvimento geradas pela IA (campo: plano_desenvolvimento)</td>
+        <td>Claude API</td>
+      </tr>
+      <tr>
+        <td>13</td>
+        <td><strong>Frase do perfil</strong></td>
+        <td>Frase marcante final gerada pela IA (campo: frase_perfil)</td>
+        <td>Claude API</td>
+      </tr>
+      <tr>
+        <td>14</td>
+        <td><strong>Rodapé</strong></td>
+        <td>Gerado por Impacto Academy · impactoacademy.com.br · (44) 99159-5998</td>
+        <td>Estático</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="dev-note">
+    <strong>Geração do PDF:</strong> Usar a biblioteca <code>puppeteer</code> (Node.js) para renderizar uma página HTML e exportar como PDF. Ou usar a biblioteca <code>jsPDF</code> + <code>html2canvas</code> no backend. O PDF deve ter tamanho A4, margens de 20mm, fontes embutidas e cores da identidade visual: Azul marinho #0B1E3D, Laranja #F47B20, Preto #080D14, Branco #F8F6F1.
+  </div>
+</div>
+
+<!-- =================== 12 =================== -->
+<div class="spec-section">
+  <div class="section-tag">12 · Banco de Dados e Negócio</div>
+  <h2 class="section-h2">Modelo de dados e <span>modelo de negócio</span></h2>
+
+  <div class="dev-note">
+    <strong>Stack recomendada:</strong> Next.js 14+ (App Router) · PostgreSQL · Prisma ORM · NextAuth.js · Stripe (pagamentos) · Resend (emails transacionais) · Puppeteer (geração de PDF) · Hosted em VPS Linux com Nginx + PM2.
+  </div>
+
+  <p style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">Tabelas principais do banco de dados</p>
+
+  <div class="schema-block">
+    <span class="schema-table-name">TABLE: users</span> <span class="schema-comment">-- admins e facilitadores</span><br>
+    &nbsp;&nbsp;<span class="schema-field">id</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="schema-type">UUID PRIMARY KEY</span><br>
+    &nbsp;&nbsp;<span class="schema-field">name</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="schema-type">VARCHAR(255)</span><br>
+    &nbsp;&nbsp;<span class="schema-field">email</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="schema-type">VARCHAR(255) UNIQUE</span><br>
+    &nbsp;&nbsp;<span class="schema-field">role</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="schema-type">ENUM('admin','facilitador')</span><br>
+    &nbsp;&nbsp;<span class="schema-field">credits_balance</span>&nbsp;&nbsp;<span class="schema-type">INTEGER DEFAULT 0</span> <span class="schema-comment">-- saldo de créditos</span><br>
+    &nbsp;&nbsp;<span class="schema-field">company_name</span> &nbsp;<span class="schema-type">VARCHAR(255)</span> <span class="schema-comment">-- nome da empresa/consultoria</span><br>
+    &nbsp;&nbsp;<span class="schema-field">active</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="schema-type">BOOLEAN DEFAULT true</span><br>
+    &nbsp;&nbsp;<span class="schema-field">created_at</span> &nbsp;&nbsp;<span class="schema-type">TIMESTAMP</span>
+  </div>
+
+  <div class="schema-block">
+    <span class="schema-table-name">TABLE: assessments</span> <span class="schema-comment">-- cada avaliação criada</span><br>
+    &nbsp;&nbsp;<span class="schema-field">id</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="schema-type">UUID PRIMARY KEY</span><br>
+    &nbsp;&nbsp;<span class="schema-field">token</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="schema-type">VARCHAR(128) UNIQUE</span> <span class="schema-comment">-- token do link único</span><br>
+    &nbsp;&nbsp;<span class="schema-field">facilitador_id</span> &nbsp;<span class="schema-type">UUID REFERENCES users(id)</span><br>
+    &nbsp;&nbsp;<span class="schema-field">avaliado_nome</span> &nbsp;<span class="schema-type">VARCHAR(255)</span><br>
+    &nbsp;&nbsp;<span class="schema-field">avaliado_email</span> <span class="schema-type">VARCHAR(255)</span><br>
+    &nbsp;&nbsp;<span class="schema-field">tipo_relatorio</span> <span class="schema-type">ENUM('S1','S2','S3','S4')</span><br>
+    &nbsp;&nbsp;<span class="schema-field">status</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="schema-type">ENUM('pendente','em_andamento','concluido','expirado')</span><br>
+    &nbsp;&nbsp;<span class="schema-field">credits_used</span> &nbsp;&nbsp;<span class="schema-type">INTEGER</span><br>
+    &nbsp;&nbsp;<span class="schema-field">expires_at</span> &nbsp;&nbsp;&nbsp;<span class="schema-type">TIMESTAMP</span> <span class="schema-comment">-- 7 dias após criação</span><br>
+    &nbsp;&nbsp;<span class="schema-field">completed_at</span> &nbsp;<span class="schema-type">TIMESTAMP</span><br>
+    &nbsp;&nbsp;<span class="schema-field">created_at</span> &nbsp;&nbsp;&nbsp;<span class="schema-type">TIMESTAMP</span>
+  </div>
+
+  <div class="schema-block">
+    <span class="schema-table-name">TABLE: results</span> <span class="schema-comment">-- resultado calculado de cada assessment</span><br>
+    &nbsp;&nbsp;<span class="schema-field">id</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="schema-type">UUID PRIMARY KEY</span><br>
+    &nbsp;&nbsp;<span class="schema-field">assessment_id</span> &nbsp;&nbsp;<span class="schema-type">UUID REFERENCES assessments(id)</span><br>
+    &nbsp;&nbsp;<span class="schema-field">percentual_d</span> &nbsp;&nbsp;&nbsp;<span class="schema-type">DECIMAL(5,2)</span><br>
+    &nbsp;&nbsp;<span class="schema-field">percentual_i</span> &nbsp;&nbsp;&nbsp;<span class="schema-type">DECIMAL(5,2)</span><br>
+    &nbsp;&nbsp;<span class="schema-field">percentual_s</span> &nbsp;&nbsp;&nbsp;<span class="schema-type">DECIMAL(5,2)</span><br>
+    &nbsp;&nbsp;<span class="schema-field">percentual_c</span> &nbsp;&nbsp;&nbsp;<span class="schema-type">DECIMAL(5,2)</span><br>
+    &nbsp;&nbsp;<span class="schema-field">perfil_primario</span> &nbsp;<span class="schema-type">CHAR(1)</span> <span class="schema-comment">-- 'D','I','S' ou 'C'</span><br>
+    &nbsp;&nbsp;<span class="schema-field">perfil_secundario</span><span class="schema-type">CHAR(1)</span><br>
+    &nbsp;&nbsp;<span class="schema-field">narrativa_ia</span> &nbsp;&nbsp;&nbsp;<span class="schema-type">JSONB</span> <span class="schema-comment">-- JSON completo retornado pelo Claude</span><br>
+    &nbsp;&nbsp;<span class="schema-field">pdf_url</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="schema-type">TEXT</span> <span class="schema-comment">-- URL do PDF gerado no storage</span><br>
+    &nbsp;&nbsp;<span class="schema-field">created_at</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="schema-type">TIMESTAMP</span>
+  </div>
+
+  <div class="schema-block">
+    <span class="schema-table-name">TABLE: answers</span> <span class="schema-comment">-- respostas individuais</span><br>
+    &nbsp;&nbsp;<span class="schema-field">id</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="schema-type">UUID PRIMARY KEY</span><br>
+    &nbsp;&nbsp;<span class="schema-field">assessment_id</span> <span class="schema-type">UUID REFERENCES assessments(id)</span><br>
+    &nbsp;&nbsp;<span class="schema-field">question_num</span> &nbsp;<span class="schema-type">INTEGER</span> <span class="schema-comment">-- 1 a 28</span><br>
+    &nbsp;&nbsp;<span class="schema-field">fator_escolhido</span><span class="schema-type">CHAR(1)</span> <span class="schema-comment">-- 'D','I','S' ou 'C'</span><br>
+    &nbsp;&nbsp;<span class="schema-field">answered_at</span> &nbsp;&nbsp;<span class="schema-type">TIMESTAMP</span>
+  </div>
+
+  <div class="schema-block">
+    <span class="schema-table-name">TABLE: credit_transactions</span> <span class="schema-comment">-- histórico financeiro</span><br>
+    &nbsp;&nbsp;<span class="schema-field">id</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="schema-type">UUID PRIMARY KEY</span><br>
+    &nbsp;&nbsp;<span class="schema-field">user_id</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="schema-type">UUID REFERENCES users(id)</span><br>
+    &nbsp;&nbsp;<span class="schema-field">tipo</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="schema-type">ENUM('compra','uso','estorno','bonus')</span><br>
+    &nbsp;&nbsp;<span class="schema-field">quantidade</span> &nbsp;&nbsp;&nbsp;&nbsp;<span class="schema-type">INTEGER</span><br>
+    &nbsp;&nbsp;<span class="schema-field">descricao</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="schema-type">TEXT</span><br>
+    &nbsp;&nbsp;<span class="schema-field">assessment_id</span> &nbsp;<span class="schema-type">UUID REFERENCES assessments(id)</span> <span class="schema-comment">-- quando tipo='uso'</span><br>
+    &nbsp;&nbsp;<span class="schema-field">created_at</span> &nbsp;&nbsp;&nbsp;&nbsp;<span class="schema-type">TIMESTAMP</span>
+  </div>
+
+  <p style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:32px 0 16px;">Tabela de preços e créditos por tipo de relatório</p>
+
+  <table class="pricing-table">
+    <thead>
+      <tr>
+        <th>Tipo</th>
+        <th>Nome</th>
+        <th>Créditos consumidos</th>
+        <th>Conteúdo do relatório</th>
+        <th>Preço sugerido de revenda</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>S1</strong></td>
+        <td>Perfil Essencial</td>
+        <td>1 crédito</td>
+        <td>DISC + Narrativa IA básica + Encaixe de cargos</td>
+        <td>R$97 – R$147</td>
+      </tr>
+      <tr>
+        <td><strong>S2</strong></td>
+        <td>Perfil Completo</td>
+        <td>2 créditos</td>
+        <td>S1 + Estilo de liderança + Como gerir este perfil</td>
+        <td>R$147 – R$197</td>
+      </tr>
+      <tr>
+        <td><strong>S3</strong></td>
+        <td>Perfil Executivo</td>
+        <td>3 créditos</td>
+        <td>S2 + Plano de Desenvolvimento Individual (PDI)</td>
+        <td>R$197 – R$297</td>
+      </tr>
+      <tr>
+        <td><strong>S4</strong></td>
+        <td>Perfil Estratégico</td>
+        <td>4 créditos</td>
+        <td>S3 + Dashboard online do avaliado + Histórico de evolução</td>
+        <td>R$297 – R$497</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:32px 0 16px;">Pacotes de créditos para facilitadores</p>
+
+  <table class="pricing-table">
+    <thead>
+      <tr>
+        <th>Pacote</th>
+        <th>Créditos</th>
+        <th>Preço de venda (Valmer cobra)</th>
+        <th>Custo por crédito</th>
+        <th>Público-alvo</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Starter</strong></td>
+        <td>10 créditos</td>
+        <td>R$290</td>
+        <td>R$29/crédito</td>
+        <td>Consultores iniciando, testando a ferramenta</td>
+      </tr>
+      <tr>
+        <td><strong>Pro</strong></td>
+        <td>50 créditos</td>
+        <td>R$990</td>
+        <td>R$19,90/crédito</td>
+        <td>Consultores ativos, empresas médias</td>
+      </tr>
+      <tr>
+        <td><strong>Business</strong></td>
+        <td>100 créditos</td>
+        <td>R$1.790</td>
+        <td>R$17,90/crédito</td>
+        <td>Consultoras de RH, empresas maiores</td>
+      </tr>
+      <tr>
+        <td><strong>Enterprise</strong></td>
+        <td>500 créditos</td>
+        <td>R$6.990</td>
+        <td>R$13,98/crédito</td>
+        <td>Grandes empresas, contratos anuais</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</div><!-- /main -->
+
+<div style="background:var(--navy);color:rgba(255,255,255,0.4);text-align:center;padding:28px;font-size:12px;font-family:'IBM Plex Mono',monospace;letter-spacing:1px;">
+  IMPACTO ACADEMY · DOCUMENTO CONFIDENCIAL · Valmer Albuquerque · (44) 99159-5998
+</div>
+
+</body>
+</html>
