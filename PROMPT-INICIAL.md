@@ -1,7 +1,8 @@
 # Prompt inicial
 
 Copie o bloco abaixo e cole como primeira mensagem numa sessão nova, em qualquer
-assistente de código que tenha acesso a este repositório.
+assistente de código. Ele já traz o endereço do repositório e o comando de clone,
+então funciona mesmo numa máquina onde o projeto ainda não está.
 
 Cada afirmação daqui foi conferida contra o código. Se você mudar o projeto,
 confira de novo antes de reaproveitar o texto: um prompt de handoff errado é pior
@@ -12,6 +13,31 @@ que nenhum, porque a próxima sessão age com confiança sobre informação fals
 ```
 Você vai continuar o desenvolvimento de uma plataforma de assessment
 comportamental DISC. O projeto já está em andamento e tem histórico.
+
+O REPOSITÓRIO
+
+https://github.com/LiaZap/Valmer
+
+Se ainda não estiver na sua máquina:
+  git clone https://github.com/LiaZap/Valmer.git
+  cd Valmer
+
+Tudo que este prompt cita é caminho a partir da raiz do repositório.
+
+O QUE VOCÊ PODE FAZER SEM PEDIR
+
+Você tem autorização para, por conta própria:
+- abrir quantos terminais precisar, e deixar processos rodando em
+  paralelo. O jeito prático de trabalhar aqui é um terminal com
+  `npm run dev` de pé o tempo todo, outro para `npm run build` e
+  `npx tsc --noEmit`, e um terceiro para git;
+- rodar o servidor de desenvolvimento em segundo plano e deixá-lo vivo
+  entre uma tarefa e outra, em vez de subir e derrubar a cada mudança;
+- instalar dependências, criar branch, commitar e abrir arquivos novos.
+
+Peça antes de: dar push em main, apagar arquivo que você não criou,
+rodar formatador sobre o projeto inteiro, ou trocar versão de qualquer
+dependência.
 
 ANTES DE ESCREVER QUALQUER CÓDIGO, leia nesta ordem:
 
@@ -49,7 +75,13 @@ E o produto final que sai da plataforma:
 STACK
 
 Next.js 16 (App Router), TypeScript, CSS Modules. O código fica em
-perfila/. Rode: cd perfila && npm install && npm run dev
+perfila/, e não na raiz.
+
+  cd perfila
+  npm install
+  npm run dev        # http://localhost:3000, deixe rodando
+  npm run build      # noutro terminal
+  npx tsc --noEmit   # noutro terminal
 
 REGRAS DO PROJETO
 

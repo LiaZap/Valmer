@@ -3,6 +3,8 @@
 Documento de continuidade. Serve para retomar o trabalho sem depender do
 histórico da conversa que o produziu.
 
+Repositório: https://github.com/LiaZap/Valmer
+
 ---
 
 ## O produto
