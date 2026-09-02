@@ -18,13 +18,13 @@ export default function NovoDnaPage() {
   const router = useRouter()
 
   function salvar() {
-    router.push('/dna')
+    router.push('/facilitador/dna')
     toast('DNA salvo')
   }
 
   return (
     <>
-      <BackLink href="/dna">Voltar para DNA Organizacional</BackLink>
+      <BackLink href="/facilitador/dna">Voltar para DNA Organizacional</BackLink>
 
       <PageHeader
         title="Novo DNA"
@@ -73,7 +73,7 @@ export default function NovoDnaPage() {
           </Card>
 
           <div className={styles.acoes}>
-            <Button href="/dna" variant="ghost">
+            <Button href="/facilitador/dna" variant="ghost">
               Cancelar
             </Button>
             <Button variant="primary" onClick={salvar}>

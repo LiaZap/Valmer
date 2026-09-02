@@ -21,7 +21,7 @@ export default function DnaPage() {
         title="DNA Organizacional"
         subtitle="Mapeie o perfil coletivo das empresas a partir dos inventários respondidos."
         actions={
-          <Button href="/dna/novo" variant="primary" icon={<Icon name="plus" />}>
+          <Button href="/facilitador/dna/novo" variant="primary" icon={<Icon name="plus" />}>
             Adicionar DNA
           </Button>
         }
@@ -60,7 +60,7 @@ export default function DnaPage() {
             {dnas.map((dna) => (
               <Tr key={dna.slug}>
                 <Td>
-                  <Link href={`/dna/${dna.slug}`} className={tableStyles.linkCell}>
+                  <Link href={`/facilitador/dna/${dna.slug}`} className={tableStyles.linkCell}>
                     {dna.name}
                   </Link>
                   <div className={`${tableStyles.secondary} ${styles.idioma}`}>
@@ -75,7 +75,7 @@ export default function DnaPage() {
                 <Td muted>{dna.date}</Td>
                 <Td align="right">
                   <RowActions>
-                    <IconButton icon="eye" label="Abrir" href={`/dna/${dna.slug}`} />
+                    <IconButton icon="eye" label="Abrir" href={`/facilitador/dna/${dna.slug}`} />
                     <IconButton
                       icon="edit"
                       label="Editar"

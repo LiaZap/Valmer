@@ -1,0 +1,35 @@
+.pacote {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.creditos {
+  margin-top: var(--space-4);
+  font-family: var(--font-display);
+  font-size: var(--fs-32);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.preco {
+  font-size: var(--fs-14);
+  font-weight: var(--fw-semibold);
+  color: var(--color-accent);
+}
+
+.acao {
+  margin-top: var(--space-12);
+  align-self: flex-start;
+}
+
+/* Entrada e saída de crédito: o sinal já diz, a cor reforça. */
+.entrada {
+  font-weight: var(--fw-semibold);
+  color: var(--color-accent);
+}
+
+.saida {
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-muted);
+}

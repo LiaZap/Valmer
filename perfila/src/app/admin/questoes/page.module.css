@@ -1,0 +1,93 @@
+.bloco {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.blocoTopo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-12);
+}
+
+.questao {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+  padding: var(--space-16);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-muted);
+}
+
+.questaoTopo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-12);
+}
+
+.codigo {
+  font-family: var(--font-display);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-subtle);
+}
+
+.enunciado {
+  margin-top: var(--space-4);
+  font-size: var(--fs-135);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text);
+  line-height: var(--leading-normal);
+}
+
+.opcoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-8);
+}
+
+.opcao {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-10);
+  padding: var(--space-10) var(--space-12);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: var(--fs-13);
+  color: var(--color-text-muted);
+  line-height: var(--leading-normal);
+}
+
+/* Fator ao qual a opção pontua. */
+.fator {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-on-ink);
+  font-family: var(--font-display);
+  font-size: var(--fs-11);
+  font-weight: var(--fw-bold);
+}
+
+.fatorD {
+  background: var(--chart-disc-d);
+}
+
+.fatorI {
+  background: var(--chart-disc-i);
+}
+
+.fatorS {
+  background: var(--chart-disc-s);
+}
+
+.fatorC {
+  background: var(--chart-disc-c);
+}

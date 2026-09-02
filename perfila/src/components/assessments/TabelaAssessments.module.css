@@ -1,0 +1,15 @@
+/* Código do tipo de relatório (S1…S4). */
+.tipo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 22px;
+  padding: 0 var(--space-8);
+  border-radius: var(--radius-xs);
+  background: var(--color-hover);
+  font-family: var(--font-display);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text);
+}

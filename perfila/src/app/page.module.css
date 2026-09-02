@@ -1,0 +1,137 @@
+.pagina {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-24);
+  background: var(--color-bg);
+}
+
+.cartao {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: var(--space-10);
+}
+
+.marcaIcone {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: var(--radius-lg);
+  background: var(--color-accent);
+  color: var(--color-on-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.marcaTexto {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.marcaNome {
+  font-family: var(--font-display);
+  font-size: var(--fs-17);
+  font-weight: var(--fw-semibold);
+}
+
+.marcaLinha {
+  font-size: var(--fs-12);
+  color: var(--color-text-subtle);
+}
+
+.campos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-14);
+}
+
+.esqueci {
+  align-self: flex-end;
+  font-size: var(--fs-125);
+}
+
+/* Atalhos do protótipo — separados do formulário para não passarem
+   por parte do produto. */
+.demo {
+  padding-top: var(--space-20);
+  border-top: 1px solid var(--color-border-soft);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+
+.demoTitulo {
+  font-size: var(--fs-11);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+.ambiente {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-12) var(--space-14);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  text-decoration: none;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.ambiente:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-tint);
+  text-decoration: none;
+}
+
+.ambienteIcone {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: var(--radius-md);
+  background: var(--color-hover);
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ambienteTexto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ambienteNome {
+  font-size: var(--fs-135);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text);
+}
+
+.ambienteDesc {
+  font-size: var(--fs-12);
+  color: var(--color-text-muted);
+}
+
+.seta {
+  color: var(--color-text-subtle);
+  display: flex;
+  flex: none;
+}

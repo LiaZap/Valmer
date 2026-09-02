@@ -10,7 +10,7 @@ export default function NaoEncontrado() {
         title="Página não encontrada"
         subtitle="O endereço acessado não existe ou o registro foi removido."
         actions={
-          <Button href="/" variant="primary">
+          <Button href="/facilitador" variant="primary">
             Ir para o Dashboard
           </Button>
         }

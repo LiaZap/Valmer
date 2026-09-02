@@ -26,10 +26,10 @@ export default function DashboardPage() {
         subtitle={`Resumo da sua operação nesta ${dataPorExtenso(agora)}.`}
         actions={
           <>
-            <Button href="/envio-rapido" icon={<Icon name="zap" />}>
+            <Button href="/facilitador/envio-rapido" icon={<Icon name="zap" />}>
               Envio rápido
             </Button>
-            <Button href="/campanhas/nova" variant="primary" icon={<Icon name="plus" />}>
+            <Button href="/facilitador/campanhas/nova" variant="primary" icon={<Icon name="plus" />}>
               Nova campanha
             </Button>
           </>
@@ -79,7 +79,7 @@ export default function DashboardPage() {
             </div>
           </Stack>
           <Button
-            href="/creditos"
+            href="/facilitador/creditos"
             variant="link"
             className={styles.saldoAcao}
             iconRight={<Icon name="chevR" />}
@@ -116,7 +116,7 @@ export default function DashboardPage() {
             </div>
           </Stack>
           <Button
-            href="/degustacao"
+            href="/facilitador/degustacao"
             variant="link"
             className={styles.saldoAcao}
             iconRight={<Icon name="chevR" />}
@@ -170,7 +170,7 @@ export default function DashboardPage() {
           <div className={styles.programaNota}>
             Faltam {faltamParaGold.utilizados} créditos para a categoria{' '}
             <b>{situacaoPrograma.proximaCategoria}</b>.{' '}
-            <Link href="/beneficios" className={styles.programaLink}>
+            <Link href="/facilitador/beneficios" className={styles.programaLink}>
               Ver benefícios
             </Link>
           </div>
@@ -199,7 +199,7 @@ export default function DashboardPage() {
           <div className={styles.grafico}>
             <p className={styles.graficoAviso}>
               Ainda não há vendas suficientes para exibir o gráfico.{' '}
-              <Link href="/degustacao">Configure a degustação</Link> para começar a converter
+              <Link href="/facilitador/degustacao">Configure a degustação</Link> para começar a converter
               clientes.
             </p>
           </div>
@@ -208,13 +208,13 @@ export default function DashboardPage() {
         <Card className={styles.cursos}>
           <div className={ui.sectionHead}>
             <div className={ui.cardTitle}>Nossos cursos</div>
-            <Button href="/cursos" variant="link">
+            <Button href="/facilitador/cursos" variant="link">
               Ver todos
             </Button>
           </div>
           <Stack gap={10}>
             {cursosDestaque.map((curso) => (
-              <Link href="/cursos" key={curso.title} className={styles.cursoItem}>
+              <Link href="/facilitador/cursos" key={curso.title} className={styles.cursoItem}>
                 <span className={styles.cursoCapa} style={{ background: curso.capa }}>
                   {curso.abbr}
                 </span>

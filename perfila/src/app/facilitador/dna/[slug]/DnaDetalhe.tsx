@@ -34,7 +34,7 @@ export function DnaDetalhe({ dna }: { dna: Dna }) {
 
   return (
     <>
-      <BackLink href="/dna">Voltar para DNA Organizacional</BackLink>
+      <BackLink href="/facilitador/dna">Voltar para DNA Organizacional</BackLink>
 
       <PageHeader
         title={dna.name}

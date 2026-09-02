@@ -16,8 +16,19 @@ const ALIGN_CLASS: Record<Align, string | null> = {
  * O card em volta é quem rola horizontalmente (`<Card scrollX>`),
  * então a página nunca ganha barra horizontal.
  */
-export function Table({ children }: { children: ReactNode }) {
-  return <table className={styles.table}>{children}</table>
+export function Table({
+  children,
+  compact,
+}: {
+  children: ReactNode
+  /** Dispensa a largura mínima — para tabelas resumo em coluna estreita. */
+  compact?: boolean
+}) {
+  return (
+    <table className={[styles.table, compact ? styles.compact : null].filter(Boolean).join(' ')}>
+      {children}
+    </table>
+  )
 }
 
 export function Th({

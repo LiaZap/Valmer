@@ -1,0 +1,120 @@
+.form {
+  max-width: 820px;
+}
+
+.corpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+  padding: var(--space-24);
+}
+
+.dupla {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-14);
+}
+
+/* Escolha do tipo de relatório. */
+.tipos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-10);
+}
+
+.tipo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-14);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.tipo:hover {
+  border-color: var(--color-border-strong);
+}
+
+.tipo:has(input:checked) {
+  border-color: var(--color-accent);
+  background: var(--color-accent-tint);
+}
+
+.tipo:has(input:focus-visible) {
+  box-shadow: var(--focus-ring);
+}
+
+/* Sem saldo, a opção continua legível mas não selecionável. */
+.indisponivel {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.radio {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tipoTopo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-8);
+}
+
+.tipoCodigo {
+  font-family: var(--font-display);
+  font-size: var(--fs-16);
+  font-weight: var(--fw-semibold);
+}
+
+.tipoNome {
+  font-size: var(--fs-135);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text);
+}
+
+.tipoConteudo {
+  font-size: var(--fs-12);
+  color: var(--color-text-muted);
+  line-height: var(--leading-normal);
+}
+
+/* Resumo do custo, antes de confirmar. */
+.resumo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+  padding: var(--space-14) var(--space-16);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-sunken);
+  font-size: var(--fs-135);
+}
+
+.resumoValor {
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+}
+
+.negativo {
+  color: var(--color-danger);
+}
+
+@media (max-width: 560px) {
+  .dupla {
+    grid-template-columns: 1fr;
+  }
+
+  .corpo {
+    padding: var(--space-16);
+  }
+}

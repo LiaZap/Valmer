@@ -47,7 +47,7 @@ export default function CampanhasPage() {
             >
               Remover pendentes
             </Button>
-            <Button href="/campanhas/nova" variant="primary" icon={<Icon name="plus" />}>
+            <Button href="/facilitador/campanhas/nova" variant="primary" icon={<Icon name="plus" />}>
               Nova campanha
             </Button>
           </>

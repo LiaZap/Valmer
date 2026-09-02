@@ -18,13 +18,13 @@ export default function NovaCampanhaPage() {
   const [permiteDownload, setPermiteDownload] = useState(false)
 
   function salvar() {
-    router.push('/campanhas')
+    router.push('/facilitador/campanhas')
     toast('Campanha salva')
   }
 
   return (
     <>
-      <BackLink href="/campanhas">Voltar para campanhas</BackLink>
+      <BackLink href="/facilitador/campanhas">Voltar para campanhas</BackLink>
 
       <PageHeader
         title="Criar campanha"
@@ -64,7 +64,7 @@ export default function NovaCampanhaPage() {
         </div>
 
         <CardFooter>
-          <Button href="/campanhas" variant="ghost">
+          <Button href="/facilitador/campanhas" variant="ghost">
             Cancelar
           </Button>
           <Button variant="primary" onClick={salvar}>

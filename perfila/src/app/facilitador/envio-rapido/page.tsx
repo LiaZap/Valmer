@@ -39,7 +39,7 @@ export default function EnvioRapidoPage() {
                 className={styles.buscaCampo}
               />
               <Button
-                href="/campanhas/nova"
+                href="/facilitador/campanhas/nova"
                 icon={<Icon name="plus" />}
                 className={styles.buscaBotao}
               >
