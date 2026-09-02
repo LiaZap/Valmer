@@ -5,6 +5,7 @@
  * grava a transacao na mesma operacao, para o extrato sempre explicar o saldo.
  */
 import { pgTable, uuid, text, integer, boolean, timestamp, index } from "drizzle-orm/pg-core";
+import { TEMPO } from "./tempo";
 import { usuarios } from "./usuarios";
 import { assessments } from "./assessments";
 import { tipoTransacao } from "./enums";
@@ -28,9 +29,9 @@ export const creditosTransacoes = pgTable(
     }),
 
     // --- colunas de auditoria OBRIGATORIAS (nunca omitir) ---
-    created_at: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updated_at: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-    deleted_at: timestamp("deleted_at", { withTimezone: true }),
+    created_at: timestamp("created_at", TEMPO).notNull().defaultNow(),
+    updated_at: timestamp("updated_at", TEMPO).notNull().defaultNow(),
+    deleted_at: timestamp("deleted_at", TEMPO),
     is_deleted: boolean("is_deleted").notNull().default(false),
     modified_by: uuid("modified_by").notNull(),
   },

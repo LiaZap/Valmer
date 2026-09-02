@@ -66,7 +66,7 @@ Cada regra segue este formato:
 
 ---
 
-## Regras Especificas do Projeto: [NOME DO PROJETO]
+## Regras Especificas do Projeto: Valmer (Perfila)
 
 <!-- Adicionar regras especificas de cada cliente/projeto abaixo -->
 <!-- Exemplo: -->
@@ -80,3 +80,40 @@ Cada regra segue este formato:
 - **Comportamento esperado**: [Comportamento]
 - **Impacto se descumprida**: [Impacto]
 -->
+
+### RN-100 - Assessment Consome Credito na Criacao
+- **Definida por**: Valmer Albuquerque (especificacao da plataforma)
+- **Data**: 2026-09-02
+- **Modulo**: Assessments / Creditos
+- **Descricao**: Cada nivel de relatorio custa creditos do facilitador: S1 = 1,
+  S2 = 2, S3 = 3, S4 = 4. O debito acontece quando o assessment e criado, que e
+  quando o link unico passa a existir, e nao quando o avaliado responde.
+- **Comportamento esperado**: A criacao debita o saldo, grava a linha no extrato
+  (`creditos_transacoes`) e cria o assessment na mesma transacao, com a linha do
+  facilitador travada. Sem saldo, a criacao e recusada e nada e gravado.
+- **Impacto se descumprida**: Duas criacoes simultaneas gastam o mesmo credito, ou
+  o extrato deixa de explicar o saldo e a conferencia com o parceiro nao fecha.
+
+### RN-101 - Facilitador So Enxerga o Que E Dele
+- **Definida por**: Valmer Albuquerque (especificacao da plataforma)
+- **Data**: 2026-09-02
+- **Modulo**: Assessments
+- **Descricao**: O portal do parceiro mostra apenas os assessments daquele
+  facilitador. O admin, que e um so, enxerga os de todos os parceiros.
+- **Comportamento esperado**: O recorte por dono entra no WHERE de toda funcao de
+  `lib/actions/assessments.ts`, nao so na tela. Ler, atualizar e excluir de outro
+  facilitador nao encontra o registro.
+- **Impacto se descumprida**: Um parceiro ve os avaliados de outro. Sao dados
+  comportamentais nominais de terceiros.
+
+### RN-102 - Nivel do Relatorio Nao Muda Depois de Criado
+- **Definida por**: Decisao tecnica, a confirmar com o cliente
+- **Data**: 2026-09-02
+- **Modulo**: Assessments
+- **Descricao**: Depois de criado, o assessment nao troca de nivel (S1 a S4),
+  porque o credito ja foi consumido. A edicao altera apenas nome e e-mail do
+  avaliado. O credito tambem nao volta na exclusao logica, ja que o link pode
+  ter sido enviado.
+- **Comportamento esperado**: Para mudar de nivel, excluir e criar outro. Estorno
+  e ato do admin, pela tela de creditos.
+- **Impacto se descumprida**: Troca de nivel sem cobranca vira furo de receita.

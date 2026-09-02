@@ -9,6 +9,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { usuarios } from "./usuarios";
 import { fatorDisc, situacaoAssessment, tipoRelatorio } from "./enums";
+import { TEMPO } from "./tempo";
 
 export const assessments = pgTable(
   "assessments",
@@ -26,8 +27,8 @@ export const assessments = pgTable(
     tipo_relatorio: tipoRelatorio("tipo_relatorio").notNull(),
     situacao: situacaoAssessment("situacao").notNull().default("pendente"),
     creditos_usados: integer("creditos_usados").notNull().default(0),
-    expira_em: timestamp("expira_em", { withTimezone: true }).notNull(),
-    concluido_em: timestamp("concluido_em", { withTimezone: true }),
+    expira_em: timestamp("expira_em", TEMPO).notNull(),
+    concluido_em: timestamp("concluido_em", TEMPO),
 
     /**
      * Quantas das 28 respostas cairam em cada fator. Somam 28, entao os
@@ -44,9 +45,9 @@ export const assessments = pgTable(
     contador_c: integer("contador_c"),
 
     // --- colunas de auditoria OBRIGATORIAS (nunca omitir) ---
-    created_at: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updated_at: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-    deleted_at: timestamp("deleted_at", { withTimezone: true }),
+    created_at: timestamp("created_at", TEMPO).notNull().defaultNow(),
+    updated_at: timestamp("updated_at", TEMPO).notNull().defaultNow(),
+    deleted_at: timestamp("deleted_at", TEMPO),
     is_deleted: boolean("is_deleted").notNull().default(false),
     modified_by: uuid("modified_by").notNull(),
   },
@@ -72,9 +73,9 @@ export const assessmentsRespostas = pgTable(
     fator: fatorDisc("fator").notNull(),
 
     // --- colunas de auditoria OBRIGATORIAS (nunca omitir) ---
-    created_at: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updated_at: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-    deleted_at: timestamp("deleted_at", { withTimezone: true }),
+    created_at: timestamp("created_at", TEMPO).notNull().defaultNow(),
+    updated_at: timestamp("updated_at", TEMPO).notNull().defaultNow(),
+    deleted_at: timestamp("deleted_at", TEMPO),
     is_deleted: boolean("is_deleted").notNull().default(false),
     modified_by: uuid("modified_by").notNull(),
   },
@@ -100,9 +101,9 @@ export const assessmentsRelatorios = pgTable(
     narrativa: jsonb("narrativa").notNull(),
 
     // --- colunas de auditoria OBRIGATORIAS (nunca omitir) ---
-    created_at: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updated_at: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-    deleted_at: timestamp("deleted_at", { withTimezone: true }),
+    created_at: timestamp("created_at", TEMPO).notNull().defaultNow(),
+    updated_at: timestamp("updated_at", TEMPO).notNull().defaultNow(),
+    deleted_at: timestamp("deleted_at", TEMPO),
     is_deleted: boolean("is_deleted").notNull().default(false),
     modified_by: uuid("modified_by").notNull(),
   },
