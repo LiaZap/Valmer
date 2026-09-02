@@ -1,0 +1,342 @@
+/* ============================================================
+   Plano de desenvolvimento · Frase do perfil · Rodapé
+   ------------------------------------------------------------
+   O fecho do relatório. Duas seções e o colofão, com três
+   densidades decrescentes: o plano é o bloco mais estruturado
+   do documento, a frase é o mais vazio, o rodapé é só dado.
+   Essa queda de densidade é o que faz o documento "terminar"
+   em vez de simplesmente parar.
+
+   As únicas medidas fora da escala de tokens são a largura da
+   coluna do número (o mesmo 34px do .blockIcon compartilhado),
+   as medidas de linha em `ch` e as espessuras de régua/ponto:
+   geometria de texto e de traço, não espaçamento.
+   ============================================================ */
+
+/* ---------- Ritmo do grupo ---------- */
+
+/* O grupo é um filho único para quem compõe a página, então o
+   intervalo entre as seções é decidido aqui. */
+.secao + .secao {
+  margin-top: var(--space-20);
+}
+
+/* ---------- Cabeçalho das seções ---------- */
+
+.sobretitulo {
+  margin-bottom: var(--space-6);
+}
+
+/* Folio da seção: mesma família dos números do documento, com
+   largura tabular para os folios alinharem entre as seções. */
+.folio {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Mesmo desenho de <h2> das seções anteriores: quem folheia
+   precisa reconhecer o nível hierárquico de longe. */
+.titulo {
+  font-family: var(--font-display);
+  font-size: var(--fs-22);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+  color: var(--color-text);
+}
+
+/* ---------- 12 · Plano de desenvolvimento ---------- */
+
+.corpo {
+  padding: var(--space-20) var(--space-24) var(--space-24);
+}
+
+.abertura {
+  max-width: 62ch;
+  margin-bottom: var(--space-20);
+}
+
+.acoes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Cada ação: número na margem, texto e linha de compromisso na
+   mesma coluna de leitura. */
+.acao {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  column-gap: var(--space-16);
+  row-gap: var(--space-12);
+  align-items: start;
+  /* Uma ação partida entre duas folhas perde a linha de data. */
+  break-inside: avoid;
+}
+
+/* Divisória em vez de card por ação: três cards dentro de um card
+   viraria moldura sobre moldura, e a lista é uma coisa só. */
+.acao + .acao {
+  margin-top: var(--space-20);
+  padding-top: var(--space-20);
+  border-top: 1px solid var(--color-border-soft);
+}
+
+/* Ordinal curto (1, 2, 3) — o folio de dois dígitos é das seções. */
+.acaoNumero {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  font-family: var(--font-display);
+  font-size: var(--fs-15);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.acaoTexto {
+  grid-column: 2;
+  grid-row: 1;
+  max-width: 60ch;
+  font-size: var(--fs-15);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-secondary);
+  orphans: 3;
+  widows: 3;
+}
+
+/* O espaço de compromisso: um rótulo e uma linha, uma vez por
+   ação. É o formulário inteiro do relatório. */
+.compromisso {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-12);
+  max-width: 46ch;
+}
+
+.compromissoRotulo {
+  flex: none;
+  font-size: var(--fs-11);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+/* Borda, não fundo: linha para escrever à mão precisa sobreviver
+   à impressão sem depender de fundos. */
+.compromissoLinha {
+  flex: 1;
+  height: var(--space-18);
+  border-bottom: 1px solid var(--color-border-strong);
+}
+
+.fechoNota {
+  max-width: 62ch;
+  margin-top: var(--space-20);
+  padding-top: var(--space-16);
+  border-top: 1px solid var(--color-border-soft);
+}
+
+/* ---------- 13 · Frase do perfil ---------- */
+
+/* A página mais vazia do documento, de propósito: o peso da frase
+   vem do espaço em volta dela. */
+.frase {
+  padding: var(--space-28) var(--space-24);
+  break-inside: avoid;
+}
+
+/* Último gesto verde do relatório. */
+.regua {
+  display: block;
+  width: 44px;
+  height: 2px;
+  background: var(--color-accent);
+  border-radius: var(--radius-full);
+}
+
+/* <h2> real, em tamanho de rótulo: continua sendo o título da
+   seção para o sumário do PDF e para o leitor de tela, mas quem
+   domina a página é a frase. */
+.fraseTitulo {
+  margin-top: var(--space-14);
+  font-size: var(--fs-11);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+/* Medida curta e corpo grande: a frase ocupa poucas linhas cheias
+   em vez de muitas linhas magras. */
+.fraseTexto {
+  max-width: 30ch;
+  margin-top: var(--space-16);
+  font-family: var(--font-display);
+  font-size: var(--fs-26);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-snug);
+  color: var(--color-text);
+  text-wrap: balance;
+}
+
+/* ---------- 14 · Rodapé ---------- */
+
+.rodape {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--space-24);
+  row-gap: var(--space-16);
+  margin-top: var(--space-24);
+  padding-top: var(--space-20);
+  border-top: 1px solid var(--color-border);
+  break-inside: avoid;
+}
+
+/* Quem entrega o relatório ocupa a coluna de leitura; a marca da
+   plataforma fica no crédito ao lado. */
+.emissor {
+  grid-column: 1;
+}
+
+.emissorNome {
+  margin-top: var(--space-8);
+  font-size: var(--fs-14);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text);
+}
+
+.emissorLinha {
+  margin-top: var(--space-2);
+  font-size: var(--fs-13);
+  color: var(--color-text-muted);
+}
+
+.credito {
+  grid-column: 2;
+  text-align: right;
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-8);
+  font-family: var(--font-display);
+  font-size: var(--fs-15);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text);
+}
+
+.marcaPonto {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+}
+
+.creditoLinha {
+  margin-top: var(--space-4);
+  font-size: var(--fs-12);
+  color: var(--color-text-subtle);
+}
+
+/* A ressalva atravessa as duas colunas: ela é do documento, não
+   de quem emitiu nem da plataforma. */
+.ressalva {
+  grid-column: 1 / -1;
+  max-width: 78ch;
+  font-size: var(--fs-115);
+  line-height: var(--leading-normal);
+  color: var(--color-text-subtle);
+}
+
+/* ---------- Telas estreitas ---------- */
+
+@media (max-width: 560px) {
+  .corpo {
+    padding: var(--space-16) var(--space-16) var(--space-20);
+  }
+
+  .acao {
+    column-gap: var(--space-12);
+  }
+
+  .titulo {
+    font-size: var(--fs-20);
+  }
+
+  .frase {
+    padding: var(--space-24) var(--space-16);
+  }
+
+  .fraseTexto {
+    font-size: var(--fs-22);
+  }
+
+  /* Empilhado, o crédito perde o alinhamento à direita: a coluna
+     de leitura passa a ser uma só. */
+  .rodape {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .emissor,
+  .credito {
+    grid-column: 1;
+  }
+
+  .credito {
+    text-align: left;
+  }
+
+  .marca {
+    justify-content: flex-start;
+  }
+}
+
+/* ---------- Impressão (A4) ---------- */
+
+@media print {
+  .secao + .secao {
+    margin-top: var(--space-16);
+  }
+
+  /* Título e chamada não podem fechar a folha sem a primeira ação. */
+  .abertura {
+    break-after: avoid;
+  }
+
+  .acaoTexto {
+    font-size: var(--fs-14);
+  }
+
+  /* No papel a folha já é a superfície: a moldura da frase vira
+     ruído e some, ficando só o espaço em volta. A classe é repetida
+     para vencer a do <Card> sem depender da ordem dos módulos no
+     bundle — é o único lugar do arquivo que sobrescreve outro
+     componente. */
+  .frase.frase {
+    padding: var(--space-24) 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+  }
+
+  /* Régua e ordinais são as duas únicas cores do fecho: sem isto
+     somem na impressão, que descarta fundos por padrão. */
+  .regua,
+  .acaoNumero,
+  .marcaPonto {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* O colofão fecha a última folha junto com a frase, não sozinho
+     em uma página nova. */
+  .rodape {
+    margin-top: var(--space-20);
+  }
+}

@@ -1,0 +1,279 @@
+/* ============================================================
+   Capa e Resumo do perfil
+   ------------------------------------------------------------
+   O relatório é um documento: mesma folha na tela e no papel.
+   Por isso nenhuma medida aqui depende de viewport e nenhum
+   estado depende de hover. As únicas medidas fora da escala de
+   tokens são geometria de página (altura útil do A4 e medida de
+   linha em `ch`) — não são espaçamento nem cor.
+   ============================================================ */
+
+/* ---------- Capa ---------- */
+
+.capa {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-28);
+  padding: var(--space-28);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+  padding-bottom: var(--space-16);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.marcaNome {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-family: var(--font-display);
+  font-size: var(--fs-20);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text);
+}
+
+/* O único sinal de marca da capa: um ponto do acento do sistema. */
+.marcaPonto {
+  width: var(--space-8);
+  height: var(--space-8);
+  flex: none;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+}
+
+.capaMiolo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+}
+
+.capaTitulo {
+  font-family: var(--font-display);
+  font-size: var(--fs-32);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+  color: var(--color-text);
+}
+
+/* Identificação do avaliado: avatar + nome legível ao lado. */
+.avaliado {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  break-inside: avoid;
+}
+
+.avaliadoNome {
+  font-family: var(--font-display);
+  font-size: var(--fs-26);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text);
+}
+
+/* Selo do perfil: o único bloco escuro do relatório inteiro, para
+   que o resultado tenha presença na capa sem virar cartaz. */
+.selo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  break-inside: avoid;
+  /* O fundo escuro carrega o significado do selo, então ele precisa
+     sobreviver à impressão mesmo quando o navegador corta fundos. */
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.sigla {
+  font-family: var(--font-display);
+  font-size: var(--fs-36);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-wide);
+  line-height: var(--leading-tight);
+  color: var(--color-accent-on-dark);
+}
+
+.seloNome {
+  font-size: var(--fs-15);
+  font-weight: var(--fw-semibold);
+  color: var(--color-on-ink);
+}
+
+.seloApoio {
+  font-size: var(--fs-13);
+  color: var(--color-on-ink-70);
+}
+
+.capaFecho {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  break-inside: avoid;
+}
+
+/* Medida de linha: texto de documento fica ilegível quando a linha
+   passa de ~70 caracteres. */
+.capaNota {
+  max-width: 68ch;
+}
+
+.capaDados {
+  display: grid;
+  gap: var(--space-8);
+}
+
+/* ---------- Seção de conteúdo ---------- */
+
+.secao {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.tituloSecao {
+  font-family: var(--font-display);
+  font-size: var(--fs-24);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text);
+}
+
+/* Microcopy de leitura do gráfico, na mesma página do gráfico. */
+.comoLer {
+  max-width: 68ch;
+}
+
+/* ---------- Barras DISC ---------- */
+
+.quadro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+}
+
+/* Todas as linhas têm o mesmo recuo, com ou sem destaque, para que
+   as quatro barras comecem e terminem exatamente no mesmo lugar —
+   é a comparação entre elas que carrega o dado. */
+.fator {
+  padding: var(--space-12) var(--space-14);
+  border-radius: var(--radius-xl);
+  break-inside: avoid;
+}
+
+.fatorDestaque {
+  background: var(--color-surface-sunken);
+}
+
+.marcador {
+  display: block;
+  margin-bottom: var(--space-8);
+}
+
+.marcadorPrimario {
+  color: var(--color-accent);
+}
+
+/* ---------- Leitura da sigla combinada ---------- */
+
+.combinacao {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  break-inside: avoid;
+}
+
+.combinacaoTopo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+}
+
+.siglaResumo {
+  flex: none;
+  padding: var(--space-10) var(--space-16);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-sunken);
+  font-family: var(--font-display);
+  font-size: var(--fs-32);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-wide);
+  line-height: var(--leading-tight);
+  color: var(--color-text);
+}
+
+.combinacaoTexto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.papeis {
+  display: grid;
+  gap: var(--space-12);
+  margin: 0;
+}
+
+.papelItem {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-12) var(--space-14);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-sunken);
+  break-inside: avoid;
+}
+
+.papelTermo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-12);
+  font-size: var(--fs-13);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text);
+}
+
+.papelSelo {
+  flex: none;
+  font-size: var(--fs-11);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+.papelTexto {
+  margin: 0;
+}
+
+/* ---------- Impressão ---------- */
+
+@media print {
+  /* Na folha, o papel já é a superfície: a moldura da capa vira
+     ruído e some. O conteúdo se distribui pela altura útil do A4
+     (297mm menos as margens de 20mm), com folga para diferenças de
+     renderização entre navegadores. */
+  .capa {
+    min-height: 245mm;
+    justify-content: space-between;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+    break-after: page;
+  }
+
+  .quadro,
+  .combinacao {
+    break-inside: avoid;
+  }
+}

@@ -1,0 +1,173 @@
+/* ============================================================
+   Quem você é · Pontos fortes · Pontos de atenção
+   Três seções de narrativa com um único ritmo de página.
+   ============================================================ */
+
+/* O espaço entre seções mora na relação entre elas, não em uma
+   margem final que sobraria no fim do bloco. */
+.secao + .secao {
+  margin-top: var(--space-20);
+}
+
+/* ---------- Cabeçalho das três seções ---------- */
+
+.sobretitulo {
+  margin-bottom: var(--space-6);
+}
+
+.titulo {
+  font-family: var(--font-display);
+  font-size: var(--fs-22);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+  color: var(--color-text);
+}
+
+/* Alinha o corpo à mesma sangria horizontal do cabeçalho do card. */
+.corpo {
+  padding: var(--space-20);
+}
+
+/* ---------- Seção 3 · Quem você é ---------- */
+
+/* Primeiro contato da pessoa com o resultado: corpo grande, medida
+   curta e cor de texto forte. É abertura de texto, não KPI. */
+.abertura {
+  max-width: 62ch;
+  font-size: var(--fs-20);
+  line-height: var(--leading-normal);
+  color: var(--color-text);
+  orphans: 3;
+  widows: 3;
+}
+
+/* Faixa do conteúdo fixo do perfil: separada por uma divisória leve
+   para deixar claro que não é texto escrito para esta pessoa. */
+.tracos {
+  margin-top: var(--space-24);
+  padding-top: var(--space-16);
+  border-top: 1px solid var(--color-border-soft);
+  break-inside: avoid;
+}
+
+.tracosRotulo {
+  margin-bottom: var(--space-6);
+}
+
+.tracosResumo {
+  max-width: 62ch;
+}
+
+.tracosLista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  margin: var(--space-12) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ---------- Seção 4 · Pontos fortes ---------- */
+
+/* Lista contínua sobre o branco do card: a numeração e as divisórias
+   são o que distingue este bloco da grade de pontos de atenção. */
+.fortes {
+  margin: 0;
+  padding: var(--space-4) var(--space-20) var(--space-20);
+  list-style: none;
+}
+
+.forte {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: var(--space-14);
+  align-items: baseline;
+  padding: var(--space-14) 0;
+  break-inside: avoid;
+}
+
+.forte + .forte {
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.forteNumero {
+  font-family: var(--font-display);
+  font-size: var(--fs-20);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-accent);
+}
+
+.forteTexto {
+  font-size: var(--fs-14);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-secondary);
+  orphans: 2;
+  widows: 2;
+}
+
+/* ---------- Seção 5 · Pontos de atenção ---------- */
+
+.nota {
+  max-width: 62ch;
+}
+
+/* Grade 2x2 de blocos rebaixados. Mesma família de cor dos pontos
+   fortes: o que muda é a forma — sem número, com fundo e com a
+   marca vertical à esquerda. */
+.atencoes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-12);
+  margin: var(--space-16) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.atencao {
+  padding: var(--space-14) var(--space-16);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-border-strong);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-sunken);
+  font-size: var(--fs-14);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-secondary);
+  break-inside: avoid;
+}
+
+/* Uma coluna quando não cabem duas — o relatório é aberto no celular. */
+@media (max-width: 640px) {
+  .atencoes {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Impressão (A4) ---------- */
+
+@media print {
+  .secao + .secao {
+    margin-top: var(--space-16);
+  }
+
+  /* No A4 a coluna é mais estreita: 20px de abertura viraria uma
+     mancha de poucas palavras por linha. */
+  .abertura {
+    font-size: var(--fs-17);
+  }
+
+  /* Um título não pode fechar a página sem o texto que ele abre. */
+  .sobretitulo,
+  .titulo {
+    break-after: avoid;
+  }
+
+  /* O bloco rebaixado precisa continuar legível mesmo quando a
+     impressão sai sem gráficos de fundo. */
+  .atencao {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

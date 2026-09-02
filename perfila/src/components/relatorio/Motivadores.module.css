@@ -1,0 +1,129 @@
+/* ============================================================
+   O que te move · Seu ambiente ideal · Como você se comunica
+   ------------------------------------------------------------
+   Três parágrafos curtos com a mesma anatomia: coluna estreita
+   com o ícone à esquerda, título e texto alinhados na coluna de
+   leitura. A moldura é idêntica nos três de propósito — o que
+   varia é o ícone e a palavra-chave, não o layout.
+
+   As únicas medidas fora da escala de tokens são a largura da
+   coluna do ícone (o mesmo 34px do .blockIcon compartilhado) e a
+   medida de linha em `ch`: geometria de texto, não espaçamento.
+   ============================================================ */
+
+/* ---------- Grupo ---------- */
+
+/* O grupo é um único filho para quem compõe a página, então o
+   ritmo interno é decidido aqui e não some se o pai usar Stack. */
+.abertura {
+  max-width: 62ch;
+  margin-bottom: var(--space-16);
+}
+
+/* Intervalo menor que o padrão entre seções do relatório: é a
+   proximidade que diz que os três blocos são um grupo só. */
+.secao + .secao {
+  margin-top: var(--space-16);
+}
+
+/* Um bloco de duas ou três frases nunca deveria virar duas páginas. */
+.secao {
+  break-inside: avoid;
+}
+
+/* ---------- Anatomia do bloco ---------- */
+
+.bloco {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  column-gap: var(--space-16);
+  row-gap: var(--space-12);
+  align-items: start;
+}
+
+/* O ícone ocupa a margem inteira do bloco: título e parágrafo
+   ficam na mesma coluna, e a leitura não é interrompida por um
+   recuo no meio do caminho. */
+.marca {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+}
+
+.cabecalho {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+/* Palavra-chave do bloco. É o que diferencia as três seções entre
+   si — por isso vem antes do título, e não depois. */
+.chave {
+  margin-bottom: var(--space-6);
+}
+
+/* Folio da seção: mesma família dos números do documento, com
+   largura fixa para os três alinharem na vertical. */
+.numero {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Mesmo desenho de <h2> das outras seções do relatório: quem
+   folheia precisa reconhecer o nível hierárquico de longe. */
+.titulo {
+  font-family: var(--font-display);
+  font-size: var(--fs-22);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+  color: var(--color-text);
+}
+
+.texto {
+  grid-column: 2;
+  grid-row: 2;
+  max-width: 60ch;
+  font-size: var(--fs-15);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-secondary);
+  orphans: 3;
+  widows: 3;
+}
+
+/* ---------- Telas estreitas ---------- */
+
+/* No celular a margem do ícone continua, mas devolve espaço à
+   coluna de texto — a medida de linha é o que não pode encolher. */
+@media (max-width: 480px) {
+  .bloco {
+    column-gap: var(--space-12);
+  }
+
+  .titulo {
+    font-size: var(--fs-20);
+  }
+}
+
+/* ---------- Impressão (A4) ---------- */
+
+@media print {
+  .secao + .secao {
+    margin-top: var(--space-14);
+  }
+
+  /* Título e palavra-chave não podem fechar a página sem o
+     parágrafo que anunciam. */
+  .cabecalho {
+    break-after: avoid;
+  }
+
+  .texto {
+    font-size: var(--fs-14);
+  }
+
+  /* O verde do ícone é a única cor do bloco: sem isso ele some na
+     impressão, que descarta fundos por padrão. */
+  .marca {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

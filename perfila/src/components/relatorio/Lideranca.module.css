@@ -1,0 +1,262 @@
+/* ============================================================
+   Onde você se encaixa · Seu estilo de liderança ·
+   Como liderar este perfil
+   ------------------------------------------------------------
+   Duas seções escritas para o avaliado e uma escrita para o
+   gestor. A diferença entre elas é de superfície, não de cor:
+   folha branca com blocos rebaixados de um lado, painel
+   rebaixado com fichas brancas do outro. Isso sobrevive à
+   impressão em preto e branco, que é como metade dos
+   relatórios de RH acaba sendo lida.
+
+   Nenhuma medida depende de viewport e nenhum estado depende de
+   hover: a mesma página vale na tela e no papel. As únicas
+   medidas fora da escala de tokens são medida de linha (`ch`) e
+   o diâmetro do marcador da lista.
+   ============================================================ */
+
+/* O espaço entre seções mora na relação entre elas, não em uma
+   margem final que sobraria no fim do bloco. */
+.secao + .secao {
+  margin-top: var(--space-20);
+}
+
+/* ---------- Cabeçalho das três seções ---------- */
+
+.sobretitulo {
+  margin-bottom: var(--space-6);
+}
+
+.titulo {
+  font-family: var(--font-display);
+  font-size: var(--fs-22);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+  color: var(--color-text);
+}
+
+/* Mesma sangria do cabeçalho do card, com o ritmo vertical do
+   bloco resolvido aqui em vez de por margens item a item. */
+.corpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  padding: var(--space-20);
+}
+
+/* ---------- Onde você se encaixa ---------- */
+
+/* Medida de linha: texto de documento fica ilegível quando a
+   linha passa de ~70 caracteres. */
+.nota {
+  max-width: 68ch;
+  orphans: 2;
+  widows: 2;
+}
+
+.cargosRotulo {
+  margin-bottom: var(--space-8);
+}
+
+/* Lista ruled em duas colunas — formato de índice, não de grade
+   de cartões: são nomes curtos, e cartão daria a cada um um peso
+   que a lista inteira não tem. */
+.cargos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--space-24);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cargo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-10);
+  padding: var(--space-10) 0;
+  border-bottom: 1px solid var(--color-border-soft);
+  font-size: var(--fs-14);
+  color: var(--color-text-secondary);
+  break-inside: avoid;
+}
+
+/* O único verde da seção, e igual em todos os itens: a lista é
+   de encaixe, não de classificação. */
+.cargoMarca {
+  width: 5px;
+  height: 5px;
+  flex: none;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+}
+
+.fecho {
+  max-width: 68ch;
+  color: var(--color-text-subtle);
+}
+
+/* ---------- Seu estilo de liderança ---------- */
+
+/* Texto escrito para esta pessoa: corpo grande, medida curta e
+   cor de texto forte. É abertura de documento, não legenda. */
+.abertura {
+  max-width: 62ch;
+  font-size: var(--fs-20);
+  line-height: var(--leading-normal);
+  color: var(--color-text);
+  orphans: 3;
+  widows: 3;
+}
+
+/* A definição do que se chama de liderança aqui vem depois do
+   texto e visivelmente subordinada a ele: é ressalva de leitura,
+   não conteúdo da seção. */
+.rodape {
+  max-width: 68ch;
+  padding-top: var(--space-16);
+  border-top: 1px solid var(--color-border-soft);
+}
+
+/* ---------- Como liderar este perfil ---------- */
+
+/* Superfície invertida: o painel é o fundo rebaixado e o
+   conteúdo vem em fichas brancas. É o sinal de que o texto
+   passou a falar com outra pessoa. */
+.painel {
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-2xl);
+  background: var(--color-surface-sunken);
+  /* O fundo carrega o significado do bloco, então precisa
+     sobreviver à impressão que corta cores de fundo. */
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.painelCabecalho {
+  padding: var(--space-16) var(--space-20);
+  border-bottom: 1px solid var(--color-border-strong);
+}
+
+.painelCorpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  padding: var(--space-20);
+}
+
+/* Faixa de destinatário: diz em palavras a mesma coisa que a
+   inversão de superfície diz em forma. Duas pistas para o mesmo
+   fato, porque quem entra direto por esta página não viu a
+   anterior. */
+.destinatario {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-12);
+  padding: var(--space-12) var(--space-14);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  font-size: var(--fs-13);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+  break-inside: avoid;
+}
+
+.destinatarioIcone {
+  display: flex;
+  flex: none;
+  margin-top: 1px;
+  color: var(--color-text-muted);
+}
+
+.orientacoes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Ficha branca sobre o painel: cada orientação é uma instrução
+   isolada, executável sem depender da anterior. */
+.orientacao {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-10);
+  padding: var(--space-14) var(--space-16);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  font-size: var(--fs-14);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-secondary);
+  break-inside: avoid;
+}
+
+.orientacaoIcone {
+  display: flex;
+  flex: none;
+  /* Alinha o traço do ícone à primeira linha do texto, que é
+     maior que ele. */
+  margin-top: 3px;
+  color: var(--color-accent);
+}
+
+.painelRodape {
+  max-width: 68ch;
+}
+
+/* ---------- Telas estreitas ---------- */
+
+/* O relatório também é aberto no celular: duas colunas de nomes
+   longos viram duas colunas de palavras quebradas. */
+@media (max-width: 640px) {
+  .cargos,
+  .orientacoes {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Impressão (A4) ---------- */
+
+@media print {
+  .secao + .secao {
+    margin-top: var(--space-16);
+  }
+
+  /* No A4 a coluna é mais estreita: 20px de abertura viraria uma
+     mancha de poucas palavras por linha. */
+  .abertura {
+    font-size: var(--fs-17);
+  }
+
+  /* Um título não pode fechar a página sem o texto que ele abre. */
+  .sobretitulo,
+  .titulo {
+    break-after: avoid;
+  }
+
+  /* A seção do gestor é a folha que se destaca do relatório e vai
+     para a conversa: começa em página nova e o cabeçalho nunca se
+     separa da primeira orientação. */
+  .paraGestor {
+    break-before: page;
+  }
+
+  .painelCabecalho,
+  .destinatario {
+    break-after: avoid;
+  }
+
+  /* As fichas brancas precisam continuar visíveis quando a
+     impressão descarta fundos — a borda sozinha já as sustenta,
+     mas o contraste com o painel é parte da leitura. */
+  .orientacao,
+  .destinatario {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
