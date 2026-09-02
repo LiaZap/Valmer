@@ -4,6 +4,7 @@ import { Avatar } from '@/components/ui/Avatar'
 import { Card } from '@/components/ui/Card'
 import { Pill } from '@/components/ui/Pill'
 import { Meter, MeterGroup } from '@/components/respondente/Meter'
+import { MarcaImpacto, NOME_MARCA } from './MarcaImpacto'
 import type { DadosRelatorio, PerfilEstatico } from '@/lib/relatorio/tipos'
 import { initials } from '@/lib/text'
 import common from '@/styles/common.module.css'
@@ -51,8 +52,8 @@ export function CapaResumo({ dados, perfilPrimario, perfilSecundario }: CapaResu
       <section id="capa" className={styles.capa} aria-labelledby="capa-titulo">
         <header className={styles.marca}>
           <span className={styles.marcaNome}>
-            <i className={styles.marcaPonto} aria-hidden />
-            Perfila
+            <MarcaImpacto size={20} />
+            {NOME_MARCA}
           </span>
           <Pill size="sm">
             {tipo.codigo} · {tipo.nome}
@@ -90,8 +91,8 @@ export function CapaResumo({ dados, perfilPrimario, perfilSecundario }: CapaResu
         <div className={styles.capaFecho}>
           <p className={[common.prose, styles.capaNota].join(' ')}>
             Este documento descreve tendências de comportamento a partir da sua própria
-            percepção no momento em que respondeu ao inventário. Ele trata de preferências. Não
-            mede capacidade, inteligência nem desempenho.
+            percepção no momento em que respondeu ao inventário. Ele trata de preferências.
+            Capacidade, inteligência e desempenho ficam fora do que ele mede.
           </p>
 
           {/* Pares rótulo/valor são uma lista de definições: no leitor de

@@ -64,8 +64,8 @@ salvo a cada resposta, retomada pelo mesmo link, tela de link expirado e prévia
 resultado ao final.
 
 **Relatório**, 13 seções em `/relatorio/<token>`. Renderiza na tela e imprime em
-A4 com margens de 20mm. Veste a marca da Impacto Academy através de um tema
-escopado, sem alterar o resto do produto.
+A4 com margens de 20mm. Assina como Impacto Academy, com símbolo, nome, cores e a
+linha de crédito que a especificação pede. O resto do produto continua Perfila.
 
 **Geração da narrativa por IA** em `perfila/src/lib/relatorio/gerar.ts`. Chamada à
 API da Anthropic com saída estruturada validada por esquema.
@@ -121,6 +121,32 @@ têm ΔE 5,2 em visão normal, contra um piso de 15: lado a lado ninguém distin
 dois. E sobre o creme da marca o laranja dá 2,52:1, abaixo do piso de 3:1 até para
 elemento de interface. No relatório ele aparece sobre o navy, onde dá 6,08:1, e
 como forma decorativa sólida. Quem carrega texto de acento é o navy.
+
+**Só o relatório assina como Impacto Academy.** Login, assessment, admin e portal
+do parceiro continuam Perfila, porque a especificação diz que cada facilitador tem
+painel com a marca dele e que o PDF é que leva a marca da Impacto. A troca vive em
+três lugares, todos exclusivos da rota do relatório: o tema escopado
+`tema-impacto.module.css`, o componente `MarcaImpacto` e o ícone
+`app/relatorio/icon.svg`. Não mexa em `styles/tokens.css`, em `components/layout/Logo.tsx`
+nem em `app/icon.svg`: os três parecem o lugar certo e valem para o produto inteiro.
+
+**O símbolo tem as pontas cortadas retas.** Afilando até sumir, ele virava lua
+crescente acima de 60px e a ponta descia abaixo do que a impressora resolve. Arco
+interrompido lê como propagação; lâmina inteiriça lê como corpo celeste. A caixa é
+24×16 e não quadrada, porque num quadrado a composição ocupava só a faixa do meio e
+o símbolo parecia pequeno ao lado do nome.
+
+**As tabelas de `perfis.ts` são as palavras do cliente.** `caracteristicas`,
+`cargos`, `comoLiderar` e `oQueEvitar` vêm literalmente da especificação e ele
+responde por elas na frente de quem compra. Uma revisão de estilo já trocou cinco
+delas achando que cortava superlativo vazio, e estava apagando a intensidade que
+distingue um fator do outro. Só o campo `resumo` é redação nossa.
+
+**"O que nunca fazer" virou campo próprio.** Espremidas numa linha só dentro de
+`comoLiderar`, três das cinco cláusulas do cliente eram descartadas em cada perfil,
+e a especificação chama essa seção de o diferencial mais pedido por gestores. Além
+disso, orientação que começa por "Nunca" atrás de um sinal de confirmação diz uma
+coisa e mostra a contrária.
 
 **O relatório não usa travessão.** Nem no texto escrito à mão, nem no que a IA
 gera. O traço longo virou marca de texto de máquina, e o documento é assinado por

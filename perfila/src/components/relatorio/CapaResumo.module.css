@@ -40,13 +40,11 @@
   color: var(--color-text);
 }
 
-/* O único sinal de marca da capa: um ponto do acento do sistema. */
-.marcaPonto {
-  width: var(--space-8);
-  height: var(--space-8);
-  flex: none;
-  border-radius: var(--radius-full);
-  background: var(--color-realce);
+/* O símbolo é impresso em cor cheia: sem isto o navegador descarta o
+   preenchimento na impressão e sobra o nome sozinho. */
+.marcaNome svg {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
 
 .capaMiolo {

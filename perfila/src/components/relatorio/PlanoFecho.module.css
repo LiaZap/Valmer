@@ -226,11 +226,11 @@
   color: var(--color-text);
 }
 
-.marcaPonto {
-  width: 6px;
-  height: 6px;
-  border-radius: var(--radius-full);
-  background: var(--color-realce);
+/* Cor cheia na impressão: sem isto o símbolo sai vazado e o colofão
+   perde a assinatura justamente na folha que mais circula sozinha. */
+.marca svg {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
 
 .creditoLinha {

@@ -14,6 +14,12 @@ export type Facilitador = {
   nome: string
   email: string
   empresa: string
+  /**
+   * Contato que vai impresso na capa e no rodapé do relatório. É o do
+   * facilitador, e não o da plataforma: o relatório chega ao cliente
+   * final através dele, e é ele quem atende.
+   */
+  telefone: string
   /** Saldo de créditos disponível. */
   creditos: number
   ativo: boolean
@@ -27,6 +33,7 @@ const base: Omit<Facilitador, 'iniciais'>[] = [
     nome: 'Valmer Albuquerque dos Santos',
     email: 'valmersantos1@gmail.com',
     empresa: 'Impacto Academy',
+    telefone: '+55 (44) 99159-5998',
     creditos: 182,
     ativo: true,
     criadoEm: '06/01/2026',
@@ -36,6 +43,7 @@ const base: Omit<Facilitador, 'iniciais'>[] = [
     nome: 'Juliana Rocha',
     email: 'juliana@rhconsult.com.br',
     empresa: 'RH Consult',
+    telefone: '+55 (11) 98812-4407',
     creditos: 34,
     ativo: true,
     criadoEm: '18/03/2026',
@@ -45,6 +53,7 @@ const base: Omit<Facilitador, 'iniciais'>[] = [
     nome: 'Marcos Tavares',
     email: 'marcos@grupotavares.com',
     empresa: 'Grupo Tavares',
+    telefone: '+55 (41) 99640-2185',
     creditos: 7,
     ativo: true,
     criadoEm: '02/05/2026',
@@ -54,6 +63,7 @@ const base: Omit<Facilitador, 'iniciais'>[] = [
     nome: 'Dani Pires',
     email: 'dani@danipires.com.br',
     empresa: 'Dani Pires Consultoria',
+    telefone: '+55 (48) 99127-6630',
     creditos: 0,
     ativo: false,
     criadoEm: '21/07/2026',

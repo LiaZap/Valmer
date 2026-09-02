@@ -1,11 +1,11 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { notFound } from 'next/navigation'
 import { CapaResumo } from '@/components/relatorio/CapaResumo'
+import { MarcaImpacto, NOME_MARCA } from '@/components/relatorio/MarcaImpacto'
 import { Lideranca } from '@/components/relatorio/Lideranca'
 import { Motivadores } from '@/components/relatorio/Motivadores'
 import { PlanoFecho } from '@/components/relatorio/PlanoFecho'
 import { QuemVoceE } from '@/components/relatorio/QuemVoceE'
-import { LogoMark } from '@/components/layout/Logo'
 import { narrativaExemplo } from '@/data/narrativa-exemplo'
 import { getPerfilEstatico } from '@/data/perfis'
 import { assessments, facilitadores } from '@/data/facilitadores'
@@ -15,8 +15,25 @@ import { AcoesRelatorio } from './AcoesRelatorio'
 import styles from './page.module.css'
 import tema from './tema-impacto.module.css'
 
+/**
+ * O relatório assina como Impacto Academy, e não como Perfila: é o
+ * único artefato que sai da plataforma e chega ao cliente final do
+ * facilitador.
+ *
+ * `description` e `viewport` são declarados AQUI de propósito. Não
+ * existe `app/relatorio/layout.tsx`, então esta página pendura direto
+ * no layout raiz e herdaria dele a descrição institucional da Perfila e
+ * o bege `#f5f3ef` na cor de tema do navegador. Um tema escopado por
+ * classe de CSS não alcança meta tag: só declarando aqui.
+ */
 export const metadata: Metadata = {
-  title: 'Perfila · Relatório de perfil comportamental',
+  title: 'Impacto Academy · Relatório de perfil comportamental',
+  description:
+    'Relatório de perfil comportamental gerado pela Impacto Academy a partir de inventário de quatro fatores.',
+}
+
+export const viewport: Viewport = {
+  themeColor: '#f8f6f1',
 }
 
 /** Só assessments concluídos têm relatório. */
@@ -26,11 +43,7 @@ export function generateStaticParams() {
     .map((assessment) => ({ token: assessment.token }))
 }
 
-export default async function RelatorioPage({
-  params,
-}: {
-  params: Promise<{ token: string }>
-}) {
+export default async function RelatorioPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params
   const assessment = assessments.find((item) => item.token === token)
 
@@ -42,11 +55,14 @@ export default async function RelatorioPage({
   const resultado = resultadoDeContadores(assessment.contadores)
 
   const dados: DadosRelatorio = {
-    avaliado: { nome: assessment.avaliadoNome, email: assessment.avaliadoEmail },
+    avaliado: {
+      nome: assessment.avaliadoNome,
+      email: assessment.avaliadoEmail,
+    },
     facilitador: {
       nome: facilitador.nome,
       empresa: facilitador.empresa,
-      telefone: '+55 (44) 99159-5998',
+      telefone: facilitador.telefone,
     },
     emitidoEm: assessment.concluidoEm ?? assessment.criadoEm,
     tipoRelatorio: assessment.tipoRelatorio,
@@ -70,8 +86,8 @@ export default async function RelatorioPage({
     <div className={`${styles.pagina} ${tema.tema}`}>
       <div className={styles.acoes}>
         <span className={styles.acoesMarca}>
-          <LogoMark size={16} />
-          Perfila
+          <MarcaImpacto size={14} />
+          {NOME_MARCA}
         </span>
         <div className={styles.acoesBotoes}>
           <AcoesRelatorio />
@@ -97,7 +113,7 @@ export default async function RelatorioPage({
           />
         ) : null}
 
-        <PlanoFecho dados={dados} perfil={perfilPrimario} />
+        <PlanoFecho dados={dados} perfil={perfilPrimario} mostrarPlano={visiveis.has('plano')} />
       </article>
     </div>
   )

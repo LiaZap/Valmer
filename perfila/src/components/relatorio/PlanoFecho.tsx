@@ -1,6 +1,7 @@
 import { getTipoRelatorio } from '@/data/planos'
 import { Card, CardHeader } from '@/components/ui/Card'
 import { SECOES, type DadosRelatorio, type PerfilEstatico } from '@/lib/relatorio/tipos'
+import { CREDITO_MARCA, MarcaImpacto, NOME_MARCA } from './MarcaImpacto'
 import common from '@/styles/common.module.css'
 import styles from './PlanoFecho.module.css'
 
@@ -31,13 +32,15 @@ import styles from './PlanoFecho.module.css'
  *    página é a frase, que é o conteúdo. Hierarquia semântica e
  *    hierarquia visual não precisam ser a mesma coisa.
  *
- * 4. O RODAPÉ É COLOFÃO, NÃO ANÚNCIO. O produto é entregue pelo
- *    facilitador; é o nome, a empresa e o telefone dele que ocupam a
- *    posição de leitura, e a marca Perfila fica no crédito discreto ao
- *    lado. O contato do facilitador é a única chamada para ação que o
- *    documento precisa ter. Ele também repete nome do avaliado e data:
- *    a última folha circula solta dentro de processos de RH e precisa
- *    dizer de quem é.
+ * 4. O RODAPÉ É COLOFÃO, NÃO ANÚNCIO. Dois emissores convivem aqui e
+ *    não são a mesma coisa. Quem ENTREGA é o facilitador, e é o nome, a
+ *    empresa e o telefone dele que ocupam a posição de leitura, porque
+ *    o contato dele é a única chamada para ação que o documento precisa
+ *    ter. Quem ASSINA o documento é a Impacto Academy, dona da
+ *    plataforma, no crédito discreto ao lado, com o site e o telefone
+ *    que a especificação pede literalmente. O colofão também repete
+ *    nome do avaliado e data: a última folha circula solta dentro de
+ *    processos de RH e precisa dizer de quem é.
  *
  * 5. O RODAPÉ NÃO É <section> COM <h2> DE PROPÓSITO. As treze seções de
  *    `SECOES` alimentam o sumário do PDF e o índice lateral; o colofão
@@ -54,6 +57,13 @@ type PlanoFechoProps = {
   dados: DadosRelatorio
   /** Perfil primário — entra só como moldura das três ações. */
   perfil: PerfilEstatico
+  /**
+   * O plano de desenvolvimento é vendido a partir do S3. Frase do
+   * perfil e colofão existem em todo nível, então o corte é aqui
+   * dentro e não na página: sem ele, um relatório S1 entregaria de
+   * graça a seção que o cliente cobra mais caro.
+   */
+  mostrarPlano: boolean
 }
 
 /** Número e título oficiais da seção, na ordem da especificação. */
@@ -67,7 +77,7 @@ function referenciaDaSecao(id: string): { numero: string; titulo: string } {
   }
 }
 
-export function PlanoFecho({ dados, perfil }: PlanoFechoProps) {
+export function PlanoFecho({ dados, perfil, mostrarPlano }: PlanoFechoProps) {
   const { avaliado, facilitador, emitidoEm, tipoRelatorio, narrativa } = dados
   const tipo = getTipoRelatorio(tipoRelatorio)
 
@@ -76,59 +86,63 @@ export function PlanoFecho({ dados, perfil }: PlanoFechoProps) {
 
   return (
     <div className={styles.grupo}>
-      <section id="plano" aria-labelledby="plano-titulo" className={styles.secao}>
-        <Card padding="none">
-          <CardHeader
-            title={
-              <>
-                <p className={[common.eyebrow, styles.sobretitulo].join(' ')}>
-                  <span className={styles.folio}>{plano.numero}</span> · O que fazer com isto
-                </p>
-                <h2 id="plano-titulo" className={styles.titulo}>
-                  {plano.titulo}
-                </h2>
-              </>
-            }
-          />
-
-          <div className={styles.corpo}>
-            {/* A moldura vem antes da lista: sem ela, três ações escritas por
-                terceiros são lidas como tarefa atribuída, não como escolha. */}
-            <p className={[common.prose, styles.abertura].join(' ')}>
-              As três ações abaixo partem do perfil {perfil.fator} · {perfil.nome} e do que você
-              respondeu. São escolhas suas, não tarefas que alguém atribuiu a você. Cada uma tem
-              uma linha em branco para datar o começo, porque plano sem data é intenção.
-            </p>
-
-            <ol className={styles.acoes}>
-              {narrativa.planoDesenvolvimento.map((acao, indice) => (
-                <li key={acao} className={styles.acao}>
-                  <span
-                    className={[common.blockIcon, common.blockIconAccent, styles.acaoNumero].join(
-                      ' ',
-                    )}
-                    aria-hidden
-                  >
-                    {indice + 1}
-                  </span>
-
-                  <p className={styles.acaoTexto}>{acao}</p>
-
-                  <p className={styles.compromisso}>
-                    <span className={[common.eyebrow, styles.compromissoRotulo].join(' ')}>Começo em</span>
-                    <span className={styles.compromissoLinha} aria-hidden />
+      {mostrarPlano ? (
+        <section id="plano" aria-labelledby="plano-titulo" className={styles.secao}>
+          <Card padding="none">
+            <CardHeader
+              title={
+                <>
+                  <p className={[common.eyebrow, styles.sobretitulo].join(' ')}>
+                    <span className={styles.folio}>{plano.numero}</span> · O que fazer com isto
                   </p>
-                </li>
-              ))}
-            </ol>
+                  <h2 id="plano-titulo" className={styles.titulo}>
+                    {plano.titulo}
+                  </h2>
+                </>
+              }
+            />
 
-            <p className={[common.prose, styles.fechoNota].join(' ')}>
-              Escolha uma para começar nesta semana. As três ao mesmo tempo raramente sobrevivem
-              ao primeiro mês. Uma ação concluída muda mais comportamento do que três planejadas.
-            </p>
-          </div>
-        </Card>
-      </section>
+            <div className={styles.corpo}>
+              {/* A moldura vem antes da lista: sem ela, três ações escritas por
+                terceiros são lidas como tarefa atribuída, não como escolha. */}
+              <p className={[common.prose, styles.abertura].join(' ')}>
+                As três ações abaixo partem do perfil {perfil.fator} · {perfil.nome} e do que você
+                respondeu. A decisão de assumir cada uma é sua. Em cada uma há uma linha em branco
+                para você marcar a data de começo.
+              </p>
+
+              <ol className={styles.acoes}>
+                {narrativa.planoDesenvolvimento.map((acao, indice) => (
+                  <li key={acao} className={styles.acao}>
+                    <span
+                      className={[common.blockIcon, common.blockIconAccent, styles.acaoNumero].join(
+                        ' ',
+                      )}
+                      aria-hidden
+                    >
+                      {indice + 1}
+                    </span>
+
+                    <p className={styles.acaoTexto}>{acao}</p>
+
+                    <p className={styles.compromisso}>
+                      <span className={[common.eyebrow, styles.compromissoRotulo].join(' ')}>
+                        Começo em
+                      </span>
+                      <span className={styles.compromissoLinha} aria-hidden />
+                    </p>
+                  </li>
+                ))}
+              </ol>
+
+              <p className={[common.prose, styles.fechoNota].join(' ')}>
+                Escolha uma para começar nesta semana. As três ao mesmo tempo raramente sobrevivem
+                ao primeiro mês. Quando a primeira virar rotina, passe para a próxima.
+              </p>
+            </div>
+          </Card>
+        </section>
+      ) : null}
 
       <section id="frase" aria-labelledby="frase-titulo" className={styles.secao}>
         {/* `padding="none"`: o respiro da última página é maior que o de
@@ -161,10 +175,16 @@ export function PlanoFecho({ dados, perfil }: PlanoFechoProps) {
           <p className={styles.emissorLinha}>{facilitador.telefone}</p>
         </div>
 
+        {/* A especificação do cliente pede este crédito literalmente, com
+            site e telefone. Eles são da Impacto Academy, e não de quem
+            emitiu: quem emitiu está nomeado no bloco ao lado. */}
         <div className={styles.credito}>
           <p className={styles.marca}>
-            <i className={styles.marcaPonto} aria-hidden />
-            Perfila
+            <MarcaImpacto size={15} />
+            {NOME_MARCA}
+          </p>
+          <p className={styles.creditoLinha}>
+            {CREDITO_MARCA.site} · {CREDITO_MARCA.telefone}
           </p>
           <p className={styles.creditoLinha}>
             Inventário comportamental · {tipo.codigo} {tipo.nome}
@@ -178,8 +198,8 @@ export function PlanoFecho({ dados, perfil }: PlanoFechoProps) {
             estar também aqui, em uma linha. */}
         <p className={styles.ressalva}>
           Este relatório descreve tendências de comportamento a partir da autopercepção de{' '}
-          {avaliado.nome} no momento da resposta. Não mede capacidade, inteligência nem
-          desempenho, e não substitui avaliação profissional.
+          {avaliado.nome} no momento da resposta. Ele não mede capacidade, inteligência nem
+          desempenho. Também não substitui avaliação profissional.
         </p>
       </footer>
     </div>
