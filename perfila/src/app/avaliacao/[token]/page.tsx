@@ -1,23 +1,24 @@
 import { notFound } from 'next/navigation'
 import { Card } from '@/components/ui/Card'
 import { Icon } from '@/components/ui/Icon'
-import { convites, getConvite } from '@/data/convites'
+import { carregarAvaliacao } from '@/lib/actions/avaliacao'
 import ui from '@/styles/common.module.css'
 import { Assessment } from './Assessment'
 
-export function generateStaticParams() {
-  return convites.map((convite) => ({ token: convite.token }))
-}
+const DATA_BR = new Intl.DateTimeFormat('pt-BR', {
+  timeZone: 'America/Sao_Paulo',
+  dateStyle: 'short',
+})
 
 export default async function AvaliacaoPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params
-  const convite = getConvite(token)
+  const avaliacao = await carregarAvaliacao(token)
 
   // Token desconhecido é 404: não confirmamos nem negamos a
   // existência de um convite para quem não tem o link.
-  if (!convite) notFound()
+  if (!avaliacao) notFound()
 
-  if (convite.situacao === 'expirado') {
+  if (avaliacao.estado === 'expirado') {
     return (
       <Card padding="lg">
         <div className={`${ui.callout} ${ui.calloutWarning}`}>
@@ -25,13 +26,31 @@ export default async function AvaliacaoPage({ params }: { params: Promise<{ toke
             <Icon name="alert" />
           </span>
           <span>
-            Este link expirou em {convite.expiraEm}. Peça um novo convite a{' '}
-            {convite.facilitador} para responder o assessment.
+            Este link expirou em {DATA_BR.format(avaliacao.expiraEm)}. Peça um novo convite a{' '}
+            {avaliacao.facilitador} para responder o assessment.
           </span>
         </div>
       </Card>
     )
   }
 
-  return <Assessment token={convite.token} nome={convite.avaliadoNome} />
+  // Quem já respondeu e reabre o link não pode cair no questionário: responderia
+  // as 28 questões de novo só para levar uma recusa no fim.
+  if (avaliacao.estado === 'concluido') {
+    return (
+      <Card padding="lg">
+        <div className={`${ui.callout} ${ui.calloutInfo}`}>
+          <span className={ui.calloutIcon}>
+            <Icon name="check" />
+          </span>
+          <span>
+            Você já respondeu este assessment, {avaliacao.nome.split(' ')[0]}. O relatório completo
+            está com quem enviou o convite.
+          </span>
+        </div>
+      </Card>
+    )
+  }
+
+  return <Assessment token={token} nome={avaliacao.nome} respostasIniciais={avaliacao.respostas} />
 }

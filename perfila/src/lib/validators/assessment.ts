@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { questoes } from "@/data/assessment";
 
 /**
  * Formatos criticos por regex.
@@ -44,6 +45,33 @@ export const atualizarAssessmentSchema = z.object({
   avaliado_nome: nome,
   avaliado_email: email,
 });
+
+/**
+ * Uma resposta do respondente.
+ *
+ * Os codigos saem de `questoes`, e nao de um regex Q\d\d: assim a validacao
+ * nunca diverge do arquivo de dados quando uma questao for adicionada ou
+ * removida.
+ *
+ * O `.refine` valida o PAR, e nao os dois campos soltos. /avaliacao/<token> e
+ * entrada publica e nao autenticada — e a fronteira de confianca do sistema. Um
+ * par inexistente aceito aqui vira +1 num contador que ninguem consegue
+ * explicar depois.
+ */
+const CODIGOS = questoes.map((questao) => questao.codigo) as [string, ...string[]];
+
+export const respostaSchema = z
+  .object({
+    questao_codigo: z.enum(CODIGOS),
+    fator: z.enum(["D", "I", "S", "C"]),
+  })
+  .refine(
+    ({ questao_codigo, fator }) =>
+      questoes
+        .find((questao) => questao.codigo === questao_codigo)
+        ?.opcoes.some((opcao) => opcao.fator === fator),
+    "Opcao inexistente para esta questao",
+  );
 
 export type CriarAssessment = z.infer<typeof criarAssessmentSchema>;
 export type AtualizarAssessment = z.infer<typeof atualizarAssessmentSchema>;

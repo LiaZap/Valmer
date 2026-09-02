@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Icon } from '@/components/ui/Icon'
@@ -8,60 +8,55 @@ import { Progress } from '@/components/ui/Progress'
 import { Meter, MeterGroup } from '@/components/respondente/Meter'
 import { NOMES_FATORES, ORDEM_FATORES, blocosAssessment, questoes } from '@/data/assessment'
 import type { FatorDisc } from '@/data/dna'
-import { calcularPerfil, type Respostas } from '@/lib/disc'
+import { concluir, salvarResposta, type FalhaAvaliacao } from '@/lib/actions/avaliacao'
+import { resultadoDeContadores, type Respostas } from '@/lib/disc'
 import ui from '@/styles/common.module.css'
 import styles from './Assessment.module.css'
 
 type Etapa = 'abertura' | 'questoes' | 'conclusao'
 
-/** Onde o progresso deste link fica guardado no navegador. */
-function chaveArmazenamento(token: string) {
-  return `perfila:assessment:${token}`
+const AVISO: Record<FalhaAvaliacao, string> = {
+  invalido: 'Este link não é mais válido. Peça um novo convite a quem o enviou.',
+  expirado: 'Este link expirou enquanto você respondia. Peça um novo convite a quem o enviou.',
+  concluido: 'Estas respostas já foram enviadas — provavelmente por outra aba aberta.',
+  incompleto: 'Ainda faltam respostas. Volte e responda as questões em branco para finalizar.',
+  rede: 'Não conseguimos salvar sua última resposta. Verifique a conexão e escolha a opção de novo.',
+  // Não afirma que falhou nem que gravou: o envio pode ter chegado ao banco e
+  // só a resposta ter se perdido. Reabrir o link mostra qual dos dois foi.
+  rede_envio:
+    'Não conseguimos confirmar o envio das suas respostas. Verifique a conexão e toque em Finalizar de novo — se elas já tiverem sido enviadas, o link avisa.',
 }
 
-type ProgressoSalvo = {
-  respostas: Respostas
-  indice: number
-}
-
-function lerProgresso(token: string): ProgressoSalvo | null {
-  try {
-    const bruto = window.localStorage.getItem(chaveArmazenamento(token))
-    return bruto ? (JSON.parse(bruto) as ProgressoSalvo) : null
-  } catch {
-    // Aba anônima ou armazenamento bloqueado: segue sem retomar.
-    return null
-  }
-}
-
-function gravarProgresso(token: string, progresso: ProgressoSalvo) {
-  try {
-    window.localStorage.setItem(chaveArmazenamento(token), JSON.stringify(progresso))
-  } catch {
-    // Não poder salvar não pode impedir de responder.
-  }
-}
-
-export function Assessment({ token, nome }: { token: string; nome: string }) {
+export function Assessment({
+  token,
+  nome,
+  respostasIniciais,
+}: {
+  token: string
+  nome: string
+  respostasIniciais: Respostas
+}) {
   const [etapa, setEtapa] = useState<Etapa>('abertura')
-  const [indice, setIndice] = useState(0)
-  const [respostas, setRespostas] = useState<Respostas>({})
-  const [retomado, setRetomado] = useState(false)
+  const [respostas, setRespostas] = useState<Respostas>(respostasIniciais)
+  const [contadores, setContadores] = useState<Record<FatorDisc, number> | null>(null)
+  const [falha, setFalha] = useState<FalhaAvaliacao | null>(null)
+  const [enviando, setEnviando] = useState(false)
+  // Retoma na primeira questão em branco. A posição é derivada das respostas,
+  // então não precisa ser guardada em lugar nenhum.
+  const [indice, setIndice] = useState(() => {
+    const branco = questoes.findIndex((questao) => !respostasIniciais[questao.codigo])
+    return branco === -1 ? questoes.length - 1 : branco
+  })
   const avancoRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   // Marca que a próxima mudança veio de um toque ou clique, e não do
   // teclado. Um clique no rótulo chega ao input sem `detail`, então
   // olhar o evento de clique não serve.
   const porPonteiroRef = useRef(false)
-
-  // Retoma de onde parou: o link pode ser aberto e fechado várias vezes.
-  useEffect(() => {
-    const salvo = lerProgresso(token)
-    if (salvo && Object.keys(salvo.respostas).length > 0) {
-      setRespostas(salvo.respostas)
-      setIndice(Math.min(salvo.indice, questoes.length - 1))
-      setRetomado(true)
-    }
-  }, [token])
+  // Fila de gravações. Encadeada por dois motivos: a ordem de chegada no banco
+  // passa a ser a ordem dos cliques (duas trocas rápidas na mesma questão não
+  // invertem), e `finalizar` passa a ter o que esperar — sem isso `concluir`
+  // pode contar 27 e recusar bem no fim.
+  const filaRef = useRef<Promise<void>>(Promise.resolve())
 
   useEffect(() => {
     return () => {
@@ -72,26 +67,80 @@ export function Assessment({ token, nome }: { token: string; nome: string }) {
   const questao = questoes[indice]!
   const bloco = blocosAssessment.find((item) => item.numero === questao.bloco)!
   const respondidas = Object.keys(respostas).length
-  const resultado = useMemo(() => calcularPerfil(respostas), [respostas])
+  const retomado = Object.keys(respostasIniciais).length > 0
+  // Link morto ou já enviado: continuar responderia para o vazio.
+  const travado = falha === 'expirado' || falha === 'concluido' || falha === 'invalido'
 
-  const irPara = useCallback(
-    (proximo: number, respostasAtuais: Respostas) => {
-      if (proximo >= questoes.length) {
-        gravarProgresso(token, { respostas: respostasAtuais, indice: questoes.length - 1 })
-        setEtapa('conclusao')
+  const finalizar = useCallback(async () => {
+    setEnviando(true)
+    try {
+      // Espera a fila drenar antes de concluir: na última questão a gravação da
+      // 28ª resposta ainda pode estar em voo, e as duas server actions não têm
+      // ordem garantida entre si. Sem isso, `concluir` conta 27 e recusa com
+      // "incompleto" no exato momento em que a pessoa termina.
+      await filaRef.current
+      const resposta = await concluir(token)
+
+      if (!resposta.ok) {
+        setFalha(resposta.erro)
+        // "Volte e responda as em branco" é inútil em 28 questões se a pessoa
+        // tiver de procurar. Levamos até a primeira.
+        if (resposta.erro === 'incompleto') {
+          const branco = questoes.findIndex((item) => !respostas[item.codigo])
+          if (branco >= 0) setIndice(branco)
+        }
         return
       }
-      const alvo = Math.max(0, proximo)
-      setIndice(alvo)
-      gravarProgresso(token, { respostas: respostasAtuais, indice: alvo })
+      setContadores(resposta.contadores)
+      setEtapa('conclusao')
+    } catch {
+      // Mesmo motivo do `catch` de `responder`: sem isto a rejeição vira
+      // unhandled — `irPara` chama esta função com `void` — e a tela fica
+      // parada, sem aviso, no clique que devia encerrar o assessment.
+      setFalha('rede_envio')
+    } finally {
+      // No `finally` para o botão voltar a habilitar também na falha. Preso em
+      // "enviando", a pessoa não teria como tentar de novo.
+      setEnviando(false)
+    }
+  }, [token, respostas])
+
+  const irPara = useCallback(
+    (proximo: number) => {
+      if (proximo >= questoes.length) {
+        void finalizar()
+        return
+      }
+      setIndice(Math.max(0, proximo))
     },
-    [token],
+    [finalizar],
   )
 
   function responder(fator: FatorDisc) {
-    const atualizadas = { ...respostas, [questao.codigo]: fator }
-    setRespostas(atualizadas)
-    gravarProgresso(token, { respostas: atualizadas, indice })
+    // Forma funcional nas duas chamadas de setRespostas: com a fila, o `catch`
+    // abaixo pode cair entre dois cliques, e um snapshot de render
+    // ressuscitaria a resposta que ele acabou de remover.
+    setRespostas((atual) => ({ ...atual, [questao.codigo]: fator }))
+    setFalha(null)
+
+    // Sem `await` antes de avançar: esperar a rede colocaria latência em cada
+    // clique. Quem espera é só `finalizar`, no fim da fila.
+    filaRef.current = filaRef.current.then(async () => {
+      try {
+        const resposta = await salvarResposta(token, questao.codigo, fator)
+        if (!resposta.ok) setFalha(resposta.erro)
+      } catch {
+        // Não confirmou: tira a resposta do estado local para a tela não
+        // afirmar que gravou o que não gravou — e para "responda as questões
+        // em branco" apontar mesmo para uma questão em branco. Escolher a
+        // opção de novo refaz a tentativa.
+        setRespostas((atual) => {
+          const { [questao.codigo]: _descartada, ...resto } = atual
+          return resto
+        })
+        setFalha('rede')
+      }
+    })
 
     // Só o clique avança sozinho. No teclado as setas percorrem as
     // opções, e avançar a cada troca impediria de comparar antes de
@@ -101,7 +150,7 @@ export function Assessment({ token, nome }: { token: string; nome: string }) {
 
     if (porPonteiro) {
       if (avancoRef.current) clearTimeout(avancoRef.current)
-      avancoRef.current = setTimeout(() => irPara(indice + 1, atualizadas), 220)
+      avancoRef.current = setTimeout(() => irPara(indice + 1), 220)
     }
   }
 
@@ -150,7 +199,11 @@ export function Assessment({ token, nome }: { token: string; nome: string }) {
   }
 
   /* ---------------- Conclusão ---------------- */
-  if (etapa === 'conclusao') {
+  if (etapa === 'conclusao' && contadores) {
+    // Os contadores vêm do banco, então a prévia mostra exatamente o que foi
+    // gravado — e não uma segunda conta feita aqui.
+    const resultado = resultadoDeContadores(contadores)
+
     return (
       <div className={styles.conclusao}>
         <Card padding="lg" className={styles.abertura}>
@@ -159,8 +212,8 @@ export function Assessment({ token, nome }: { token: string; nome: string }) {
           </span>
           <h1 className={styles.titulo}>Respostas enviadas</h1>
           <p className={styles.linhaApoio}>
-            Obrigado, {nome.split(' ')[0]}. Seu relatório completo está sendo gerado e ficará
-            disponível com quem enviou este convite. Abaixo está uma prévia do seu resultado.
+            Obrigado, {nome.split(' ')[0]}. Seu relatório ficará disponível com quem enviou este
+            convite. Abaixo está uma prévia do seu resultado.
           </p>
         </Card>
 
@@ -205,8 +258,23 @@ export function Assessment({ token, nome }: { token: string; nome: string }) {
         />
       </div>
 
+      {/* A região viva fica sempre no DOM e só o conteúdo entra e sai. Um
+          live region inserido junto com o próprio texto não é anunciado de
+          forma confiável — por isso o aviso de RankList.tsx também é
+          permanente. Vazio, esta div não ocupa espaço nem desenha nada. */}
+      <div role="status" aria-live="polite">
+        {falha ? (
+          <div className={`${ui.callout} ${ui.calloutWarning}`}>
+            <span className={ui.calloutIcon}>
+              <Icon name="alert" />
+            </span>
+            <span>{AVISO[falha]}</span>
+          </div>
+        ) : null}
+      </div>
+
       <Card padding="lg">
-        <fieldset className={styles.questao}>
+        <fieldset className={styles.questao} disabled={travado}>
           <legend className={styles.enunciado}>{questao.enunciado}</legend>
 
           <div className={styles.opcoes}>
@@ -239,7 +307,7 @@ export function Assessment({ token, nome }: { token: string; nome: string }) {
           variant="ghost"
           icon={<Icon name="chevL" size={16} />}
           disabled={indice === 0}
-          onClick={() => irPara(indice - 1, respostas)}
+          onClick={() => irPara(indice - 1)}
         >
           Voltar
         </Button>
@@ -252,8 +320,8 @@ export function Assessment({ token, nome }: { token: string; nome: string }) {
         <Button
           variant="primary"
           iconRight={<Icon name="chevR" size={16} />}
-          disabled={!respostas[questao.codigo]}
-          onClick={() => irPara(indice + 1, respostas)}
+          disabled={!respostas[questao.codigo] || travado || enviando}
+          onClick={() => irPara(indice + 1)}
         >
           {indice === questoes.length - 1 ? 'Finalizar' : 'Avançar'}
         </Button>

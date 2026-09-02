@@ -117,3 +117,64 @@ Cada regra segue este formato:
 - **Comportamento esperado**: Para mudar de nivel, excluir e criar outro. Estorno
   e ato do admin, pela tela de creditos.
 - **Impacto se descumprida**: Troca de nivel sem cobranca vira furo de receita.
+
+### RN-103 - O Token E a Unica Credencial do Respondente
+- **Definida por**: Valmer Albuquerque (especificacao da plataforma)
+- **Data**: 2026-09-02
+- **Modulo**: Assessments / Respondente
+- **Descricao**: Quem responde o assessment nao tem cadastro nem login. O link
+  `/avaliacao/<token>` e a credencial inteira, e vale por 7 dias. Exigir sessao
+  nessa rota trancaria o avaliado para fora do proprio assessment.
+- **Comportamento esperado**: Toda query da rota filtra `is_deleted = false` e
+  busca pelo token. Token inexistente ou de assessment excluido responde 404,
+  sem confirmar nem negar que o convite existe. As linhas gravadas pelo
+  respondente sao assinadas com a sentinela do respondente (ver ADR-0002), nunca
+  com o id do facilitador.
+- **Impacto se descumprida**: Ou o avaliado nao consegue responder, ou a trilha
+  de auditoria afirma que o facilitador respondeu o assessment que ele aplicou.
+
+### RN-104 - Progresso Salvo a Cada Resposta, e a Segunda Gravacao E Correcao
+- **Definida por**: Valmer Albuquerque (especificacao da plataforma)
+- **Data**: 2026-09-02
+- **Modulo**: Assessments / Respondente
+- **Descricao**: Cada resposta e gravada assim que a pessoa escolhe, para o link
+  poder ser fechado e retomado. Responder a mesma questao de novo e uma
+  correcao, e nao uma resposta adicional.
+- **Comportamento esperado**: Upsert por `(assessment_id, questao_codigo)` no
+  indice unico `uq_respostas_assessment_questao`, com `is_deleted` e `deleted_at`
+  limpos na correcao. A primeira resposta move a situacao de `pendente` para
+  `em_andamento`, por UPDATE condicional. Retomar carrega exatamente as respostas
+  gravadas.
+- **Impacto se descumprida**: Contadores inflados por respostas duplicadas, ou
+  uma questao presa para sempre porque o indice unico ficou ocupado por uma
+  linha soft-deletada.
+
+### RN-105 - Conclusao Exige as 28 Respostas e os Contadores Saem do Banco
+- **Definida por**: Valmer Albuquerque (especificacao da plataforma)
+- **Data**: 2026-09-02
+- **Modulo**: Assessments / Respondente
+- **Descricao**: O assessment so fecha com as 28 questoes respondidas. Os quatro
+  contadores DISC sao contados no servidor, a partir das linhas do banco — nunca
+  enviados pelo cliente nem recalculados na tela.
+- **Comportamento esperado**: Contagem, checagem das 28 e gravacao de
+  `contador_d/i/s/c`, `situacao = 'concluido'` e `concluido_em` acontecem na
+  mesma transacao, com a linha do assessment travada. Faltando resposta, a
+  recusa e "incompleto" e nada e gravado. Perfil primario, secundario e
+  percentuais NAO sao gravados: derivam dos contadores.
+- **Impacto se descumprida**: Contadores divergem das respostas, ou um perfil
+  gravado passa a discordar do relatorio calculado a partir das mesmas linhas.
+
+### RN-106 - Expiracao E Derivada, e Concluido Tem Precedencia
+- **Definida por**: Decisao tecnica, a confirmar com o cliente
+- **Data**: 2026-09-02
+- **Modulo**: Assessments / Respondente
+- **Descricao**: Um link esta expirado quando `expira_em` ja passou ou quando a
+  situacao foi marcada como `expirado` a mao pelo admin. A rota nunca grava a
+  transicao para `expirado`. Um assessment concluido e tratado como concluido
+  mesmo com a data ja vencida.
+- **Comportamento esperado**: A leitura verifica, nesta ordem: inexistente,
+  concluido, expirado, e so entao libera o questionario. Expirar ou concluir
+  enquanto a pessoa responde interrompe a tela com aviso, em vez de aceitar
+  respostas para o vazio.
+- **Impacto se descumprida**: Quem ja respondeu ve "seu link expirou", ou uma
+  segunda fonte de verdade de expiracao passa a divergir de `expira_em`.

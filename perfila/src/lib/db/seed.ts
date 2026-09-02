@@ -18,8 +18,10 @@
  *   assessments: todo assessment consumiu creditos ao ser criado, mas dois
  *   deles (Fernando e Antonio) nao tinham linha de uso no extrato fixo.
  *
- * As respostas por questao ficam vazias: o prototipo guarda so os contadores
- * dos assessments concluidos, e inventar 28 respostas seria dado falso.
+ * Os concluidos ficam sem respostas por questao: o prototipo guarda so os
+ * contadores deles, e inventar 28 respostas para casar com contadores ja
+ * fixados seria dado falso. O em andamento e a excecao — ver
+ * `respostasEmAndamento`.
  */
 import { config } from "dotenv";
 import { Pool } from "pg";
@@ -27,6 +29,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import {
   assessments as tabelaAssessments,
   assessmentsRelatorios,
+  assessmentsRespostas,
   creditosTransacoes,
   usuarios,
 } from "./schema";
@@ -58,6 +61,48 @@ const idAssessment: Record<string, string> = {
 function dataBr(valor: string): Date {
   const [dia, mes, ano] = valor.split("/").map(Number);
   return new Date(ano!, mes! - 1, dia!, 12);
+}
+
+/** Mesma validade que `criar()` aplica em actions/assessments.ts. */
+const DIAS_VALIDADE = 7;
+
+/**
+ * Assina as respostas do respondente, como manda o ADR-0002.
+ *
+ * Repetida aqui em vez de importada de actions/avaliacao.ts: aquele arquivo e
+ * "use server", e o seed e um script node solto. Continua sendo o mesmo valor,
+ * e a decisao de nao criar um modulo de sentinelas esta no ADR.
+ */
+const RESPONDENTE = "00000000-0000-0000-0000-000000000000";
+
+/**
+ * Respostas do unico assessment em andamento (token p7xa20).
+ *
+ * Sem elas a tela deriva "retomado" de zero respostas e oferece "Comecar" num
+ * link que o proprio seed diz estar em andamento — a demo nunca exercitava a
+ * retomada. Cinco questoes bastam. Os contadores continuam nulos de proposito:
+ * quem os calcula e `concluir()`, a partir destas linhas.
+ */
+const respostasEmAndamento = [
+  { questao_codigo: "Q01", fator: "D" as const },
+  { questao_codigo: "Q02", fator: "I" as const },
+  { questao_codigo: "Q03", fator: "S" as const },
+  { questao_codigo: "Q04", fator: "C" as const },
+  { questao_codigo: "Q05", fator: "I" as const },
+];
+
+/**
+ * Link ainda aberto nasce com data relativa; link morto mantem a data fixa.
+ *
+ * As datas de src/data/facilitadores.ts sao fixas, entao o token `demo` viraria
+ * tela de "link expirado" uma semana depois de qualquer seed, sem ninguem ter
+ * tocado em codigo. Concluido e expirado precisam mesmo estar no passado.
+ */
+function expiraEm(situacao: string, valor: string): Date {
+  if (situacao === "pendente" || situacao === "em_andamento") {
+    return new Date(Date.now() + DIAS_VALIDADE * 24 * 60 * 60 * 1000);
+  }
+  return dataBr(valor);
 }
 
 // Compras, bonus e estornos vem da lista fixa; os usos vem dos assessments,
@@ -132,7 +177,7 @@ async function main(): Promise<void> {
         tipo_relatorio: assessment.tipoRelatorio,
         situacao: assessment.situacao,
         creditos_usados: assessment.creditosUsados,
-        expira_em: dataBr(assessment.expiraEm),
+        expira_em: expiraEm(assessment.situacao, assessment.expiraEm),
         concluido_em: assessment.concluidoEm ? dataBr(assessment.concluidoEm) : null,
         contador_d: assessment.contadores?.D ?? null,
         contador_i: assessment.contadores?.I ?? null,
@@ -140,6 +185,15 @@ async function main(): Promise<void> {
         contador_c: assessment.contadores?.C ?? null,
         created_at: dataBr(assessment.criadoEm),
         modified_by: idUsuario[assessment.facilitadorId]!,
+      })),
+    );
+
+    await db.insert(assessmentsRespostas).values(
+      respostasEmAndamento.map((resposta) => ({
+        assessment_id: idAssessment.a3!,
+        questao_codigo: resposta.questao_codigo,
+        fator: resposta.fator,
+        modified_by: RESPONDENTE,
       })),
     );
 
@@ -158,6 +212,7 @@ async function main(): Promise<void> {
     console.log(`  usuarios:     ${facilitadores.length}`);
     console.log(`  assessments:  ${dadosAssessments.length}`);
     console.log(`  transacoes:   ${linhasTransacao.length}`);
+    console.log(`  respostas:    ${respostasEmAndamento.length} (token p7xa20, em andamento)`);
     console.log("  relatorios:   1 (narrativa de exemplo, v1, token k3mq81)");
     for (const facilitador of facilitadores) {
       console.log(`  saldo ${facilitador.nome}: ${saldo(facilitador.id)}`);
