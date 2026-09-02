@@ -92,8 +92,6 @@ export type Assessment = {
   criadoEm: string
   expiraEm: string
   concluidoEm?: string
-  /** Perfil combinado, quando já calculado. */
-  perfil?: string
   /**
    * Quantas das 28 respostas caíram em cada fator. Somam 28, então os
    * percentuais derivados somam 100 — é assim que o instrumento novo
@@ -130,7 +128,6 @@ export const assessments: Assessment[] = [
     criadoEm: '28/08/2026',
     expiraEm: '04/09/2026',
     concluidoEm: '29/08/2026',
-    perfil: 'ID',
     contadores: { D: 8, I: 12, S: 3, C: 5 },
   },
   {
@@ -169,7 +166,6 @@ export const assessments: Assessment[] = [
     criadoEm: '25/08/2026',
     expiraEm: '01/09/2026',
     concluidoEm: '26/08/2026',
-    perfil: 'CS',
     contadores: { D: 4, I: 5, S: 8, C: 11 },
   },
 ]

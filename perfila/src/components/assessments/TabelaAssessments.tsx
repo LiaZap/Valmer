@@ -4,6 +4,7 @@ import { IconButton } from '@/components/ui/IconButton'
 import { Pill } from '@/components/ui/Pill'
 import { RowActions, Table, Td, Th, Tr, tableStyles } from '@/components/ui/Table'
 import { useToast } from '@/components/ui/Toast'
+import { resultadoDeContadores } from '@/lib/disc'
 import {
   ROTULO_SITUACAO,
   facilitadores,
@@ -73,8 +74,14 @@ export function TabelaAssessments({
               <Pill tone={TOM[assessment.situacao]} dot>
                 {ROTULO_SITUACAO[assessment.situacao]}
               </Pill>
-              {assessment.perfil ? (
-                <div className={tableStyles.secondary}>Perfil {assessment.perfil}</div>
+              {/* O perfil é DERIVADO dos contadores, e não lido de um
+                  campo guardado. O relatório deriva do mesmo lugar, então
+                  os dois não têm como divergir. Guardar o resultado pronto
+                  aqui criava duas fontes para o mesmo número. */}
+              {assessment.contadores ? (
+                <div className={tableStyles.secondary}>
+                  Perfil {resultadoDeContadores(assessment.contadores).combinado}
+                </div>
               ) : null}
             </Td>
 

@@ -49,12 +49,12 @@ Rotas para conferir rápido: `/`, `/admin`, `/facilitador`, `/avaliacao/demo`,
 espaçamento sai de token. Neutros quentes com um acento verde-floresta, Sora nos
 títulos e Figtree no texto.
 
-**Portal do Parceiro**, 21 telas. Dashboard, assessments (lista e criação),
-campanhas, DNA organizacional, arquitetura de cargos, devolutiva, benefícios,
-créditos, degustação, clientes, cursos, mentores, EAD, integrações, configurações
-e suporte.
+**Portal do Parceiro**, 21 telas. Dashboard, assessments (lista e criação), envio
+rápido, campanhas (lista e criação), DNA organizacional (lista, criação e
+detalhe), arquitetura de cargos, devolutiva, benefícios, créditos, degustação,
+clientes, cursos, mentores, EAD, integrações, configurações e suporte.
 
-**Administração**, 6 telas. Visão geral com métricas derivadas dos dados,
+**Administração**, 7 telas. Visão geral com métricas derivadas dos dados,
 facilitadores (lista e criação com pacote inicial), assessments de todos os
 parceiros, créditos e pacotes com extrato, tabela de preços e o banco das 28
 questões.
@@ -109,32 +109,55 @@ isoladamente produzia somas como 100,1, e o relatório afirma ao leitor que os
 quatro somam 100%.
 
 **Cada assessment guarda os contadores por fator, não o perfil pronto.** Lista e
-relatório derivam do mesmo número, então não podem divergir.
+relatório derivam do mesmo número com `resultadoDeContadores`, então não podem
+divergir. Existiu um campo `perfil` com o valor já calculado, e a lista lia esse
+campo enquanto o relatório recalculava: os dois batiam só por coincidência dos
+dados de exemplo. O campo foi removido. Ao criar o schema do banco, não o
+reintroduza.
 
 **As cores DISC têm duas versões.** As de `--color-disc-*` servem para texto sobre
-tinta clara. Como área preenchida elas falham em contraste, então existem
-`--chart-disc-*`, validadas para luminosidade, croma, separação sob daltonismo e
-contraste com a superfície.
+tinta clara. Como área preenchida elas ficam claras demais, então existem
+`--chart-disc-*`, validadas para faixa de luminosidade, piso de croma e separação
+sob daltonismo.
+
+Ressalva honesta sobre contraste: três das quatro passam o piso de 3:1 sobre o
+creme do relatório (D 6,05:1, S 4,34:1, C 4,56:1), e o âmbar do Influência fica em
+2,95:1. Ele continua onde está porque escurecê-lo o aproxima do vermelho do
+Dominância, e separação entre fatores vizinhos é o critério que não tem
+compensação, enquanto contraste tem: cada barra carrega a letra do fator, o nome
+por extenso e o percentual ao lado, então a cor nunca é o único portador do dado.
+O validador de paleta trata esse caso como aviso e o considera resolvido
+justamente por rótulo visível.
 
 **O laranja da Impacto não entra no gráfico.** Ele e o âmbar do fator Influência
-têm ΔE 5,2 em visão normal, contra um piso de 15: lado a lado ninguém distingue os
-dois. E sobre o creme da marca o laranja dá 2,52:1, abaixo do piso de 3:1 até para
-elemento de interface. No relatório ele aparece sobre o navy, onde dá 6,08:1, e
+têm ΔE 5,2 em visão normal, medido em OKLab ×100, contra um piso de 15: lado a
+lado ninguém distingue os dois. E sobre o creme da marca o laranja dá 2,52:1,
+abaixo do piso de 3:1 até para elemento de interface. No relatório ele aparece sobre o navy, onde dá 6,08:1, e
 como forma decorativa sólida. Quem carrega texto de acento é o navy.
 
 **Só o relatório assina como Impacto Academy.** Login, assessment, admin e portal
 do parceiro continuam Perfila, porque a especificação diz que cada facilitador tem
-painel com a marca dele e que o PDF é que leva a marca da Impacto. A troca vive em
-três lugares, todos exclusivos da rota do relatório: o tema escopado
-`tema-impacto.module.css`, o componente `MarcaImpacto` e o ícone
-`app/relatorio/icon.svg`. Não mexa em `styles/tokens.css`, em `components/layout/Logo.tsx`
-nem em `app/icon.svg`: os três parecem o lugar certo e valem para o produto inteiro.
+painel com a marca dele e que o PDF é que leva a marca da Impacto. A marca vive em
+quatro lugares, todos exclusivos da rota do relatório: o tema escopado
+`tema-impacto.module.css`, o componente `MarcaImpacto`, o ícone
+`app/relatorio/icon.svg` e o bloco `metadata`/`viewport` no topo de
+`app/relatorio/[token]/page.tsx`, que carrega o título da aba e o creme da marca em
+`themeColor`. Esse quarto existe porque tema escopado por classe de CSS não alcança
+meta tag. Não mexa em `styles/tokens.css`, em `components/layout/Logo.tsx` nem em
+`app/icon.svg`: os três parecem o lugar certo e valem para o produto inteiro.
+
+**O corte por nível é por SEÇÃO, não por componente.** As três seções de
+`Lideranca.tsx` entram em níveis diferentes: encaixe é S1, liderança e como liderar
+são S2. Gatear o componente inteiro tirava "Onde você se encaixa" do S1, que a
+tabela de preços vende como parte do S1. Hoje S1 rende 10 seções, S2 rende 12 e S3
+rende as 13. O S4 não acrescenta seção nenhuma: o que ele agrega, segundo
+`planos.ts`, é dashboard online e histórico de evolução, que ainda não existem.
 
 **O símbolo tem as pontas cortadas retas.** Afilando até sumir, ele virava lua
 crescente acima de 60px e a ponta descia abaixo do que a impressora resolve. Arco
 interrompido lê como propagação; lâmina inteiriça lê como corpo celeste. A caixa é
-24×16 e não quadrada, porque num quadrado a composição ocupava só a faixa do meio e
-o símbolo parecia pequeno ao lado do nome.
+24×16 e não quadrada, porque num quadrado a composição ocupava só a faixa do meio
+e o símbolo parecia pequeno ao lado do nome.
 
 **As tabelas de `perfis.ts` são as palavras do cliente.** `caracteristicas`,
 `cargos`, `comoLiderar` e `oQueEvitar` vêm literalmente da especificação e ele
@@ -155,7 +178,8 @@ resto do padrão de escrita: voz ativa, frase curta, sem jargão de consultoria 
 sem a fórmula "não é X, é Y". Quem mexer no prompt precisa manter essa seção.
 
 **O modelo da API foi trocado.** A especificação pede `claude-sonnet-4-20250514`
-chamado por `fetch` cru. Esse identificador não existe mais. O código usa o SDK
+chamado por `fetch` cru. Esse modelo está depreciado e é de uma geração anterior.
+O código usa o SDK
 oficial com `claude-opus-5`, saída estruturada por esquema, cache do prompt de
 sistema e substituição automática em caso de recusa.
 
@@ -170,9 +194,16 @@ e fixos. Mandá-los ao modelo seria pagar para ele repetir o que já sabemos.
    para as seis dimensões pelo sentido do texto. Precisa bater com o gabarito
    oficial antes de calcular resultado de verdade.
 2. **As descrições dos 40 adjetivos** do inventário antigo são provisórias.
-3. **Os textos dos 10 pilares** do mapa de autoavaliação são provisórios. Só o
+3. **Os textos dos 11 pilares** do mapa de autoavaliação são provisórios. Só o
    pilar Espiritual veio do sistema original, com as perguntas de apoio.
 4. **Fotos de cursos e mentores** seguem como espaço reservado.
+5. **O símbolo da Impacto Academy foi desenhado aqui**, por falta de arquivo
+   oficial: não havia logo no material enviado e `impactoacademy.com.br` não
+   resolvia. Se o Valmer tiver o SVG de verdade, a troca é em
+   `perfila/src/components/relatorio/MarcaImpacto.tsx` mais
+   `perfila/src/app/relatorio/icon.svg`. O arquivo novo precisa continuar legível
+   a 14px e impresso em preto e branco, e o laranja só pode entrar como área
+   sólida grande ou sobre o navy.
 
 ---
 
@@ -185,5 +216,7 @@ produto. Veja `contexto/README.md`.
 
 ## Histórico
 
-Seis commits, do protótipo inicial ao relatório. `git log` conta a sequência, e
-cada mensagem registra o porquê das decisões, não só o quê.
+Onze commits: o handoff do Claude Design, que abriu o repositório, e mais dez, do
+protótipo inicial ao relatório com a marca da Impacto Academy. `git log` conta a
+sequência, e cada mensagem registra o porquê das decisões, não
+só o quê.

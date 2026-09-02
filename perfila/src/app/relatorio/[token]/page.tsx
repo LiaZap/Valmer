@@ -105,11 +105,16 @@ export default async function RelatorioPage({ params }: { params: Promise<{ toke
 
         <Motivadores narrativa={dados.narrativa} perfil={perfilPrimario} />
 
-        {visiveis.has('lideranca') ? (
+        {/* As três seções de `Lideranca` entram em níveis diferentes, então
+            o corte é feito lá dentro, por seção. Aqui só evitamos montar o
+            componente quando nenhuma das três entra. */}
+        {visiveis.has('encaixe') || visiveis.has('lideranca') ? (
           <Lideranca
             narrativa={dados.narrativa}
             perfil={perfilPrimario}
             avaliado={dados.avaliado}
+            mostrarEncaixe={visiveis.has('encaixe')}
+            mostrarLideranca={visiveis.has('lideranca')}
           />
         ) : null}
 
