@@ -1,0 +1,57 @@
+.pagina {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+.topo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  height: var(--sidebar-header-height);
+  padding: 0 var(--space-20);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.marca {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-on-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nome {
+  font-family: var(--font-display);
+  font-size: var(--fs-14);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text);
+}
+
+/* Coluna estreita: a questão é a única coisa na tela. */
+.conteudo {
+  flex: 1;
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: var(--space-28) var(--space-20) 48px;
+}
+
+.rodape {
+  padding: var(--space-16) var(--space-20) var(--space-24);
+  text-align: center;
+  font-size: var(--fs-12);
+  color: var(--color-text-subtle);
+}
+
+@media (max-width: 560px) {
+  .conteudo {
+    padding: var(--space-20) var(--space-16) 40px;
+  }
+}
