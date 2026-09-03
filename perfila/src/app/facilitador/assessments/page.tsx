@@ -1,26 +1,25 @@
-'use client'
-
-import { TabelaAssessments } from '@/components/assessments/TabelaAssessments'
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
-import { Field, Input } from '@/components/ui/Field'
-import { Icon } from '@/components/ui/Icon'
 import { PageHeader } from '@/components/ui/PageHeader'
-import { Select } from '@/components/ui/Select'
-import { FilterBar, TableFooter, tableStyles } from '@/components/ui/Table'
-import { useToast } from '@/components/ui/Toast'
-import { assessmentsDe, facilitadorAtual } from '@/data/facilitadores'
+import { Button } from '@/components/ui/Button'
+import { Icon } from '@/components/ui/Icon'
+import { assessmentsVisiveis, contaAtual } from '@/lib/painel'
+import { ListaAssessments } from './ListaAssessments'
 
-export default function AssessmentsFacilitadorPage() {
-  const { toast } = useToast()
-  const meus = assessmentsDe(facilitadorAtual.id)
+/**
+ * Assessments do facilitador, agora vindos do banco.
+ *
+ * Server Component: a consulta acontece aqui e a interatividade (filtros,
+ * ações da linha) fica no componente cliente abaixo. Assim a lista não
+ * precisa de rota de API nem de estado de carregamento.
+ */
+export default async function AssessmentsFacilitadorPage() {
+  const [meus, conta] = await Promise.all([assessmentsVisiveis(), contaAtual()])
   const aguardando = meus.filter((item) => item.situacao !== 'concluido').length
 
   return (
     <>
       <PageHeader
         title="Assessments"
-        subtitle={`${meus.length} enviados · ${aguardando} aguardando resposta · ${facilitadorAtual.creditos} créditos disponíveis`}
+        subtitle={`${meus.length} enviados · ${aguardando} aguardando resposta · ${conta.creditos} créditos disponíveis`}
         actions={
           <Button
             href="/facilitador/assessments/novo"
@@ -32,29 +31,7 @@ export default function AssessmentsFacilitadorPage() {
         }
       />
 
-      <Card padding="none" scrollX>
-        <FilterBar>
-          <Field label="Avaliado" className={tableStyles.filterGrow}>
-            {(id) => <Input id={id} placeholder="Nome ou e-mail" />}
-          </Field>
-          <Field label="Situação" className={tableStyles.filterMd}>
-            {(id) => (
-              <Select
-                id={id}
-                label="Situação"
-                options={['Todas', 'Aguardando resposta', 'Em andamento', 'Concluído', 'Expirado']}
-              />
-            )}
-          </Field>
-          <Button variant="dark" size="lg" onClick={() => toast('Filtro aplicado')}>
-            Pesquisar
-          </Button>
-        </FilterBar>
-
-        <TabelaAssessments itens={meus} />
-
-        <TableFooter>Total: {meus.length}</TableFooter>
-      </Card>
+      <ListaAssessments itens={meus} />
     </>
   )
 }

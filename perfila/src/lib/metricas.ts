@@ -3,12 +3,23 @@
  * ----------------------
  * Tudo é derivado dos dados, nunca digitado. Assim os números do
  * painel não podem divergir das listas que os originam.
+ *
+ * Os dados chegam por parâmetro, e não por import: quem lê o banco é
+ * `@/lib/painel`, do lado servidor, com o recorte por dono no WHERE. Se este
+ * módulo importasse a fonte, ele decidiria sozinho de onde vêm os números — e
+ * era assim que o painel continuava somando o protótipo depois do banco pronto.
  */
 
-import { assessments, facilitadores, transacoes } from '@/data/facilitadores'
+import type { Assessment, Facilitador, Transacao } from '@/data/facilitadores'
 import { pacotesCreditos } from '@/data/planos'
 
-export function metricasPlataforma() {
+export type DadosPlataforma = {
+  facilitadores: Facilitador[]
+  assessments: Assessment[]
+  transacoes: Transacao[]
+}
+
+export function metricasPlataforma({ facilitadores, assessments, transacoes }: DadosPlataforma) {
   const ativos = facilitadores.filter((facilitador) => facilitador.ativo)
 
   const creditosVendidos = transacoes
@@ -43,7 +54,7 @@ export function metricasPlataforma() {
 }
 
 /** Taxa de conclusão dos assessments enviados, em percentual. */
-export function taxaConclusao(): number {
+export function taxaConclusao(assessments: Assessment[]): number {
   if (assessments.length === 0) return 0
   const concluidos = assessments.filter((item) => item.situacao === 'concluido').length
   return Math.round((concluidos / assessments.length) * 100)

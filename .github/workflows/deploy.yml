@@ -1,58 +1,83 @@
-# CI/CD — Estrutura Base
+# CI/CD — Valmer (Perfila)
 #
-# Logica (espelha o CLAUDE.md):
-#   push em `develop` -> CI -> Deploy HML (Homologacao)
-#   push em `master`  -> CI -> Deploy PRD (Producao), com BACKUP do banco antes
+#   push em `develop` -> CI -> deploy HML
+#   push em `master`  -> CI -> deploy PRD
 #
-# Pipeline obrigatorio: Lint -> Type Check -> Testes -> Build -> Deploy (SSH VPS).
+# O deploy em si mora na VPS (scripts/infra/deploy.sh). O Actions so faz login
+# por SSH e chama o script. Isso mantem UM caminho de deploy: o mesmo comando
+# que o CI roda e o que o Paulo roda a mao quando o GitHub estiver fora do ar.
 #
-# Secrets necessarios (configurar em Settings > Secrets and variables > Actions,
-# preferencialmente por Environment `hml` e `prd`):
-#   HML_SSH_HOST / HML_SSH_USER / HML_SSH_KEY / HML_KNOWN_HOSTS / HML_APP_DIR
-#   PRD_SSH_HOST / PRD_SSH_USER / PRD_SSH_KEY / PRD_KNOWN_HOSTS / PRD_APP_DIR
-#   PRD_DATABASE_URL   (string de conexao usada no pg_dump antes do deploy PRD)
+# O backup antes do PRD nao esta aqui de proposito — quem faz e o deploy.sh, no
+# proprio servidor. Assim a string de conexao de producao nunca precisa existir
+# como secret do GitHub, e o dump nunca passa pela infraestrutura de terceiro.
 #
-# OBS: este e o pipeline-template da base. Ele assume os scripts npm padrao
-# (`lint`, `test`, `build`) e `tsc`. Eles passam a existir quando a app Next.js
-# for adicionada em `src/` com seu package.json.
+# Secrets (Settings > Secrets and variables > Actions, por Environment):
+#   hml: HML_SSH_HOST, HML_SSH_USER, HML_SSH_PORT, HML_SSH_KEY, HML_KNOWN_HOSTS
+#   prd: PRD_SSH_HOST, PRD_SSH_USER, PRD_SSH_PORT, PRD_SSH_KEY, PRD_KNOWN_HOSTS
+#
+# A chave e a do usuario `deploy`, que na VPS nao tem sudo irrestrito: ele so
+# reinicia valmer-hml e valmer-prd (ver scripts/infra/01-acesso.sh).
 
 name: CI/CD
 
 on:
   push:
     branches: [develop, master]
+  pull_request:
+    branches: [develop, master]
   workflow_dispatch:
 
-# Evita dois deploys simultaneos no mesmo ambiente.
 concurrency:
   group: cicd-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   # ---------------------------------------------------------------------------
-  # 1) CI — roda em TODA push (develop e master)
-  # ---------------------------------------------------------------------------
   ci:
-    name: Lint + Type Check + Testes + Build
+    name: Type Check + Testes + Build
     runs-on: ubuntu-latest
+
+    # O app mora em perfila/, e nao na raiz do repositorio.
+    defaults:
+      run:
+        working-directory: perfila
+
+    # Os testes sao de integracao contra Postgres de verdade (tests/*.test.mts).
+    # Nao ha versao com SQLite nem com mock: e regra do projeto.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: valmer_ci
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U ci"
+          --health-interval 10s --health-timeout 5s --health-retries 5
+
+    env:
+      DATABASE_URL: postgres://ci:ci@localhost:5432/valmer_ci
+      # Valor descartavel, so para o boot passar. Nao e o segredo de nenhum
+      # ambiente — os de verdade so existem em /srv/valmer/<amb>/env na VPS.
+      BETTER_AUTH_SECRET: ci-somente-para-o-boot-nao-e-segredo-real
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: npm
+          cache-dependency-path: perfila/package-lock.json
 
-      - name: Instalar dependencias
-        run: npm ci
-
-      - name: Lint
-        run: npm run lint
+      - run: npm ci
 
       - name: Type Check
-        run: npx tsc --noEmit
+        run: npm run typecheck
+
+      - name: Migracoes
+        run: npm run db:migrate
 
       - name: Testes
         run: npm test
@@ -60,124 +85,54 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Conformidade da base
+        working-directory: .
+        run: node scripts/check-compliance.mjs
+
   # ---------------------------------------------------------------------------
-  # 2) Deploy HML — somente branch develop
-  # ---------------------------------------------------------------------------
-  deploy-hml:
-    name: Deploy HML (Homologacao)
+  deploy:
+    name: Deploy
     needs: ci
-    if: github.ref == 'refs/heads/develop'
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    environment: hml
+    environment: ${{ github.ref == 'refs/heads/master' && 'prd' || 'hml' }}
     steps:
-      - name: Configurar SSH
+      # A VPS ainda nao existe quando estas branches nascem. Sem esta trava,
+      # todo push acende um X vermelho por falta de servidor, e CI que vive
+      # vermelha ensina o time a nao olhar para ela.
+      # Ligar em Settings > Environments > <hml|prd> > Variables:
+      #     DEPLOY_HABILITADO = true
+      - name: Ambiente alvo
+        id: alvo
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.HML_SSH_KEY }}" > ~/.ssh/id_deploy
-          chmod 600 ~/.ssh/id_deploy
-          echo "${{ secrets.HML_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
-
-      - name: Deploy na VPS HML
-        run: |
-          ssh -i ~/.ssh/id_deploy "${{ secrets.HML_SSH_USER }}@${{ secrets.HML_SSH_HOST }}" \
-            "set -e; \
-             cd '${{ secrets.HML_APP_DIR }}'; \
-             git fetch --all; \
-             git reset --hard origin/develop; \
-             npm ci; \
-             npm run build; \
-             npm run db:migrate --if-present; \
-             pm2 reload ecosystem.config.js --update-env || pm2 start ecosystem.config.js"
-
-  # ---------------------------------------------------------------------------
-  # 3) Deploy PRD — somente branch master, com BACKUP do banco ANTES
-  # ---------------------------------------------------------------------------
-  deploy-prd:
-    name: Deploy PRD (Producao)
-    needs: ci
-    if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
-    environment: prd
-    steps:
-      - name: Configurar SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.PRD_SSH_KEY }}" > ~/.ssh/id_deploy
-          chmod 600 ~/.ssh/id_deploy
-          echo "${{ secrets.PRD_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
-
-      # =======================================================================
-      # Disaster Recovery (CLAUDE.md): SEMPRE backup ANTES do deploy PRD, e o
-      # backup NUNCA pode ficar so no mesmo servidor do banco.
-      #
-      # O dump NAO passa pelo runner do GitHub e NAO vira artifact.
-      # Um artifact do Actions e baixavel por QUALQUER pessoa com acesso de
-      # leitura ao repositorio e fica hospedado por semanas. Um dump de producao
-      # carrega nome, endereco, CNPJ e valor de venda de cliente real: isso nao
-      # sai do perimetro. A copia off-server e feita HOST -> DESTINO, direto,
-      # sem intermediario.
-      #
-      # PRE-REQUISITO OPERACIONAL (uma vez, fora do CI):
-      #   a VPS de banco precisa ter chave SSH propria autorizada no destino de
-      #   backup. O CI so dispara o comando; ele nao carrega credencial nenhuma
-      #   do destino.
-      # Secret necessario: PRD_BACKUP_DEST  (ex.: "backup@10.0.0.9:/srv/backups/mm")
-      # =======================================================================
-      - name: Definir nome do backup
-        id: bk
-        run: echo "file=backup_$(date +%d_%m_%Y_%H_%M).sql" >> "$GITHUB_OUTPUT"
-
-      - name: Exigir destino de backup off-server
-        env:
-          DEST: ${{ secrets.PRD_BACKUP_DEST }}
-        run: |
-          if [ -z "$DEST" ]; then
-            echo "::error::PRD_BACKUP_DEST nao configurado."
-            echo "A regra de DR do CLAUDE.md exige copia do backup FORA do servidor do banco."
-            echo "Sem destino off-server, o deploy em producao NAO prossegue."
-            exit 1
+          if [ "$GITHUB_REF" = "refs/heads/master" ]; then echo "amb=prd" >> "$GITHUB_OUTPUT"
+          else echo "amb=hml" >> "$GITHUB_OUTPUT"; fi
+          if [ "${{ vars.DEPLOY_HABILITADO }}" != "true" ]; then
+            echo "::notice::Deploy desligado neste ambiente (DEPLOY_HABILITADO != true). CI passou, nada foi publicado."
           fi
 
-      - name: Backup do banco no host (obrigatorio antes do PRD)
+      - name: Configurar SSH
+        if: vars.DEPLOY_HABILITADO == 'true'
+        env:
+          CHAVE: ${{ github.ref == 'refs/heads/master' && secrets.PRD_SSH_KEY || secrets.HML_SSH_KEY }}
+          HOSTS: ${{ github.ref == 'refs/heads/master' && secrets.PRD_KNOWN_HOSTS || secrets.HML_KNOWN_HOSTS }}
         run: |
-          ssh -i ~/.ssh/id_deploy "${{ secrets.PRD_SSH_USER }}@${{ secrets.PRD_SSH_HOST }}" \
-            "set -e; \
-             mkdir -p ~/Documents/DB_backups; \
-             pg_dump '${{ secrets.PRD_DATABASE_URL }}' \
-               --no-owner --no-acl --clean --if-exists \
-               --file=\"\$HOME/Documents/DB_backups/${{ steps.bk.outputs.file }}\""
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$CHAVE" > ~/.ssh/id_deploy && chmod 600 ~/.ssh/id_deploy
+          printf '%s\n' "$HOSTS" > ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts
 
-      # Dump vazio "com sucesso" e a falha silenciosa classica de DR: so se
-      # descobre no dia do restore. 1 KB e generoso — o schema sozinho ja passa.
-      - name: Conferir que o dump nao esta vazio
+      # deploy.sh monta a release nova, so troca o symlink se o build passou,
+      # faz o dump antes de migrar em PRD e confere que a app respondeu.
+      # Se ele sair diferente de zero, nada foi trocado ou o rollback esta a um
+      # comando de distancia — a mensagem dele diz qual.
+      - name: Deploy na VPS
+        if: vars.DEPLOY_HABILITADO == 'true'
+        env:
+          USUARIO: ${{ github.ref == 'refs/heads/master' && secrets.PRD_SSH_USER || secrets.HML_SSH_USER }}
+          HOST: ${{ github.ref == 'refs/heads/master' && secrets.PRD_SSH_HOST || secrets.HML_SSH_HOST }}
+          PORTA: ${{ github.ref == 'refs/heads/master' && secrets.PRD_SSH_PORT || secrets.HML_SSH_PORT }}
+          AMB: ${{ steps.alvo.outputs.amb }}
         run: |
-          ssh -i ~/.ssh/id_deploy "${{ secrets.PRD_SSH_USER }}@${{ secrets.PRD_SSH_HOST }}" \
-            "set -e; \
-             f=\"\$HOME/Documents/DB_backups/${{ steps.bk.outputs.file }}\"; \
-             bytes=\$(wc -c < \"\$f\"); \
-             echo \"backup: \$bytes bytes\"; \
-             if [ \"\$bytes\" -lt 1024 ]; then echo 'BACKUP SUSPEITO (< 1KB)'; exit 1; fi; \
-             grep -q 'PostgreSQL database dump' \"\$f\" || { echo 'nao parece um dump'; exit 1; }"
-
-      # Copia HOST -> DESTINO. O dump nunca toca a infraestrutura do GitHub.
-      - name: Copiar backup para FORA do servidor do banco (regra DR)
-        run: |
-          ssh -i ~/.ssh/id_deploy "${{ secrets.PRD_SSH_USER }}@${{ secrets.PRD_SSH_HOST }}" \
-            "set -e; \
-             scp -o StrictHostKeyChecking=yes \
-               \"\$HOME/Documents/DB_backups/${{ steps.bk.outputs.file }}\" \
-               '${{ secrets.PRD_BACKUP_DEST }}/${{ steps.bk.outputs.file }}'"
-
-      - name: Deploy na VPS PRD
-        run: |
-          ssh -i ~/.ssh/id_deploy "${{ secrets.PRD_SSH_USER }}@${{ secrets.PRD_SSH_HOST }}" \
-            "set -e; \
-             cd '${{ secrets.PRD_APP_DIR }}'; \
-             git fetch --all; \
-             git reset --hard origin/master; \
-             npm ci; \
-             npm run build; \
-             npm run db:migrate --if-present; \
-             pm2 reload ecosystem.config.js --update-env || pm2 start ecosystem.config.js"
+          ssh -i ~/.ssh/id_deploy -p "${PORTA:-22}" \
+            -o StrictHostKeyChecking=yes "$USUARIO@$HOST" \
+            "bash /srv/valmer/bin/deploy.sh $AMB $GITHUB_SHA"

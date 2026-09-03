@@ -98,15 +98,18 @@ export async function salvarNarrativa(
       modified_by: GERADOR,
     });
 
-    return proxima;
-  });
+    await registrarAuditoria(
+      {
+        userId: GERADOR,
+        acao: "criar",
+        tabela: "assessments_relatorios",
+        registroId: alvo.id,
+        detalhes: `Gravou a narrativa v${proxima} do relatorio de ${alvo.nome}`,
+      },
+      tx,
+    );
 
-  await registrarAuditoria({
-    userId: GERADOR,
-    acao: "criar",
-    tabela: "assessments_relatorios",
-    registroId: alvo.id,
-    detalhes: `Gravou a narrativa v${versao} do relatorio de ${alvo.nome}`,
+    return proxima;
   });
 
   return { ok: true, versao, reaproveitada: false, narrativa };

@@ -8,6 +8,12 @@ type SelectProps = {
   options: readonly string[]
   /** Valor inicial. Sem ele, assume a primeira opção. */
   defaultValue?: string
+  /**
+   * Valor controlado. Com ele, quem renderiza manda no que aparece — é o que
+   * permite um botão "Limpar" devolver o campo para "Todas". Sem ele, o
+   * componente guarda a escolha sozinho, como as telas antigas esperam.
+   */
+  value?: string
   onChange?: (value: string) => void
   size?: 'md' | 'sm'
   /** Nome acessível — normalmente o mesmo texto do <Field>. */
@@ -26,6 +32,7 @@ type SelectProps = {
 export function Select({
   options,
   defaultValue,
+  value: valorControlado,
   onChange,
   size = 'md',
   label,
@@ -36,11 +43,18 @@ export function Select({
   const listId = `${triggerId}-list`
 
   const [open, setOpen] = useState(false)
-  const [value, setValue] = useState(() => defaultValue ?? options[0] ?? '')
-  const [activeIndex, setActiveIndex] = useState(() => {
-    const index = options.indexOf(defaultValue ?? options[0] ?? '')
-    return index >= 0 ? index : 0
-  })
+  const [valorInterno, setValorInterno] = useState(() => defaultValue ?? options[0] ?? '')
+  const value = valorControlado ?? valorInterno
+
+  const indiceDoValor = Math.max(0, options.indexOf(value))
+  const [activeIndex, setActiveIndex] = useState(indiceDoValor)
+
+  // Com o painel fechado, a navegação recomeça de onde o valor está. É isso
+  // que faz um "Limpar" de fora reposicionar o cursor junto com o rótulo, em
+  // vez de reabrir a lista no item escolhido antes.
+  useEffect(() => {
+    if (!open) setActiveIndex(indiceDoValor)
+  }, [open, indiceDoValor])
 
   const rootRef = useRef<HTMLDivElement>(null)
   const optionRefs = useRef<(HTMLLIElement | null)[]>([])
@@ -62,7 +76,7 @@ export function Select({
   }, [open, activeIndex])
 
   function select(option: string) {
-    setValue(option)
+    setValorInterno(option)
     setActiveIndex(options.indexOf(option))
     setOpen(false)
     onChange?.(option)

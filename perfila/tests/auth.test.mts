@@ -21,7 +21,7 @@ config({ path: [".env.local", ".env"] });
 const { db } = await import("@/lib/db");
 const { usuarios, contas, sessoes } = await import("@/lib/db/schema");
 const { auth } = await import("@/lib/auth/config");
-const { definirSenha } = await import("@/lib/actions/auth");
+const { definirSenha } = await import("@/lib/auth/senha");
 const { eq } = await import("drizzle-orm");
 
 const marca = `teste-${Date.now()}`;

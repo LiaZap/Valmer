@@ -133,6 +133,58 @@ describe("assessments", () => {
     );
   });
 
+  /**
+   * O formulario da tela chama `criarPelaTela`, e nao `criar`. Se ele voltar a
+   * so navegar e avisar "Assessment criado", ou se a recusa virar excecao
+   * opaca, e aqui que quebra.
+   */
+  it("criarPelaTela grava de verdade e cobra o credito", async () => {
+    entrarComo(facilitadorA);
+    const [antes] = await db.select().from(usuarios).where(eq(usuarios.id, facilitadorA));
+
+    const resposta = await acoes.criarPelaTela({
+      avaliado_nome: "Carla Nunes",
+      avaliado_email: `carla.${marca}@exemplo.com`,
+      tipo_relatorio: "S2",
+    });
+
+    assert.equal(resposta.ok, true);
+    assert.ok(resposta.ok && resposta.token, "devolve o token do link do avaliado");
+
+    const [gravado] = await db
+      .select()
+      .from(assessments)
+      .where(eq(assessments.token, resposta.ok ? resposta.token : ""));
+    assert.equal(gravado.avaliado_nome, "Carla Nunes");
+
+    const [depois] = await db.select().from(usuarios).where(eq(usuarios.id, facilitadorA));
+    assert.equal(depois.creditos, antes.creditos - 2, "S2 custa 2 creditos");
+  });
+
+  it("criarPelaTela devolve a falta de saldo como recusa, e nao como excecao", async () => {
+    entrarComo(facilitadorB);
+    const resposta = await acoes.criarPelaTela({
+      avaliado_nome: "Joao Souza",
+      avaliado_email: `joao.recusa.${marca}@exemplo.com`,
+      tipo_relatorio: "S1",
+    });
+
+    assert.equal(resposta.ok, false);
+    assert.match(resposta.ok ? "" : resposta.erro, /Saldo insuficiente/);
+  });
+
+  it("criarPelaTela devolve erro de validacao legivel, e nao um digest", async () => {
+    entrarComo(facilitadorA);
+    const resposta = await acoes.criarPelaTela({
+      avaliado_nome: "Ana Lima",
+      avaliado_email: "ana arroba exemplo",
+      tipo_relatorio: "S1",
+    });
+
+    assert.equal(resposta.ok, false);
+    assert.match(resposta.ok ? "" : resposta.erro, /E-mail invalido/);
+  });
+
   it("nao mostra a um facilitador o assessment de outro", async () => {
     entrarComo(facilitadorB);
     const lista = await acoes.listar();

@@ -217,6 +217,7 @@ projeto/
     components.md        # Padrao de componentes
     definition-of-done.md # Checklist de conclusao
     git-commits.md       # Conventional Commits
+    infra.md             # Servidor, deploy, backup e operacao da VPS
     adr/                 # Architecture Decision Records
   src/
     app/                 # Next.js App Router
@@ -304,6 +305,12 @@ Pipeline obrigatorio:
 4. **Deploy** — SSH para VPS ou script de deploy
 
 ## Infraestrutura — Padrao VPS Hostinger
+
+> **O que existe hoje e UMA maquina, nao quatro.** O desenho abaixo e o padrao
+> da base; o contratado foi um KVM 8 rodando HML e PRD juntos. O que isso ainda
+> isola, o que se perde e como instalar tudo esta em `docs/infra.md` e no
+> [ADR-0005](docs/adr/0005-uma-vps-para-hml-e-prd.md). Consulte de la antes de
+> planejar qualquer coisa de servidor.
 
 ### Arquitetura por Ambiente
 

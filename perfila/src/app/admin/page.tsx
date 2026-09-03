@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { Icon } from '@/components/ui/Icon'
 import { AutoGrid, Stack } from '@/components/ui/Layout'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -7,15 +8,28 @@ import { Pill } from '@/components/ui/Pill'
 import { Progress } from '@/components/ui/Progress'
 import { Table, Td, Th, Tr, tableStyles } from '@/components/ui/Table'
 import { Avatar } from '@/components/ui/Avatar'
-import { facilitadores } from '@/data/facilitadores'
+import { assessmentsVisiveis, listarFacilitadores, listarTransacoes } from '@/lib/painel'
 import { moeda } from '@/data/planos'
 import { metricasPlataforma, taxaConclusao } from '@/lib/metricas'
 import ui from '@/styles/common.module.css'
 import styles from './page.module.css'
 
-export default function AdminPage() {
-  const m = metricasPlataforma()
-  const conclusao = taxaConclusao()
+/**
+ * Visão geral do dono da plataforma.
+ *
+ * Server Component: as três leituras acontecem aqui e alimentam as métricas.
+ * São independentes entre si, então vão juntas — em sequência, a tela esperaria
+ * três idas ao banco em fila para desenhar o mesmo cabeçalho.
+ */
+export default async function AdminPage() {
+  const [facilitadores, assessments, transacoes] = await Promise.all([
+    listarFacilitadores(),
+    assessmentsVisiveis(),
+    listarTransacoes(),
+  ])
+
+  const m = metricasPlataforma({ facilitadores, assessments, transacoes })
+  const conclusao = taxaConclusao(assessments)
 
   const indicadores = [
     {
@@ -106,6 +120,11 @@ export default function AdminPage() {
               Ver todos
             </Button>
           </div>
+          {/* Sem parceiro nenhum o card mostraria só o cabeçalho da tabela,
+              sem dizer o que fazer para preenchê-la. */}
+          {facilitadores.length === 0 ? (
+            <EmptyState>Nenhum parceiro cadastrado ainda.</EmptyState>
+          ) : (
           <Table compact>
             <thead>
               <tr>
@@ -144,6 +163,7 @@ export default function AdminPage() {
               ))}
             </tbody>
           </Table>
+          )}
         </Card>
       </AutoGrid>
     </>

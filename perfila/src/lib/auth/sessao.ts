@@ -1,5 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
+import { unstable_rethrow } from "next/navigation";
 import { db } from "@/lib/db";
 import { usuarios } from "@/lib/db/schema";
 import { auth } from "./config";
@@ -48,11 +49,19 @@ export async function getSession(): Promise<Sessao | null> {
  * Fora de uma requisicao do Next — um script de manutencao, um teste — nao ha
  * cabecalho a ler e a biblioteca lanca. Sem requisicao nao ha sessao, que e
  * exatamente o que `null` diz.
+ *
+ * `unstable_rethrow` esta aqui porque ler cabecalho tambem e como o Next
+ * descobre que a pagina depende da requisicao: durante o build ele interrompe
+ * a renderizacao com um erro proprio, para marcar a rota como dinamica. Um
+ * `catch` que engole esse sinal faz o build acreditar que a tela e estatica e
+ * renderiza-la sem sessao — foi assim que `/admin` quebrou no `next build`.
+ * Redirect e notFound viajam pelo mesmo caminho.
  */
 async function sessaoDoBetterAuth() {
   try {
     return await auth.api.getSession({ headers: await headers() });
-  } catch {
+  } catch (erro) {
+    unstable_rethrow(erro);
     return null;
   }
 }

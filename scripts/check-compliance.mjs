@@ -37,7 +37,6 @@ const IGNORE_DIRS = new Set([
   "node_modules", ".next", ".git", "dist", "build", "coverage",
   "project", // bundle de prototipos do Claude Design — nao e codigo-fonte
   ".turbo", "out", ".vercel", "templates", // templates contem padroes-ouro, nao escanear
-  "migrations", "drizzle", // SQL gerado por drizzle-kit — nao se aplica limite de 500 linhas
 ]);
 
 const CODE_EXT = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"]);
@@ -78,8 +77,8 @@ const LINE_RULES = [
     id: "drop-destrutivo",
     level: "error",
     ext: SQL_EXT,
-    re: /\bDROP\s+(TABLE|DATABASE|SCHEMA)\b/i,
-    msg: "DROP destrutivo em SQL. Proibido dropar estruturas de dados.",
+    re: /\bDROP\s+(TABLE|DATABASE|SCHEMA|COLUMN)\b/i,
+    msg: "DROP destrutivo em SQL. Nao passa sozinha: leve ao Maestro e, autorizada, marque o arquivo com compliance:drop-revisado explicando por que o dado pode sumir.",
   },
   {
     id: "segredo",
@@ -128,7 +127,7 @@ function walk(dir, acc) {
 // Checagem de tabelas Drizzle (pgTable sem colunas de auditoria)
 // ---------------------------------------------------------------------------
 
-const AUDIT_COLS = ["created_at", "updated_at", "deleted_at", "is_deleted"];
+const AUDIT_COLS = ["created_at", "updated_at", "deleted_at", "is_deleted", "modified_by"];
 
 /**
  * Marcador de excecao para tabela append-only (ex.: a propria trilha de
@@ -139,6 +138,14 @@ const AUDIT_COLS = ["created_at", "updated_at", "deleted_at", "is_deleted"];
  * So vale com justificativa escrita ao lado — nao e escape hatch generico.
  */
 const APPEND_ONLY = "compliance:append-only";
+
+/**
+ * Marcador de DROP revisado. Migration destrutiva e decisao do Maestro, nao do
+ * script — mas depois de autorizada ela precisa passar no CI. Comentar
+ * `compliance:drop-revisado` no arquivo, com a justificativa ao lado, isenta
+ * aquele .sql da regra. So vale com o porque escrito junto.
+ */
+const DROP_REVISADO = "compliance:drop-revisado";
 
 /**
  * Extrai o corpo {...} de cada pgTable('nome', { ... }) e verifica as colunas.
@@ -232,7 +239,8 @@ function analyzeFile(file) {
   const lines = content.split("\n");
 
   // tamanho do arquivo
-  if (lines.length > MAX_LINES) {
+  // SQL gerado por drizzle-kit nao cabe no limite de linhas; o resto das regras vale.
+  if (lines.length > MAX_LINES && !SQL_EXT.has(ext)) {
     findings.push({
       level: "error",
       id: "arquivo-grande",
@@ -249,6 +257,7 @@ function analyzeFile(file) {
     const isComment = trimmed.startsWith("//") || trimmed.startsWith("*") || trimmed.startsWith("/*");
     for (const rule of LINE_RULES) {
       if (rule.ext && !rule.ext.has(ext)) continue;
+      if (rule.id === "drop-destrutivo" && content.includes(DROP_REVISADO)) continue;
       if (isComment && rule.id !== "segredo") continue; // segredo vale mesmo em comentario
       if (rule.re.test(text)) {
         findings.push({

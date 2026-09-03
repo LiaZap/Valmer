@@ -1,59 +1,39 @@
-'use client'
-
-import { TabelaAssessments } from '@/components/assessments/TabelaAssessments'
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
-import { Field, Input } from '@/components/ui/Field'
+import { BotaoAviso } from '@/components/ui/BotaoAviso'
 import { Icon } from '@/components/ui/Icon'
 import { PageHeader } from '@/components/ui/PageHeader'
-import { Select } from '@/components/ui/Select'
-import { FilterBar, TableFooter, tableStyles } from '@/components/ui/Table'
-import { useToast } from '@/components/ui/Toast'
-import { assessments } from '@/data/facilitadores'
-import { metricasPlataforma } from '@/lib/metricas'
+import { assessmentsVisiveis, empresasPorId } from '@/lib/painel'
+import { ListaAssessments } from './ListaAssessments'
 
-export default function AssessmentsAdminPage() {
-  const { toast } = useToast()
-  const m = metricasPlataforma()
+/**
+ * Assessments de todos os parceiros.
+ *
+ * Server Component: a consulta acontece aqui e os filtros ficam no componente
+ * cliente ao lado. O admin vê tudo porque `assessmentsVisiveis()` já decide o
+ * recorte pelo papel da sessão — esta tela não repete a regra, senão existiriam
+ * dois lugares para errá-la.
+ *
+ * Os nomes dos parceiros vêm numa consulta só, pelos ids que apareceram na
+ * lista: buscar um por linha renderia uma consulta por assessment exibido.
+ */
+export default async function AssessmentsAdminPage() {
+  const itens = await assessmentsVisiveis()
+  const empresas = await empresasPorId([...new Set(itens.map((item) => item.facilitadorId))])
+
+  const concluidos = itens.filter((item) => item.situacao === 'concluido').length
 
   return (
     <>
       <PageHeader
         title="Assessments"
-        subtitle={`${m.assessmentsTotal} enviados · ${m.assessmentsConcluidos} concluídos`}
+        subtitle={`${itens.length} enviados · ${concluidos} concluídos`}
         actions={
-          <Button icon={<Icon name="download" />} onClick={() => toast('Exportação iniciada')}>
+          <BotaoAviso icon={<Icon name="download" />} aviso="Exportação iniciada">
             Exportar
-          </Button>
+          </BotaoAviso>
         }
       />
 
-      <Card padding="none" scrollX>
-        <FilterBar>
-          <Field label="Avaliado" className={tableStyles.filterGrow}>
-            {(id) => <Input id={id} placeholder="Nome ou e-mail" />}
-          </Field>
-          <Field label="Situação" className={tableStyles.filterMd}>
-            {(id) => (
-              <Select
-                id={id}
-                label="Situação"
-                options={['Todas', 'Aguardando resposta', 'Em andamento', 'Concluído', 'Expirado']}
-              />
-            )}
-          </Field>
-          <Field label="Relatório" className={tableStyles.filterMd}>
-            {(id) => <Select id={id} label="Relatório" options={['Todos', 'S1', 'S2', 'S3', 'S4']} />}
-          </Field>
-          <Button variant="dark" size="lg" onClick={() => toast('Filtro aplicado')}>
-            Pesquisar
-          </Button>
-        </FilterBar>
-
-        <TabelaAssessments itens={assessments} mostrarFacilitador />
-
-        <TableFooter>Total: {assessments.length}</TableFooter>
-      </Card>
+      <ListaAssessments itens={itens} empresas={empresas} />
     </>
   )
 }

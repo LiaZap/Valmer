@@ -14,3 +14,9 @@
   border: 1px dashed var(--color-border-strong);
   border-radius: var(--radius-xl);
 }
+
+/* Uma lista vazia costuma vir com a ação que a preenche logo abaixo da frase.
+   Só vale entre irmãos, então os usos de um texto só continuam iguais. */
+.empty > * + * {
+  margin-top: var(--space-12);
+}

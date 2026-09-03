@@ -9,10 +9,13 @@
 
 import { randomBytes } from "node:crypto";
 import { and, desc, eq } from "drizzle-orm";
+
+import { ZodError } from "zod";
 import { db } from "@/lib/db";
 import { assessments, creditosTransacoes, usuarios } from "@/lib/db/schema";
 import { getSession, temPermissao, type Acao, type Sessao } from "@/lib/auth";
 import { registrarAuditoria } from "@/lib/audit/logger";
+import { RecusaDeRegra } from "./recusa";
 import {
   atualizarAssessmentSchema,
   criarAssessmentSchema,
@@ -73,9 +76,12 @@ export async function obter(id: string) {
 /**
  * Cria o assessment e consome os creditos do facilitador.
  *
- * As tres escritas — assessment, saldo e extrato — acontecem na mesma
+ * As QUATRO escritas — assessment, saldo, extrato e trilha — acontecem na mesma
  * transacao, com a linha do facilitador travada. Sem a trava, duas criacoes
- * simultaneas leem o mesmo saldo e gastam o mesmo credito duas vezes.
+ * simultaneas leem o mesmo saldo e gastam o mesmo credito duas vezes. E com a
+ * trilha fora da transacao, uma falha ao grava-la derrubaria a action DEPOIS
+ * do commit: a tela mostraria erro, o facilitador refaria, e o credito sairia
+ * duas vezes por um assessment que ja existia.
  */
 export async function criar(dados: unknown) {
   const sessao = await exigirSessao("criar");
@@ -97,10 +103,12 @@ export async function criar(dados: unknown) {
       .limit(1)
       .for("update");
 
-    if (!dono) throw new Error("Facilitador nao encontrado");
-    if (!dono.ativo) throw new Error("Facilitador inativo");
+    // Recusas de regra, e nao falhas: sao estados que a tela precisa mostrar
+    // ao facilitador com o nome que eles tem. Ver `criarPelaTela` abaixo.
+    if (!dono) throw new RecusaDeRegra("Facilitador nao encontrado");
+    if (!dono.ativo) throw new RecusaDeRegra("Facilitador inativo");
     if (dono.creditos < custo) {
-      throw new Error(
+      throw new RecusaDeRegra(
         `Saldo insuficiente: ${validado.tipo_relatorio} custa ${custo} credito(s) e o saldo e ${dono.creditos}.`,
       );
     }
@@ -138,19 +146,60 @@ export async function criar(dados: unknown) {
       modified_by: sessao.userId,
     });
 
+    await registrarAuditoria(
+      {
+        userId: sessao.userId,
+        acao: "criar",
+        tabela: TABELA,
+        registroId: novo.id,
+        detalhes: `Criou assessment ${novo.tipo_relatorio} para ${novo.avaliado_email} (${custo} credito(s))`,
+        dadosNovos: novo,
+      },
+      tx,
+    );
+
     return novo;
   });
 
-  await registrarAuditoria({
-    userId: sessao.userId,
-    acao: "criar",
-    tabela: TABELA,
-    registroId: criado.id,
-    detalhes: `Criou assessment ${criado.tipo_relatorio} para ${criado.avaliado_email} (${custo} credito(s))`,
-    dadosNovos: criado,
-  });
-
   return criado;
+}
+
+/**
+ * Criacao a partir do formulario da tela.
+ *
+ * Mesma regra de `criar()` — esta funcao nao decide nada, so traduz a resposta.
+ * Uma Server Action que lanca entrega ao navegador um digest opaco em
+ * producao: a tela receberia "Server Components render error" tanto para saldo
+ * insuficiente quanto para o banco fora do ar, e mostraria a mensagem errada
+ * numa das duas vezes. Recusa de regra volta como objeto; falha de verdade
+ * continua subindo, porque ai a tela quebrada e a resposta honesta.
+ *
+ * Devolve o token porque o link do avaliado e o produto desta tela: sem ele o
+ * facilitador nao tem o que entregar.
+ *
+ * Quem atualiza a lista depois e o `router.refresh()` da tela, e nao um
+ * `revalidatePath` daqui: estas rotas sao dinamicas por sessao, entao nao ha
+ * cache compartilhado para invalidar — so o cache de rotas do navegador. E
+ * `revalidatePath` exige uma requisicao em curso, o que quebraria esta funcao
+ * para qualquer chamador que nao seja uma tela (um script, um teste).
+ */
+export async function criarPelaTela(
+  dados: unknown,
+): Promise<{ ok: true; token: string } | { ok: false; erro: string }> {
+  try {
+    const criado = await criar(dados);
+    return { ok: true, token: criado.token };
+  } catch (erro) {
+    if (erro instanceof RecusaDeRegra) return { ok: false, erro: erro.message };
+
+    // Zod ja explica o campo errado em portugues; a primeira mensagem basta,
+    // porque o formulario tem dois campos e o usuario corrige um por vez.
+    if (erro instanceof ZodError) {
+      return { ok: false, erro: erro.issues[0]?.message ?? "Dados invalidos" };
+    }
+
+    throw erro;
+  }
 }
 
 /**

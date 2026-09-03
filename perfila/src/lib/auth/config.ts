@@ -41,6 +41,12 @@ export const auth = betterAuth({
     // do lado de fora, porque nao ha envio de e-mail no ar (falta o Resend).
     requireEmailVerification: false,
     minPasswordLength: 10,
+    // Conta na plataforma se cria pelo admin, nunca pela internet. Sem isto o
+    // catch-all publica POST /api/auth/sign-up/email, e o que hoje impede o
+    // cadastro e so o NOT NULL de usuarios.modified_by — uma constraint de
+    // auditoria, que nao e cadeado de autorizacao e pode ganhar default a
+    // qualquer momento sem ninguem ligar uma coisa a outra.
+    disableSignUp: true,
   },
 
   user: {

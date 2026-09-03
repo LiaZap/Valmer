@@ -237,21 +237,21 @@ export async function concluir(
       .where(eq(assessments.id, linha.id))
       .returning();
 
-    return { ok: true, contadores, gravado: gravado! } as const;
+    // Dentro da transacao: trilha e contadores gravam juntos ou nao gravam.
+    await registrarAuditoria(
+      {
+        userId: RESPONDENTE,
+        acao: "atualizar",
+        tabela: TABELA,
+        registroId: gravado!.id,
+        detalhes: `Respondente concluiu o assessment de ${gravado!.avaliado_nome}`,
+        dadosNovos: gravado,
+      },
+      tx,
+    );
+
+    return { ok: true, contadores } as const;
   });
 
-  if (!resultado.ok) return resultado;
-
-  // Fora da transacao porque registrarAuditoria usa `db` e nao aceita `tx` —
-  // mesmo arranjo que criar() ja adota em actions/assessments.ts.
-  await registrarAuditoria({
-    userId: RESPONDENTE,
-    acao: "atualizar",
-    tabela: TABELA,
-    registroId: resultado.gravado.id,
-    detalhes: `Respondente concluiu o assessment de ${resultado.gravado.avaliado_nome}`,
-    dadosNovos: resultado.gravado,
-  });
-
-  return { ok: true, contadores: resultado.contadores };
+  return resultado;
 }

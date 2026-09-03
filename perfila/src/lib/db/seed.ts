@@ -209,7 +209,7 @@ async function main(): Promise<void> {
     // As credenciais vao pelo Better Auth, e nao por INSERT: assim a senha e
     // derivada exatamente como no cadastro real, e o login do seed exercita o
     // mesmo caminho de producao em vez de um atalho que so existe aqui.
-    const { definirSenha } = await import("../actions/auth");
+    const { definirSenha } = await import("../auth/senha");
     for (const facilitador of facilitadores) {
       await definirSenha(idUsuario[facilitador.id]!, SENHA_DEV);
     }

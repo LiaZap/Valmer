@@ -94,11 +94,21 @@ export function FilterBar({ children }: { children: ReactNode }) {
   return <div className={styles.filters}>{children}</div>
 }
 
-/** Rodapé com contagem e, opcionalmente, paginação. */
+/**
+ * Rodapé com contagem e, opcionalmente, paginação.
+ *
+ * A contagem é uma região viva PERMANENTE. Quando um filtro muda o número de
+ * linhas, a tabela se altera longe do foco e um leitor de tela não teria como
+ * saber. O elemento precisa existir desde o primeiro render: criado junto com o
+ * texto novo, o anúncio não sai. Numa tabela sem filtro o texto nunca muda,
+ * então nada é anunciado.
+ */
 export function TableFooter({ children, actions }: { children: ReactNode; actions?: ReactNode }) {
   return (
     <div className={styles.footer}>
-      <span>{children}</span>
+      <span role="status" aria-live="polite">
+        {children}
+      </span>
       {actions ? <div className={styles.pagination}>{actions}</div> : null}
     </div>
   )

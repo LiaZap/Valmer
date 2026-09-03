@@ -10,12 +10,8 @@
  */
 "use server";
 
-import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { APIError } from "better-auth/api";
-import { createLocalAccountIssuer } from "@better-auth/core/db";
-import { db } from "@/lib/db";
-import { usuarios } from "@/lib/db/schema";
 import { registrarAuditoria } from "@/lib/audit/logger";
 import { auth } from "@/lib/auth/config";
 import { getSession } from "@/lib/auth/sessao";
@@ -112,46 +108,4 @@ export async function logout(): Promise<void> {
       detalhes: "Saiu da plataforma",
     });
   }
-}
-
-/**
- * Cria a credencial de um usuario que ja existe na tabela.
- *
- * O caminho normal do Better Auth (`signUpEmail`) cria o usuario junto, e aqui
- * ele ja veio do admin ou do seed, com papel, empresa e saldo definidos. Isto
- * so acrescenta a senha, no mesmo formato que a biblioteca confere no login.
- *
- * Nao valida sessao: quem chama e o seed, com acesso direto ao banco, e a tela
- * do admin, que valida antes.
- */
-export async function definirSenha(usuarioId: string, senha: string): Promise<void> {
-  const [usuario] = await db
-    .select()
-    .from(usuarios)
-    .where(and(eq(usuarios.id, usuarioId), eq(usuarios.is_deleted, false)))
-    .limit(1);
-  if (!usuario) throw new Error("Usuario nao encontrado");
-
-  const contexto = await auth.$context;
-  const hash = await contexto.password.hash(senha);
-
-  const existente = await contexto.internalAdapter.findAccounts(usuarioId);
-  const credencial = existente.find((conta) => conta.providerId === "credential");
-
-  if (credencial) {
-    await contexto.internalAdapter.updateAccount(credencial.id, { password: hash });
-    return;
-  }
-
-  await contexto.internalAdapter.createAccount({
-    userId: usuarioId,
-    providerId: "credential",
-    // O emissor vem da funcao da biblioteca, e nao da string "credential": o
-    // login compara com `createLocalAccountIssuer("credential")`, que hoje
-    // resolve para "local:credential". Escrever o valor a mao fazia a conta
-    // existir no banco e o login recusar assim mesmo.
-    issuer: createLocalAccountIssuer("credential"),
-    accountId: usuarioId,
-    password: hash,
-  });
 }
