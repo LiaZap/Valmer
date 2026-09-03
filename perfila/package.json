@@ -11,6 +11,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx src/lib/db/seed.ts",
     "db:studio": "drizzle-kit studio",
+    "relatorio:gerar": "tsx src/lib/relatorio/cli.ts",
     "test": "node --import tsx --test \"tests/*.test.mts\""
   },
   "dependencies": {
