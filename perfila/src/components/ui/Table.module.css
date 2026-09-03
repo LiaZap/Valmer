@@ -63,7 +63,12 @@
   gap: var(--space-2);
 }
 
-/* Rodapé da tabela: contagem à esquerda, paginação à direita. */
+/* Rodapé da tabela: contagem à esquerda, paginação à direita.
+
+   `sticky` porque o rodapé mora dentro do card que rola na horizontal. Numa
+   tela estreita, rolar a tabela para alcançar a última coluna levava o rodapé
+   junto para fora da vista — e é nele que está a contagem, ou a conta que
+   fecha o extrato. Ancorado à esquerda, ele fica enquanto as colunas passam. */
 .footer {
   display: flex;
   justify-content: space-between;
@@ -71,6 +76,8 @@
   padding: var(--space-12) var(--space-16);
   font-size: var(--fs-125);
   color: var(--color-text-subtle);
+  position: sticky;
+  left: 0;
 }
 
 .pagination {
