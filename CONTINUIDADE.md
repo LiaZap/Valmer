@@ -74,14 +74,33 @@ API da Anthropic com saída estruturada validada por esquema.
 
 ---
 
+## O que ficou pronto depois do protótipo
+
+O backend saiu do papel. Ver `git log` a partir de `98de0f8`.
+
+- **Banco de dados.** PostgreSQL com **Drizzle**, e não Prisma: o `CLAUDE.md`
+  da equipe proíbe Prisma, e a recomendação da especificação foi vencida por
+  ela. Sobe com `docker compose up -d db` (porta 5439). Schema em
+  `perfila/src/lib/db/schema/`, seed em `npm run db:seed`.
+- **Assessment gravando de verdade.** `/avaliacao/<token>` carrega do banco,
+  grava cada resposta e fecha calculando os contadores no servidor.
+- **Relatório lendo do banco.** `/relatorio/<token>` sai da linha do
+  assessment; a narrativa vem de `assessments_relatorios`, na última versão.
+- **Geração da narrativa** com `npm run relatorio:gerar -- <token>`. Falta só a
+  `ANTHROPIC_API_KEY`; sem ela o relatório usa a narrativa de exemplo.
+- **Autenticação.** Login real com e-mail e senha (scrypt), sessão no banco e
+  cookie HTTP-only. `/admin` e `/facilitador` exigem sessão válida, e cada
+  papel só entra no ambiente dele. Ver ADR-0003.
+
 ## O que NÃO está pronto
 
-Tudo isto é protótipo de interface. Não existe backend.
-
-- **Banco de dados.** A especificação define as tabelas (`users`, `assessments`,
-  `results`, `answers`, `credit_transactions`) e recomenda PostgreSQL com Prisma.
-  Hoje os dados são fixos, em `perfila/src/data/`.
-- **Autenticação.** O login é fachada. Não há sessão, senha nem o 2FA do admin.
+- **As sete telas de gestão ainda leem dados fixos.** Portal e admin importam
+  de `perfila/src/data/facilitadores.ts`, então um assessment criado de verdade
+  não aparece na lista. É o próximo fio: trocar as leituras pelas actions de
+  `perfila/src/lib/actions/assessments.ts`, que já existem e já têm sessão.
+- **2FA do admin**, que a especificação pede. O login é de um fator só.
+- **Recuperação de senha.** Não existe: definir senha hoje é `definirSenha()`,
+  chamada pelo seed.
 - **Pagamentos.** Stripe, para a venda de pacotes de crédito.
 - **E-mail transacional.** Resend, para o convite com o link único e para o acesso
   do facilitador.

@@ -107,6 +107,29 @@
   display: flex;
 }
 
+.sair {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-user);
+  height: var(--control-user);
+  border: 1px solid transparent;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-text-subtle);
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.sair:hover {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
 /* ---------- Adaptação a telas estreitas ----------
    A ordem de sacrifício é: nome do usuário → busca → breadcrumb. */
 @media (max-width: 900px) {

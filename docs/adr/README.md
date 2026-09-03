@@ -23,3 +23,4 @@ numerado e imutavel — se a decisao muda, cria-se um novo ADR que supersede o a
 |-----|--------|--------|
 | [0001](0001-stack-base.md) | Stack base: Next.js + Drizzle + PostgreSQL | Aceito |
 | [0002](0002-sentinela-do-respondente.md) | Sentinela para as gravacoes do respondente | Aceito |
+| [0003](0003-autenticacao-com-scrypt-e-sessao-no-banco.md) | Autenticacao com scrypt e sessao no banco | Aceito |

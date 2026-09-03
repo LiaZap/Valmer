@@ -6,6 +6,7 @@ import { SearchInput } from '@/components/ui/Field'
 import { Icon } from '@/components/ui/Icon'
 import { IconButton } from '@/components/ui/IconButton'
 import { resolveBreadcrumb, type NavGroup } from '@/lib/routes'
+import { BotaoSair } from './BotaoSair'
 import styles from './Topbar.module.css'
 
 export type UsuarioTopbar = {
@@ -85,6 +86,7 @@ export function Topbar({
             <Icon name="chevD" size={16} />
           </span>
         </button>
+        <BotaoSair />
       </div>
     </header>
   )

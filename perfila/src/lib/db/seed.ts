@@ -35,6 +35,7 @@ import {
 } from "./schema";
 import { assessments as dadosAssessments, facilitadores, transacoes } from "../../data/facilitadores";
 import { narrativaExemplo } from "../../data/narrativa-exemplo";
+import { gerarHashSenha } from "../auth/senha";
 
 config({ path: [".env.local", ".env"] });
 
@@ -56,6 +57,15 @@ const idAssessment: Record<string, string> = {
   a4: "4d0a6e81-2c5f-4b94-b7d8-9f1a3b2c5d37",
   a5: "5e1b7f92-3d6a-4ca5-88e9-0a2b4c3d6e48",
 };
+
+/**
+ * Senha de todos os usuarios semeados.
+ *
+ * Vale so no banco de desenvolvimento, que nasce e morre com `docker compose
+ * down -v`. Nenhum usuario de producao passa por aqui: a criacao de verdade e
+ * pela tela do admin, que exige senha propria.
+ */
+const SENHA_DEV = "perfila-dev-2026";
 
 /** Converte a data dd/mm/aaaa do prototipo em Date, ao meio-dia local. */
 function dataBr(valor: string): Date {
@@ -151,11 +161,17 @@ async function main(): Promise<void> {
       return;
     }
 
+    // Todo mundo do seed entra com a mesma senha. E banco de desenvolvimento,
+    // e o hash e calculado de verdade — o login exercita o scrypt como em
+    // producao, em vez de um caminho especial que so existe aqui.
+    const senhaHash = await gerarHashSenha(SENHA_DEV);
+
     await db.insert(usuarios).values(
       facilitadores.map((facilitador) => ({
         id: idUsuario[facilitador.id]!,
         nome: facilitador.nome,
         email: facilitador.email,
+        senha_hash: senhaHash,
         // O dono e o unico admin; tambem aplica assessments como os demais.
         papel: facilitador.id === "valmer" ? ("admin" as const) : ("facilitador" as const),
         empresa: facilitador.empresa,
@@ -214,6 +230,7 @@ async function main(): Promise<void> {
     console.log(`  transacoes:   ${linhasTransacao.length}`);
     console.log(`  respostas:    ${respostasEmAndamento.length} (token p7xa20, em andamento)`);
     console.log("  relatorios:   1 (narrativa de exemplo, v1, token k3mq81)");
+    console.log(`  senha de todos: ${SENHA_DEV}`);
     for (const facilitador of facilitadores) {
       console.log(`  saldo ${facilitador.nome}: ${saldo(facilitador.id)}`);
     }

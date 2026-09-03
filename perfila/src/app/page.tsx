@@ -1,32 +1,21 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { LogoMark } from '@/components/layout/Logo'
-import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { Field, Input } from '@/components/ui/Field'
 import { Icon, type IconName } from '@/components/ui/Icon'
+import { getSession } from '@/lib/auth'
+import { FormularioLogin } from './FormularioLogin'
 import styles from './page.module.css'
 
 /**
  * Entrada da plataforma.
  *
- * No produto, este formulário autentica e o servidor manda cada
- * pessoa para o seu ambiente conforme o papel. Enquanto não há
- * autenticação, os atalhos abaixo abrem os três ambientes direto —
- * separados do formulário para que ninguém os confunda com o produto.
+ * O formulário autentica de verdade e o servidor manda cada pessoa para o
+ * ambiente do papel dela. O atalho que sobrou abre só o assessment, que não
+ * tem login nenhum: os de /admin e /facilitador saíram quando o login passou
+ * a existir, porque agora eles levariam a um redirecionamento de volta.
  */
 const AMBIENTES: { href: string; nome: string; desc: string; icone: IconName }[] = [
-  {
-    href: '/admin',
-    nome: 'Administração',
-    desc: 'Facilitadores, créditos, preços e banco de questões',
-    icone: 'sliders',
-  },
-  {
-    href: '/facilitador',
-    nome: 'Portal do Parceiro',
-    desc: 'Criar assessments, acompanhar avaliados e relatórios',
-    icone: 'bag',
-  },
   {
     href: '/avaliacao/demo',
     nome: 'Responder um assessment',
@@ -35,7 +24,17 @@ const AMBIENTES: { href: string; nome: string; desc: string; icone: IconName }[]
   },
 ]
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ proximo?: string }>
+}) {
+  // Quem já entrou não vê o formulário de novo.
+  const sessao = await getSession()
+  if (sessao) redirect(sessao.papel === 'admin' ? '/admin' : '/facilitador')
+
+  const { proximo } = await searchParams
+
   return (
     <div className={styles.pagina}>
       <Card padding="lg" className={styles.cartao}>
@@ -49,23 +48,10 @@ export default function LoginPage() {
           </span>
         </div>
 
-        <div className={styles.campos}>
-          <Field label="E-mail">
-            {(id) => <Input id={id} type="email" placeholder="nome@empresa.com.br" />}
-          </Field>
-          <Field label="Senha">
-            {(id) => <Input id={id} type="password" placeholder="••••••••" />}
-          </Field>
-          <Link href="/" className={styles.esqueci}>
-            Esqueci minha senha
-          </Link>
-          <Button variant="primary" size="lg" block>
-            Entrar
-          </Button>
-        </div>
+        <FormularioLogin proximo={proximo} />
 
         <div className={styles.demo}>
-          <span className={styles.demoTitulo}>Protótipo · entrar como</span>
+          <span className={styles.demoTitulo}>Protótipo · sem login</span>
           {AMBIENTES.map((ambiente) => (
             <Link key={ambiente.href} href={ambiente.href} className={styles.ambiente}>
               <span className={styles.ambienteIcone}>
