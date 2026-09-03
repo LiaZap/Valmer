@@ -415,39 +415,37 @@ justifique.
 Ate a pendencia 6 existir, o `deploy.sh` aceita ref explicita:
 `bash deploy.sh hml main`.
 
-### Branches — o estado hoje e o caminho
+### Branches — o estado hoje e o que falta
 
-O remoto so tem `main`, que e a branch padrao e esta 9 commits atras da
-`develop` local (nunca enviada). O fluxo do `CLAUDE.md` pede `develop` e
-`master`, e criar `master` ao lado de `main` deixaria duas branches identicas
-sem funcao distinta. A decisao foi renomear.
+Remoto: `develop` (publicada, com todo o trabalho), `master` e `main` — as duas
+ultimas no mesmo commit `8e8c98b`, o estado anterior ao app, com `main` ainda
+marcada como padrao.
 
-`master` fica apontando para o estado anterior ao app. Isso e proposital: nada
-foi validado em HML ainda, e a primeira publicacao em PRD e o merge
-`develop -> master` depois dessa validacao — o fluxo documentado, sem atalho.
+`master` nasceu de um `push origin main:master`, e nao do renomear do GitHub.
+Na pratica da no mesmo, com uma perda: o renomear cria redirecionamento
+automatico de links e PRs antigos, e o push nao. Como nao ha PR aberto e o
+repositorio e novo, o custo e zero — mas fica registrado para ninguem procurar
+um redirecionamento que nao existe.
 
-Ordem importa. Enviar a `develop` antes de commitar deixa o CI rodando o
-workflow antigo, que quebra por procurar o `package.json` na raiz.
+`master` aponta para o estado anterior ao app de proposito: nada foi validado em
+HML ainda, e a primeira publicacao em PRD e o merge `develop -> master` depois
+dessa validacao — o fluxo do `CLAUDE.md`, sem atalho.
+
+Falta desfazer a duplicata. `main` e `master` sao a mesma coisa com dois nomes, e
+o git nao apaga a branch padrao: e preciso trocar o padrao primeiro, e isso so
+existe na interface do GitHub.
+
+1. Settings > General > Default branch > trocar `main` por `master`.
+2. Depois, daqui:
 
 ```bash
-# 1. commitar o que esta pendente na develop (o Maestro faz)
-
-# 2. renomear no GitHub — preserva branch padrao, PRs e redirecionamentos
-gh api -X POST repos/LiaZap/Valmer/branches/main/rename -f new_name=master
-
-# 3. acertar o lado local
+git push origin --delete main
 git fetch origin --prune
-git branch -m main master
-git branch -u origin/master master
+git branch -D main
 git remote set-head origin -a
-
-# 4. publicar a develop
-git push -u origin develop
 ```
 
-- **Conferir**: `git branch -vv` mostra `develop` e `master` com upstream; a aba
-  Actions do GitHub tem uma execucao de CI verde na `develop`, com o job de
-  deploy pulado (`DEPLOY_HABILITADO` ainda nao e `true`).
-- **Desfazer**: `gh api -X POST repos/LiaZap/Valmer/branches/master/rename -f new_name=main`
-  e `git branch -m master main`. A `develop` enviada pode ser removida com
-  `git push origin --delete develop`.
+- **Conferir**: `git branch -r` mostra so `origin/develop`, `origin/master` e
+  `origin/HEAD -> origin/master`.
+- **Desfazer**: `git push origin master:main` recria a branch, e o padrao volta
+  pela mesma tela.
