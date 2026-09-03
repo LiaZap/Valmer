@@ -9,20 +9,55 @@ import { Progress } from '@/components/ui/Progress'
 import { Select } from '@/components/ui/Select'
 import { cursosDestaque } from '@/data/aprendizado'
 import { faltamParaGold, situacaoPrograma } from '@/data/beneficios'
-import { creditos, degustacao, indicadores } from '@/data/creditos'
+import { degustacao, indicadores } from '@/data/creditos'
 import { opcoes } from '@/data/opcoes'
-import { usuario } from '@/data/usuario'
 import { dataPorExtenso, saudacao } from '@/lib/data-extenso'
+import { contaAtual, transacoesDaConta } from '@/lib/painel'
 import ui from '@/styles/common.module.css'
 import styles from './page.module.css'
 
-export default function DashboardPage() {
+/**
+ * Dashboard do parceiro.
+ *
+ * O saldo e o consumo vêm do banco, da mesma leitura que alimenta a barra
+ * lateral e a tela de créditos. Antes o chip do topo lia do banco e o corpo
+ * lia de um arquivo fixo: dois números de crédito na mesma tela, discordando,
+ * e nenhum jeito de a pessoa saber qual valia.
+ */
+export default async function DashboardPage() {
   const agora = new Date()
+  const [conta, extrato] = await Promise.all([contaAtual(), transacoesDaConta()])
+
+  const recebidos = extrato
+    .filter((movimento) => movimento.quantidade > 0)
+    .reduce((soma, movimento) => soma + movimento.quantidade, 0)
+
+  const consumidos = extrato
+    .filter((movimento) => movimento.quantidade < 0)
+    .reduce((soma, movimento) => soma + Math.abs(movimento.quantidade), 0)
+
+  // O indicador de créditos entra por último, como estava, mas vindo do
+  // extrato. Os outros três continuam do arquivo: cliente, devolutiva e
+  // faturamento ainda não têm tabela para consultar.
+  const indicadoresDaTela = [
+    ...indicadores,
+    {
+      label: 'Créditos utilizados',
+      icon: 'card' as const,
+      valor: String(consumidos),
+      nota: `${conta.creditos} disponíveis agora`,
+    },
+  ]
+
+  // Vinha de @/data/usuario, fixo em "Valmer": o portal cumprimentava todo
+  // parceiro com o nome do dono da plataforma. Sai da mesma leitura que
+  // alimenta o chip da barra lateral, então os dois não têm como divergir.
+  const primeiroNome = conta.nome.split(' ')[0]
 
   return (
     <>
       <PageHeader
-        title={`${saudacao(agora)}, ${usuario.nome.split(' ')[0]}`}
+        title={`${saudacao(agora)}, ${primeiroNome}`}
         subtitle={`Resumo da sua operação nesta ${dataPorExtenso(agora)}.`}
         actions={
           <>
@@ -38,7 +73,7 @@ export default function DashboardPage() {
 
       {/* Indicadores da operação */}
       <AutoGrid min={200}>
-        {indicadores.map((indicador) => (
+        {indicadoresDaTela.map((indicador) => (
           <Card key={indicador.label}>
             <div className={styles.kpiHead}>
               {indicador.label}
@@ -63,19 +98,22 @@ export default function DashboardPage() {
             </div>
           </Row>
           <div className={styles.saldoValor}>
-            <span className={ui.metricXl}>{creditos.saldo}</span>
+            <span className={ui.metricXl}>{conta.creditos}</span>
             <span className={styles.saldoUnidade}>créditos</span>
           </div>
+          {/* As duas linhas explicam o número acima: recebidos menos
+              consumidos dá o saldo. Antes diziam "vitalícios" e "a expirar",
+              uma distinção que o banco não guarda — crédito aqui não tem
+              prazo, e mostrar "0 a expirar · N/D" anunciava uma regra
+              inexistente. */}
           <Stack gap={8}>
             <div className={ui.dataRow}>
-              <span className={ui.dataRowLabel}>Vitalícios</span>
-              <span className={ui.dataRowValue}>{creditos.vitalicios}</span>
+              <span className={ui.dataRowLabel}>Recebidos</span>
+              <span className={ui.dataRowValue}>{recebidos}</span>
             </div>
             <div className={ui.dataRow}>
-              <span className={ui.dataRowLabel}>A expirar</span>
-              <span className={ui.dataRowValue}>
-                {creditos.aExpirar} <span className={ui.dataRowExtra}>· {creditos.expiraEm}</span>
-              </span>
+              <span className={ui.dataRowLabel}>Consumidos</span>
+              <span className={ui.dataRowValue}>{consumidos}</span>
             </div>
           </Stack>
           <Button
@@ -84,7 +122,7 @@ export default function DashboardPage() {
             className={styles.saldoAcao}
             iconRight={<Icon name="chevR" />}
           >
-            Comprar créditos
+            Ver extrato
           </Button>
         </Card>
 
