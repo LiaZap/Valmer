@@ -8,12 +8,17 @@ import { PlanoFecho } from '@/components/relatorio/PlanoFecho'
 import { QuemVoceE } from '@/components/relatorio/QuemVoceE'
 import { narrativaExemplo } from '@/data/narrativa-exemplo'
 import { getPerfilEstatico } from '@/data/perfis'
-import { assessments, facilitadores } from '@/data/facilitadores'
+import { carregarRelatorio } from '@/lib/actions/relatorio'
 import { resultadoDeContadores } from '@/lib/disc'
 import { secoesDoNivel, type DadosRelatorio } from '@/lib/relatorio/tipos'
 import { AcoesRelatorio } from './AcoesRelatorio'
 import styles from './page.module.css'
 import tema from './tema-impacto.module.css'
+
+const DATA_BR = new Intl.DateTimeFormat('pt-BR', {
+  timeZone: 'America/Sao_Paulo',
+  dateStyle: 'short',
+})
 
 /**
  * O relatório assina como Impacto Academy, e não como Perfila: é o
@@ -36,40 +41,26 @@ export const viewport: Viewport = {
   themeColor: '#f8f6f1',
 }
 
-/** Só assessments concluídos têm relatório. */
-export function generateStaticParams() {
-  return assessments
-    .filter((assessment) => assessment.situacao === 'concluido' && assessment.contadores)
-    .map((assessment) => ({ token: assessment.token }))
-}
-
 export default async function RelatorioPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params
-  const assessment = assessments.find((item) => item.token === token)
+  const relatorio = await carregarRelatorio(token)
 
   // Sem contadores não há resultado, e sem resultado não há relatório:
   // é preferível um 404 a um documento com números inventados.
-  if (!assessment || assessment.situacao !== 'concluido' || !assessment.contadores) notFound()
+  if (!relatorio) notFound()
 
-  const facilitador = facilitadores.find((item) => item.id === assessment.facilitadorId)!
-  const resultado = resultadoDeContadores(assessment.contadores)
+  const resultado = resultadoDeContadores(relatorio.contadores)
 
   const dados: DadosRelatorio = {
-    avaliado: {
-      nome: assessment.avaliadoNome,
-      email: assessment.avaliadoEmail,
-    },
-    facilitador: {
-      nome: facilitador.nome,
-      empresa: facilitador.empresa,
-      telefone: facilitador.telefone,
-    },
-    emitidoEm: assessment.concluidoEm ?? assessment.criadoEm,
-    tipoRelatorio: assessment.tipoRelatorio,
+    avaliado: relatorio.avaliado,
+    facilitador: relatorio.facilitador,
+    emitidoEm: DATA_BR.format(relatorio.emitidoEm),
+    tipoRelatorio: relatorio.tipoRelatorio,
     resultado,
-    // Sem chave de API o relatório usa a narrativa de exemplo, para
-    // que layout e revisão não dependam de uma chamada paga.
-    narrativa: narrativaExemplo,
+    // Enquanto a geração por IA não roda para este assessment, o documento
+    // sai com a narrativa de exemplo: layout e revisão não dependem de uma
+    // chamada paga, e um relatório sem as seções escritas não é entregável.
+    narrativa: relatorio.narrativa ?? narrativaExemplo,
   }
 
   const perfilPrimario = getPerfilEstatico(resultado.primario)
@@ -77,7 +68,7 @@ export default async function RelatorioPage({ params }: { params: Promise<{ toke
 
   // O nível contratado decide o que entra: S1 para de propósito antes
   // da liderança, e o plano de desenvolvimento só existe a partir do S3.
-  const visiveis = new Set(secoesDoNivel(assessment.tipoRelatorio).map((secao) => secao.id))
+  const visiveis = new Set(secoesDoNivel(dados.tipoRelatorio).map((secao) => secao.id))
 
   // O relatório é o único artefato que chega ao cliente final do
   // facilitador, então ele veste a marca da Impacto Academy. O tema

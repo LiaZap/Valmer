@@ -14,6 +14,7 @@
  * chave de API — útil para desenvolver, revisar layout e testar.
  */
 
+import { z } from 'zod'
 import type { CodigoRelatorio } from '@/data/planos'
 import type { FatorDisc } from '@/data/dna'
 import type { ResultadoDisc } from '@/lib/disc'
@@ -35,6 +36,27 @@ export type NarrativaRelatorio = {
   /** Frase de fecho, no formato "Você é alguém que…". */
   fraseDoPerfil: string
 }
+
+/**
+ * O mesmo contrato em tempo de execução, para as duas fronteiras por onde
+ * uma narrativa entra: a resposta da API, em `gerar.ts`, e o JSON lido do
+ * banco, que pode ter sido gravado por uma versão anterior deste formato.
+ *
+ * Mora aqui, e não em `gerar.ts`, para quem lê do banco não precisar
+ * arrastar junto o SDK da Anthropic. As contagens exatas são o que impede
+ * o layout de quebrar com 6 pontos fortes onde cabem 5.
+ */
+export const esquemaNarrativa: z.ZodType<NarrativaRelatorio> = z.object({
+  resumoPerfil: z.string().describe('3 a 4 frases sobre a essência desta pessoa'),
+  pontosFortes: z.array(z.string()).length(5),
+  desafios: z.array(z.string()).length(4),
+  motivadores: z.string().describe('2 a 3 frases'),
+  ambienteIdeal: z.string().describe('2 a 3 frases'),
+  estiloComunicacao: z.string().describe('2 a 3 frases'),
+  liderancaNatural: z.string().describe('2 a 3 frases'),
+  planoDesenvolvimento: z.array(z.string()).length(3),
+  fraseDoPerfil: z.string().describe('uma frase, começando com "Você é alguém que"'),
+})
 
 /** Tudo que a página do relatório precisa para renderizar. */
 export type DadosRelatorio = {

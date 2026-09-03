@@ -178,3 +178,20 @@ Cada regra segue este formato:
   respostas para o vazio.
 - **Impacto se descumprida**: Quem ja respondeu ve "seu link expirou", ou uma
   segunda fonte de verdade de expiracao passa a divergir de `expira_em`.
+
+### RN-107 - Relatorio So Existe Para Assessment Concluido, e Le a Ultima Versao
+- **Definida por**: Especificacao (estrutura do relatorio) + decisao tecnica
+- **Data**: 2026-09-03
+- **Modulo**: Relatorio
+- **Descricao**: `/relatorio/<token>` le a linha do banco pelo mesmo token do
+  assessment e so entrega documento quando a situacao e `concluido` E os quatro
+  contadores estao gravados. A narrativa vem de `assessments_relatorios`, sempre
+  na maior `versao` viva. Enquanto a geracao por IA nao rodou para aquele
+  assessment, o documento sai com a narrativa de exemplo.
+- **Comportamento esperado**: Token inexistente, assessment nao concluido e
+  concluido sem contadores dao 404, os tres indistinguiveis para quem chama.
+  Narrativa gravada fora do formato e tratada como ausente: o resto do
+  documento continua correto em vez de o relatorio inteiro sumir.
+- **Impacto se descumprida**: Um relatorio com percentuais derivados de
+  contadores ausentes afirma numeros inventados sobre uma pessoa, assinados
+  pela marca do cliente.

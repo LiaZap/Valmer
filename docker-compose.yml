@@ -2,6 +2,9 @@ services:
   db:
     image: postgres:16
     container_name: valmer_db
+    # Sem isto o banco fica parado depois de reiniciar a maquina ou o Docker, e
+    # a suite falha com ECONNREFUSED como se fosse defeito de codigo.
+    restart: unless-stopped
     environment:
       POSTGRES_DB: valmer_dev
       POSTGRES_USER: dev

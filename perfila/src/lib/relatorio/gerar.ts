@@ -17,24 +17,7 @@ import { z } from 'zod'
 import { NOMES_FATORES } from '@/data/assessment'
 import type { FatorDisc } from '@/data/dna'
 import type { ResultadoDisc } from '@/lib/disc'
-import type { NarrativaRelatorio } from './tipos'
-
-/**
- * O esquema é o contrato: a API é obrigada a devolver exatamente esta
- * forma, com as contagens exatas de itens. Sem isso, o layout do
- * relatório quebra quando vêm 6 pontos fortes em vez de 5.
- */
-const EsquemaNarrativa = z.object({
-  resumoPerfil: z.string().describe('3 a 4 frases sobre a essência desta pessoa'),
-  pontosFortes: z.array(z.string()).length(5),
-  desafios: z.array(z.string()).length(4),
-  motivadores: z.string().describe('2 a 3 frases'),
-  ambienteIdeal: z.string().describe('2 a 3 frases'),
-  estiloComunicacao: z.string().describe('2 a 3 frases'),
-  liderancaNatural: z.string().describe('2 a 3 frases'),
-  planoDesenvolvimento: z.array(z.string()).length(3),
-  fraseDoPerfil: z.string().describe('uma frase, começando com "Você é alguém que"'),
-})
+import { esquemaNarrativa, type NarrativaRelatorio } from './tipos'
 
 /**
  * O prompt de sistema é idêntico em todos os relatórios, então vale
@@ -253,7 +236,7 @@ Combinação predominante: ${resultado.combinado}
 Escreva todos os campos pedidos, respeitando as quantidades exatas de itens nas listas.`,
       },
     ],
-    output_config: { format: betaZodOutputFormat(EsquemaNarrativa) },
+    output_config: { format: betaZodOutputFormat(esquemaNarrativa) },
   })
 
   // Em uma recusa a resposta chega com HTTP 200 e conteúdo vazio, então
