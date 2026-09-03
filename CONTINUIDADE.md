@@ -88,9 +88,10 @@ O backend saiu do papel. Ver `git log` a partir de `98de0f8`.
   assessment; a narrativa vem de `assessments_relatorios`, na última versão.
 - **Geração da narrativa** com `npm run relatorio:gerar -- <token>`. Falta só a
   `ANTHROPIC_API_KEY`; sem ela o relatório usa a narrativa de exemplo.
-- **Autenticação.** Login real com e-mail e senha (scrypt), sessão no banco e
-  cookie HTTP-only. `/admin` e `/facilitador` exigem sessão válida, e cada
-  papel só entra no ambiente dele. Ver ADR-0003.
+- **Autenticação com Better Auth**, mapeado sobre as tabelas que já existiam:
+  `usuarios` continua sendo o usuário do produto, e a senha mora em `contas`.
+  `/admin` e `/facilitador` exigem sessão válida, e cada papel só entra no
+  ambiente dele. Precisa de `BETTER_AUTH_SECRET` no `.env.local`. Ver ADR-0004.
 
 ## O que NÃO está pronto
 
@@ -98,9 +99,11 @@ O backend saiu do papel. Ver `git log` a partir de `98de0f8`.
   de `perfila/src/data/facilitadores.ts`, então um assessment criado de verdade
   não aparece na lista. É o próximo fio: trocar as leituras pelas actions de
   `perfila/src/lib/actions/assessments.ts`, que já existem e já têm sessão.
-- **2FA do admin**, que a especificação pede. O login é de um fator só.
-- **Recuperação de senha.** Não existe: definir senha hoje é `definirSenha()`,
-  chamada pelo seed.
+- **2FA do admin**, que a especificação pede. O login é de um fator só. Com o
+  Better Auth isso virou configuração (plugin), não implementação.
+- **Recuperação de senha e verificação de e-mail.** A biblioteca traz os dois,
+  mas nenhum está ligado: falta o envio de e-mail. Definir senha hoje é
+  `definirSenha()`, chamada pelo seed.
 - **Pagamentos.** Stripe, para a venda de pacotes de crédito.
 - **E-mail transacional.** Resend, para o convite com o link único e para o acesso
   do facilitador.

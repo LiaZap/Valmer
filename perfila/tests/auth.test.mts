@@ -4,11 +4,13 @@
  *   docker compose up -d db   (na raiz do repositorio)
  *   npm test
  *
- * Cobre o que protege a plataforma: hash de senha, sessao viva no banco,
- * expiracao, revogacao e o recorte de destino por papel. As funcoes que
- * dependem de cookie (login/logout) nao rodam fora de uma requisicao do Next,
- * entao aqui o que se exercita e a camada de baixo — senha e consulta de
- * sessao — mais o comportamento do banco.
+ * A mecanica de credencial e do Better Auth; o que se verifica aqui e a
+ * integracao com o NOSSO schema, que e onde o mapeamento pode quebrar calado:
+ * a senha guardada em `contas`, os campos de dominio (papel, ativo) chegando
+ * na sessao, e a recusa de senha errada e de e-mail inexistente.
+ *
+ * As fixtures entram pela API da biblioteca, e nao por INSERT: e o unico jeito
+ * de o hash sair no formato que o login confere.
  */
 import { after, before, describe, it } from "node:test";
 import assert from "node:assert/strict";
@@ -17,136 +19,109 @@ import { config } from "dotenv";
 config({ path: [".env.local", ".env"] });
 
 const { db } = await import("@/lib/db");
-const { usuarios, sessoes } = await import("@/lib/db/schema");
-const { gerarHashSenha, conferirSenha, novoTokenSessao, hashDoToken } = await import(
-  "@/lib/auth/senha"
-);
-const { and, eq, gt } = await import("drizzle-orm");
+const { usuarios, contas, sessoes } = await import("@/lib/db/schema");
+const { auth } = await import("@/lib/auth/config");
+const { definirSenha } = await import("@/lib/actions/auth");
+const { eq } = await import("drizzle-orm");
 
 const marca = `teste-${Date.now()}`;
 const SISTEMA = "00000000-0000-0000-0000-000000000000";
 const SENHA = "senha-de-teste-longa";
 
 let usuarioId = "";
+let email = "";
 
 before(async () => {
+  email = `login.${marca}@exemplo.com`;
+
   const [usuario] = await db
     .insert(usuarios)
     .values({
       nome: "Usuario do Login",
-      email: `login.${marca}@exemplo.com`,
-      senha_hash: await gerarHashSenha(SENHA),
+      email,
       papel: "facilitador",
+      empresa: "Empresa Teste",
       creditos: 0,
       modified_by: SISTEMA,
     })
     .returning();
 
   usuarioId = usuario!.id;
+  await definirSenha(usuarioId, SENHA);
 });
 
 after(async () => {
   await db.execute(`delete from sessoes where usuario_id = '${usuarioId}'`);
+  await db.execute(`delete from contas where usuario_id = '${usuarioId}'`);
   await db.execute(`delete from auditoria where user_id = '${usuarioId}'`);
   await db.execute(`delete from usuarios where id = '${usuarioId}'`);
 });
 
-/** Repete a consulta que `getSession` faz, sem depender do cookie. */
-async function sessaoViva(token: string) {
-  const [linha] = await db
-    .select({ userId: usuarios.id, ativo: usuarios.ativo })
-    .from(sessoes)
-    .innerJoin(usuarios, eq(usuarios.id, sessoes.usuario_id))
-    .where(
-      and(
-        eq(sessoes.token_hash, hashDoToken(token)),
-        eq(sessoes.is_deleted, false),
-        gt(sessoes.expira_em, new Date()),
-        eq(usuarios.is_deleted, false),
-      ),
-    )
-    .limit(1);
-
-  return linha ?? null;
+/** Entra e devolve o usuario da resposta, ou null quando a credencial e recusada. */
+async function entrar(comEmail: string, comSenha: string) {
+  try {
+    const resposta = await auth.api.signInEmail({
+      body: { email: comEmail, password: comSenha },
+      headers: new Headers(),
+    });
+    return resposta.user as { id: string; papel?: string; ativo?: boolean; nome?: string };
+  } catch {
+    return null;
+  }
 }
-
-async function abrirSessao(expiraEm: Date): Promise<string> {
-  const { token, hash } = novoTokenSessao();
-  await db.insert(sessoes).values({
-    usuario_id: usuarioId,
-    token_hash: hash,
-    expira_em: expiraEm,
-    modified_by: usuarioId,
-  });
-  return token;
-}
-
-const HORA = 60 * 60 * 1000;
 
 describe("auth", () => {
-  it("aceita a senha certa e recusa a errada", async () => {
-    const hash = await gerarHashSenha(SENHA);
-    assert.equal(await conferirSenha(SENHA, hash), true);
-    assert.equal(await conferirSenha("outra-senha", hash), false);
-    assert.equal(await conferirSenha(SENHA, null), false, "usuario sem senha nunca entra");
-    assert.equal(await conferirSenha(SENHA, "lixo"), false, "hash fora do formato nao explode");
+  it("entra com a senha certa e recusa a errada", async () => {
+    assert.equal((await entrar(email, SENHA))?.id, usuarioId);
+    assert.equal(await entrar(email, "senha-errada"), null);
   });
 
-  it("nao guarda a senha, e dois hashes da mesma senha diferem", async () => {
-    const a = await gerarHashSenha(SENHA);
-    const b = await gerarHashSenha(SENHA);
-
-    assert.ok(!a.includes(SENHA), "a senha nao aparece no que vai para o banco");
-    assert.notEqual(a, b, "o sal muda, entao hashes iguais nao denunciam senhas iguais");
-    assert.equal(await conferirSenha(SENHA, b), true);
+  it("recusa e-mail que nao existe", async () => {
+    assert.equal(await entrar(`fantasma.${marca}@exemplo.com`, SENHA), null);
   });
 
-  it("guarda o hash do token, nunca o token", async () => {
-    const token = await abrirSessao(new Date(Date.now() + HORA));
+  it("guarda a senha em contas, e nao em usuarios", async () => {
+    const [conta] = await db.select().from(contas).where(eq(contas.userId, usuarioId));
+    assert.ok(conta, "a credencial existe");
+    assert.equal(conta.providerId, "credential");
+    assert.ok(conta.password, "o hash esta em contas.senha_hash");
+    assert.ok(!conta.password!.includes(SENHA), "a senha em claro nao vai para o banco");
 
-    const [linha] = await db
-      .select()
-      .from(sessoes)
-      .where(eq(sessoes.token_hash, hashDoToken(token)));
-
-    assert.ok(linha, "a sessao existe");
-    assert.notEqual(linha.token_hash, token, "o valor do cookie nao esta no banco");
-
-    const porToken = await db.select().from(sessoes).where(eq(sessoes.token_hash, token));
-    assert.equal(porToken.length, 0, "procurar pelo token cru nao acha nada");
+    const [usuario] = await db.select().from(usuarios).where(eq(usuarios.id, usuarioId));
+    assert.ok(!("senha_hash" in usuario!), "usuarios nao tem mais coluna de senha");
   });
 
-  it("reconhece a sessao viva e ignora a expirada", async () => {
-    const viva = await abrirSessao(new Date(Date.now() + HORA));
-    const vencida = await abrirSessao(new Date(Date.now() - HORA));
-
-    assert.equal((await sessaoViva(viva))?.userId, usuarioId);
-    assert.equal(await sessaoViva(vencida), null, "cookie de sessao vencida nao vale");
+  it("o emissor da credencial e o que o login confere", async () => {
+    // Gravar "credential" em vez de "local:credential" fazia a conta existir e
+    // o login recusar assim mesmo, sem erro que explicasse o motivo.
+    const [conta] = await db.select().from(contas).where(eq(contas.userId, usuarioId));
+    assert.equal(conta!.issuer, "local:credential");
   });
 
-  it("revogar a sessao derruba o acesso na hora", async () => {
-    const token = await abrirSessao(new Date(Date.now() + HORA));
-    assert.ok(await sessaoViva(token));
-
-    await db
-      .update(sessoes)
-      .set({ is_deleted: true, deleted_at: new Date() })
-      .where(eq(sessoes.token_hash, hashDoToken(token)));
-
-    assert.equal(await sessaoViva(token), null);
+  it("os campos de dominio chegam na sessao", async () => {
+    // Sem os additionalFields do config, papel e ativo nao viriam, e o
+    // recorte por papel nos layouts pararia de funcionar em silencio.
+    const usuario = await entrar(email, SENHA);
+    assert.equal(usuario?.papel, "facilitador");
+    assert.equal(usuario?.ativo, true);
   });
 
-  it("desativar o usuario invalida as sessoes que ele ja tinha", async () => {
-    const token = await abrirSessao(new Date(Date.now() + HORA));
+  it("cada login abre uma sessao no banco", async () => {
+    const antes = await db.select().from(sessoes).where(eq(sessoes.userId, usuarioId));
+    await entrar(email, SENHA);
+    const depois = await db.select().from(sessoes).where(eq(sessoes.userId, usuarioId));
 
-    await db.update(usuarios).set({ ativo: false }).where(eq(usuarios.id, usuarioId));
-    const linha = await sessaoViva(token);
-    assert.equal(linha?.ativo, false, "getSession recusa quem esta inativo");
-
-    await db.update(usuarios).set({ ativo: true }).where(eq(usuarios.id, usuarioId));
+    assert.equal(depois.length, antes.length + 1);
+    assert.ok(depois[0]!.expiresAt > new Date(), "a sessao nasce valida");
   });
 
-  it("token inventado nao abre sessao", async () => {
-    assert.equal(await sessaoViva("token-que-nunca-existiu"), null);
+  it("redefinir a senha invalida a anterior", async () => {
+    const nova = "outra-senha-longa";
+    await definirSenha(usuarioId, nova);
+
+    assert.equal((await entrar(email, nova))?.id, usuarioId);
+    assert.equal(await entrar(email, SENHA), null, "a senha velha para de valer");
+
+    await definirSenha(usuarioId, SENHA);
   });
 });

@@ -1,6 +1,6 @@
 {
-  "id": "7d3f867c-b2ae-433e-af31-8aa8c95938dd",
-  "prevId": "2dfb8009-f423-4816-98b8-a5a1bf50b3b9",
+  "id": "363e8ee1-4af6-4a86-89e2-07588ed8f685",
+  "prevId": "7d3f867c-b2ae-433e-af31-8aa8c95938dd",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -26,12 +26,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "senha_hash": {
-          "name": "senha_hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         },
         "email_verificado": {
           "name": "email_verificado",

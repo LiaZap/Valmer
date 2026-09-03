@@ -35,7 +35,6 @@ import {
 } from "./schema";
 import { assessments as dadosAssessments, facilitadores, transacoes } from "../../data/facilitadores";
 import { narrativaExemplo } from "../../data/narrativa-exemplo";
-import { gerarHashSenha } from "../auth/senha";
 
 config({ path: [".env.local", ".env"] });
 
@@ -161,17 +160,11 @@ async function main(): Promise<void> {
       return;
     }
 
-    // Todo mundo do seed entra com a mesma senha. E banco de desenvolvimento,
-    // e o hash e calculado de verdade — o login exercita o scrypt como em
-    // producao, em vez de um caminho especial que so existe aqui.
-    const senhaHash = await gerarHashSenha(SENHA_DEV);
-
     await db.insert(usuarios).values(
       facilitadores.map((facilitador) => ({
         id: idUsuario[facilitador.id]!,
         nome: facilitador.nome,
         email: facilitador.email,
-        senha_hash: senhaHash,
         // O dono e o unico admin; tambem aplica assessments como os demais.
         papel: facilitador.id === "valmer" ? ("admin" as const) : ("facilitador" as const),
         empresa: facilitador.empresa,
@@ -212,6 +205,14 @@ async function main(): Promise<void> {
         modified_by: RESPONDENTE,
       })),
     );
+
+    // As credenciais vao pelo Better Auth, e nao por INSERT: assim a senha e
+    // derivada exatamente como no cadastro real, e o login do seed exercita o
+    // mesmo caminho de producao em vez de um atalho que so existe aqui.
+    const { definirSenha } = await import("../actions/auth");
+    for (const facilitador of facilitadores) {
+      await definirSenha(idUsuario[facilitador.id]!, SENHA_DEV);
+    }
 
     await db.insert(creditosTransacoes).values(linhasTransacao);
 

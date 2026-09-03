@@ -1,9 +1,8 @@
-import { and, eq, gt } from "drizzle-orm";
-import { cookies } from "next/headers";
+import { and, eq } from "drizzle-orm";
+import { headers } from "next/headers";
 import { db } from "@/lib/db";
-import { sessoes, usuarios } from "@/lib/db/schema";
-import { hashDoToken } from "./senha";
-import { COOKIE_SESSAO } from "./cookie";
+import { usuarios } from "@/lib/db/schema";
+import { auth } from "./config";
 
 export type Papel = "admin" | "facilitador";
 
@@ -18,9 +17,9 @@ export { COOKIE_SESSAO, DURACAO_SESSAO_MS } from "./cookie";
 /**
  * Quem esta logado nesta requisicao.
  *
- * Le o cookie, procura a sessao viva pelo hash do token e devolve o usuario.
- * Uma sessao expirada ou revogada nao casa no WHERE e cai em null, entao nao
- * existe caminho em que um cookie velho continue valendo.
+ * O formato de retorno e o mesmo de antes do Better Auth entrar, de proposito:
+ * as actions de assessment ja dependiam dele, e trocar a biblioteca de
+ * autenticacao nao e motivo para mexer em regra de negocio.
  *
  * Fora de producao aceita `SESSAO_DEV_USUARIO_ID` como atalho, para os testes
  * de integracao e scripts nao precisarem simular login. Em producao a variavel
@@ -30,46 +29,31 @@ export async function getSession(): Promise<Sessao | null> {
   const atalho = await sessaoDeDesenvolvimento();
   if (atalho) return atalho;
 
-  const token = await tokenDoCookie();
-  if (!token) return null;
+  const sessao = await sessaoDoBetterAuth();
+  if (!sessao) return null;
 
-  const [linha] = await db
-    .select({
-      userId: usuarios.id,
-      papel: usuarios.papel,
-      nome: usuarios.nome,
-      ativo: usuarios.ativo,
-    })
-    .from(sessoes)
-    .innerJoin(usuarios, eq(usuarios.id, sessoes.usuario_id))
-    .where(
-      and(
-        eq(sessoes.token_hash, hashDoToken(token)),
-        eq(sessoes.is_deleted, false),
-        gt(sessoes.expira_em, new Date()),
-        eq(usuarios.is_deleted, false),
-      ),
-    )
-    .limit(1);
+  // O usuario vem junto na resposta, mas com os campos que a biblioteca
+  // conhece: `ativo` e `papel` sao nossos, entao a checagem vem daqui.
+  const usuario = sessao.user as { id: string; nome?: string; name?: string; papel?: string; ativo?: boolean };
+  if (usuario.ativo === false) return null;
 
-  // Desativar alguem no painel derruba o acesso na requisicao seguinte, sem
-  // depender de apagar as sessoes dele uma a uma.
-  if (!linha || !linha.ativo) return null;
-
-  return { userId: linha.userId, papel: linha.papel, nome: linha.nome };
+  return {
+    userId: usuario.id,
+    papel: (usuario.papel as Papel) ?? "facilitador",
+    nome: usuario.nome ?? usuario.name ?? "",
+  };
 }
 
 /**
- * Fora de uma requisicao do Next — um script de manutencao, um teste — nao
- * existe cookie a ler, e `cookies()` lanca. Sem requisicao nao ha sessao, que
- * e exatamente o que `null` diz; deixar o erro subir transformaria "ninguem
- * logado" em falha do script.
+ * Fora de uma requisicao do Next — um script de manutencao, um teste — nao ha
+ * cabecalho a ler e a biblioteca lanca. Sem requisicao nao ha sessao, que e
+ * exatamente o que `null` diz.
  */
-async function tokenDoCookie(): Promise<string | undefined> {
+async function sessaoDoBetterAuth() {
   try {
-    return (await cookies()).get(COOKIE_SESSAO)?.value;
+    return await auth.api.getSession({ headers: await headers() });
   } catch {
-    return undefined;
+    return null;
   }
 }
 

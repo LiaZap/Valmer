@@ -4,6 +4,10 @@
  * A especificacao do cliente chama esta tabela de `users` e trata os dois
  * papeis na mesma entidade — os campos sao os mesmos e o que muda e o
  * acesso. Mantido assim.
+ *
+ * E tambem o modelo `user` do Better Auth, mapeado em `lib/auth/config.ts`.
+ * A senha NAO mora aqui: ela fica em `contas`, com o resto das credenciais,
+ * que e como o Better Auth organiza. Ver ADR-0004.
  */
 import { pgTable, uuid, text, integer, boolean, timestamp, index, uniqueIndex } from "drizzle-orm/pg-core";
 import { TEMPO } from "./tempo";
@@ -17,8 +21,10 @@ export const usuarios = pgTable(
     // --- colunas de dominio ---
     nome: text("nome").notNull(),
     email: text("email").notNull(),
-    /** Hash da senha. Nulo enquanto o usuario nao definiu a dele. */
-    senha_hash: text("senha_hash"),
+    /** Exigido pelo Better Auth. Sem fluxo de confirmacao por e-mail ainda. */
+    emailVerified: boolean("email_verificado").notNull().default(false),
+    /** Foto de perfil. Exigido pelo Better Auth; a interface ainda usa iniciais. */
+    image: text("imagem"),
     papel: papelUsuario("papel").notNull().default("facilitador"),
     empresa: text("empresa"),
     /**

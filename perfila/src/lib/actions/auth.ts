@@ -1,19 +1,24 @@
 /**
  * Entrar e sair da plataforma.
  *
+ * A mecanica de credencial, cookie e sessao e do Better Auth (lib/auth/config).
+ * O que mora aqui e o que e do produto: a mensagem que nao entrega quem e
+ * cliente, o limite de tentativas e o destino por papel.
+ *
  * O respondente nao passa por aqui: o assessment dele e sem cadastro, com o
- * token do link como credencial. Isto vale para admin e facilitador.
+ * token do link como credencial.
  */
 "use server";
 
 import { and, eq } from "drizzle-orm";
-import { cookies } from "next/headers";
+import { headers } from "next/headers";
+import { APIError } from "better-auth/api";
+import { createLocalAccountIssuer } from "@better-auth/core/db";
 import { db } from "@/lib/db";
-import { sessoes, usuarios } from "@/lib/db/schema";
+import { usuarios } from "@/lib/db/schema";
 import { registrarAuditoria } from "@/lib/audit/logger";
-import { COOKIE_SESSAO, DURACAO_SESSAO_MS } from "@/lib/auth/cookie";
+import { auth } from "@/lib/auth/config";
 import { getSession } from "@/lib/auth/sessao";
-import { conferirSenha, gerarHashSenha, hashDoToken, novoTokenSessao } from "@/lib/auth/senha";
 import { loginSchema } from "@/lib/validators/auth";
 
 /**
@@ -26,20 +31,10 @@ import { loginSchema } from "@/lib/validators/auth";
 const CREDENCIAL_INVALIDA = "E-mail ou senha incorretos.";
 
 /**
- * Hash descartavel para o caminho do e-mail inexistente.
- *
- * Sem ele, o e-mail que existe demora ~100ms (o scrypt roda) e o que nao
- * existe responde na hora — o relogio entrega a lista de clientes mesmo com a
- * mensagem sendo a mesma.
- */
-const HASH_ISCA =
-  "scrypt$00000000000000000000000000000000$" + "0".repeat(128);
-
-/**
  * ponytail: contador em memoria, por processo. Segura o ataque de forca bruta
  * de uma origem so; nao sobrevive a restart nem enxerga as outras instancias.
- * Trocar por Redis (ou uma tabela de tentativas) quando houver mais de um
- * processo servindo login.
+ * Trocar por Redis (ou pelo secondaryStorage do Better Auth) quando houver
+ * mais de um processo servindo login.
  */
 const TENTATIVAS_MAX = 5;
 const JANELA_MS = 15 * 60 * 1000;
@@ -68,71 +63,45 @@ export async function login(email: string, senha: string): Promise<ResultadoLogi
     return { ok: false, erro: "Muitas tentativas. Espere alguns minutos e tente de novo." };
   }
 
-  const [usuario] = await db
-    .select()
-    .from(usuarios)
-    .where(and(eq(usuarios.email, validado.data.email), eq(usuarios.is_deleted, false)))
-    .limit(1);
+  try {
+    // O plugin nextCookies grava o cookie da resposta; sem ele a sessao nasce
+    // no banco e o navegador nunca fica sabendo.
+    const resposta = await auth.api.signInEmail({
+      body: { email: validado.data.email, password: validado.data.senha },
+      headers: await headers(),
+    });
 
-  const confere = await conferirSenha(validado.data.senha, usuario?.senha_hash ?? HASH_ISCA);
-  if (!usuario || !usuario.ativo || !confere) return { ok: false, erro: CREDENCIAL_INVALIDA };
+    const usuario = resposta.user as { id: string; papel?: string; ativo?: boolean };
 
-  const { token, hash } = novoTokenSessao();
-  const expiraEm = new Date(Date.now() + DURACAO_SESSAO_MS);
+    // Conta desativada nao entra. A checagem e aqui porque `ativo` e coluna
+    // nossa: o Better Auth autentica a credencial, nao a regra de negocio.
+    if (usuario.ativo === false) {
+      await auth.api.signOut({ headers: await headers() });
+      return { ok: false, erro: CREDENCIAL_INVALIDA };
+    }
 
-  await db.insert(sessoes).values({
-    usuario_id: usuario.id,
-    token_hash: hash,
-    expira_em: expiraEm,
-    modified_by: usuario.id,
-  });
+    await registrarAuditoria({
+      userId: usuario.id,
+      acao: "criar",
+      tabela: "sessoes",
+      registroId: usuario.id,
+      detalhes: `Entrou na plataforma como ${usuario.papel ?? "facilitador"}`,
+    });
 
-  const store = await cookies();
-  store.set(COOKIE_SESSAO, token, {
-    // httpOnly tira o cookie do alcance de qualquer script na pagina, entao um
-    // XSS nao vira sessao roubada.
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    expires: expiraEm,
-  });
-
-  await registrarAuditoria({
-    userId: usuario.id,
-    acao: "criar",
-    tabela: "sessoes",
-    registroId: usuario.id,
-    detalhes: `Entrou na plataforma como ${usuario.papel}`,
-  });
-
-  return { ok: true, destino: usuario.papel === "admin" ? "/admin" : "/facilitador" };
+    return { ok: true, destino: usuario.papel === "admin" ? "/admin" : "/facilitador" };
+  } catch (erro) {
+    // A biblioteca distingue "usuario nao existe" de "senha errada"; o produto
+    // nao pode. Toda falha de credencial sai com a mesma frase.
+    if (erro instanceof APIError) return { ok: false, erro: CREDENCIAL_INVALIDA };
+    throw erro;
+  }
 }
 
-/**
- * Encerra a sessao desta requisicao.
- *
- * Marca a linha como apagada em vez de remover: a trilha precisa poder dizer
- * quando aquele acesso comecou e quando terminou.
- */
+/** Encerra a sessao desta requisicao. */
 export async function logout(): Promise<void> {
-  const store = await cookies();
-  const token = store.get(COOKIE_SESSAO)?.value;
   const sessao = await getSession();
 
-  if (token) {
-    await db
-      .update(sessoes)
-      .set({
-        is_deleted: true,
-        deleted_at: new Date(),
-        updated_at: new Date(),
-        modified_by: sessao?.userId ?? "00000000-0000-0000-0000-000000000000",
-      })
-      .where(and(eq(sessoes.token_hash, hashDoToken(token)), eq(sessoes.is_deleted, false)));
-  }
-
-  store.delete(COOKIE_SESSAO);
+  await auth.api.signOut({ headers: await headers() });
 
   if (sessao) {
     await registrarAuditoria({
@@ -146,18 +115,43 @@ export async function logout(): Promise<void> {
 }
 
 /**
- * Define a senha de um usuario. Exportada para o seed e para o admin.
+ * Cria a credencial de um usuario que ja existe na tabela.
  *
- * Nao valida sessao de proposito: quem chama e o seed (que roda com acesso
- * direto ao banco) e, no futuro, a tela do admin, que valida antes de chamar.
+ * O caminho normal do Better Auth (`signUpEmail`) cria o usuario junto, e aqui
+ * ele ja veio do admin ou do seed, com papel, empresa e saldo definidos. Isto
+ * so acrescenta a senha, no mesmo formato que a biblioteca confere no login.
+ *
+ * Nao valida sessao: quem chama e o seed, com acesso direto ao banco, e a tela
+ * do admin, que valida antes.
  */
 export async function definirSenha(usuarioId: string, senha: string): Promise<void> {
-  await db
-    .update(usuarios)
-    .set({
-      senha_hash: await gerarHashSenha(senha),
-      updated_at: new Date(),
-      modified_by: usuarioId,
-    })
-    .where(eq(usuarios.id, usuarioId));
+  const [usuario] = await db
+    .select()
+    .from(usuarios)
+    .where(and(eq(usuarios.id, usuarioId), eq(usuarios.is_deleted, false)))
+    .limit(1);
+  if (!usuario) throw new Error("Usuario nao encontrado");
+
+  const contexto = await auth.$context;
+  const hash = await contexto.password.hash(senha);
+
+  const existente = await contexto.internalAdapter.findAccounts(usuarioId);
+  const credencial = existente.find((conta) => conta.providerId === "credential");
+
+  if (credencial) {
+    await contexto.internalAdapter.updateAccount(credencial.id, { password: hash });
+    return;
+  }
+
+  await contexto.internalAdapter.createAccount({
+    userId: usuarioId,
+    providerId: "credential",
+    // O emissor vem da funcao da biblioteca, e nao da string "credential": o
+    // login compara com `createLocalAccountIssuer("credential")`, que hoje
+    // resolve para "local:credential". Escrever o valor a mao fazia a conta
+    // existir no banco e o login recusar assim mesmo.
+    issuer: createLocalAccountIssuer("credential"),
+    accountId: usuarioId,
+    password: hash,
+  });
 }

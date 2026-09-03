@@ -1,6 +1,6 @@
 # ADR-0003: Autenticacao com scrypt e sessao no banco
 
-- **Status**: Aceito
+- **Status**: Substituido por [ADR-0004](0004-better-auth-sobre-o-schema-existente.md)
 - **Data**: 2026-09-03
 - **Decisores**: lead
 
