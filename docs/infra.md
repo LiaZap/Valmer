@@ -319,9 +319,29 @@ que a maquina caiu.
 | Voltar a versao anterior | `bash /srv/valmer/bin/deploy.sh rollback prd` |
 | Backup manual | `bash /srv/valmer/bin/backup.sh prd` |
 | Testar o restore | `bash /srv/valmer/bin/restore.sh hml` |
-| Ver o log da app | `journalctl -u valmer-prd -f` |
+| Ver o log da app | `valmer logs prd -f` |
 | Ver o log do banco | `docker logs -f valmer_prd_db` |
-| Estado geral | `bash /srv/valmer/bin/monitor.sh` |
+| Estado geral | `valmer status` |
+| Mudar variavel de ambiente | `valmer env prd` (edita e reinicia se mudou) |
+| Abrir o banco | `valmer db hml` |
+| Ver os containers | `valmer ps` |
+
+### Por que nao ha painel (EasyPanel, Portainer)
+
+`valmer` sem argumento lista tudo o que da para fazer. E o que substitui um
+painel aqui, e a troca e deliberada.
+
+Um painel web com acesso ao socket do Docker **e root na maquina**: uma sessao
+de navegador vazada desfaz a chave de SSH, o firewall e o fail2ban de uma vez.
+E painel que publica cria duas verdades — o que esta no git e o que alguem
+clicou — entao no dia do incidente ninguem sabe qual versao esta no ar.
+
+Alem disso, so o Postgres roda em container neste servidor; a aplicacao roda em
+systemd. Um painel de containers administraria dois containers que ja sobem
+sozinhos com `restart: unless-stopped`.
+
+Por isso `valmer` **nao publica e nao desfaz**: isso e `deploy.sh`, o mesmo
+comando que o CI chama. Dois caminhos para publicar e o mesmo que nenhum.
 
 ### Rollback — o que ele devolve e o que nao devolve
 

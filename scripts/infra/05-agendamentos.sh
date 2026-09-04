@@ -28,6 +28,11 @@ if [ "$DIR" != "$BIN" ]; then
   info "scripts copiados para $BIN."
 fi
 
+# `valmer` a partir de qualquer diretorio, para ninguem precisar decorar
+# caminho — e essa e a unica coisa que um painel web daria de util aqui.
+ln -sfn "$BIN/valmer.sh" /usr/local/bin/valmer
+info "comando 'valmer' disponivel."
+
 # --- backup (uma unidade parametrizada serve os dois ambientes) ----------------
 cat > /etc/systemd/system/valmer-backup@.service <<EOF
 [Unit]
