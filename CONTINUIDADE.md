@@ -67,7 +67,8 @@ resultado ao final.
 
 **Relatório**, 13 seções em `/relatorio/<token>`. Renderiza na tela e imprime em
 A4 com margens de 20mm. Assina como Impacto Academy, com símbolo, nome, cores e a
-linha de crédito que a especificação pede. O resto do produto continua Perfila.
+linha de crédito que a especificação pede. O resto do produto ainda diz Perfila,
+mas isso é estado de transição, e não regra — ver "Marca única" mais abaixo.
 
 **Geração da narrativa por IA** em `perfila/src/lib/relatorio/gerar.ts`. Chamada à
 API da Anthropic com saída estruturada validada por esquema.
@@ -153,22 +154,52 @@ por extenso e o percentual ao lado, então a cor nunca é o único portador do d
 O validador de paleta trata esse caso como aviso e o considera resolvido
 justamente por rótulo visível.
 
-**O laranja da Impacto não entra no gráfico.** Ele e o âmbar do fator Influência
+**O laranja da Impacto não entra no gráfico.** (Continua valendo, e com marca única
+passa a valer no produto inteiro, não só no relatório.) Ele e o âmbar do fator Influência
 têm ΔE 5,2 em visão normal, medido em OKLab ×100, contra um piso de 15: lado a
 lado ninguém distingue os dois. E sobre o creme da marca o laranja dá 2,52:1,
-abaixo do piso de 3:1 até para elemento de interface. No relatório ele aparece sobre o navy, onde dá 6,08:1, e
+abaixo do piso de 3:1 até para elemento de interface. Onde ele entra é sobre o navy, que lhe dá 6,08:1, e
 como forma decorativa sólida. Quem carrega texto de acento é o navy.
 
-**Só o relatório assina como Impacto Academy.** Login, assessment, admin e portal
-do parceiro continuam Perfila, porque a especificação diz que cada facilitador tem
-painel com a marca dele e que o PDF é que leva a marca da Impacto. A marca vive em
-quatro lugares, todos exclusivos da rota do relatório: o tema escopado
-`tema-impacto.module.css`, o componente `MarcaImpacto`, o ícone
-`app/relatorio/icon.svg` e o bloco `metadata`/`viewport` no topo de
-`app/relatorio/[token]/page.tsx`, que carrega o título da aba e o creme da marca em
-`themeColor`. Esse quarto existe porque tema escopado por classe de CSS não alcança
-meta tag. Não mexa em `styles/tokens.css`, em `components/layout/Logo.tsx` nem em
-`app/icon.svg`: os três parecem o lugar certo e valem para o produto inteiro.
+**Marca única: a plataforma inteira é Impacto Academy.** Decisão do Paulo em
+03/09/2026. REVOGA a regra anterior, que dizia "só o relatório assina como Impacto
+Academy; login, assessment, admin e portal do parceiro continuam Perfila". Aquela
+regra vinha da especificação (cada facilitador com painel próprio, marca da Impacto
+só no PDF); o Paulo decidiu marca única para o produto todo. **Se o código disser
+Impacto fora do relatório, está certo. Não reverta.**
+
+Estado: decidido, execução PENDENTE. O código ainda diz "Perfila" em 21 lugares —
+12 arquivos fora de `src/app/relatorio` (os três layouts, `app/layout.tsx`,
+`app/page.tsx`, `AppShell.tsx`, `Logo.tsx`, `Sidebar.tsx`, `globals.css`,
+`facilitador/configuracoes`, `facilitador/ead`, `data/respondente.ts`) mais
+`src/app/icon.svg`. Estar no meio do caminho é esperado até a execução rodar.
+
+A decisão INVERTE três arquivos: `styles/tokens.css`, `components/layout/Logo.tsx`
+e `app/icon.svg` eram proibidos justamente por valerem para o produto inteiro.
+Continuam valendo para o produto inteiro — e por isso agora são o lugar certo.
+
+A decisão NÃO invalida os quatro lugares da marca no relatório (`tema-impacto.module.css`,
+`MarcaImpacto`, `app/relatorio/icon.svg` e o bloco `metadata`/`viewport` de
+`app/relatorio/[token]/page.tsx`). O quarto continua necessário porque tema escopado
+por classe de CSS não alcança meta tag. Com marca única, o tema escopado deixa de ser
+exceção e vira candidato a subir para `:root`.
+
+**Como executar a paleta, já medido.** Não troque o acento verde pelo laranja: ele dá
+2,52:1 sobre o creme e 2,73:1 sobre branco, abaixo do piso de 3:1 até para elemento de
+interface, e branco sobre laranja dá 2,73:1, abaixo do 4,5:1 de botão. O verde de hoje
+dá 5,68:1. O caminho certo já está escrito em `tema-impacto.module.css`, que separa
+`--color-accent` (navy, 15,34:1 sobre o creme) de `--color-realce` (laranja, só como
+massa sólida) e põe o laranja em `--color-accent-on-dark`, onde ele dá 6,08:1. A
+execução é promover esse tema para `:root`: ele redefine 40 tokens; os outros 112 de
+`tokens.css` ficam como estão. Cuidado com `--color-accent-ring`, que é o anel de foco:
+o acento tem 89 usos em mais de 20 arquivos, e em laranja o foco de teclado ficaria
+invisível no produto inteiro.
+
+**O símbolo impresso precisa de uma variante.** Em escala de cinza a onda navy vira
+16,57:1 contra o papel, mas o disco laranja vira só 2,73:1: numa fotocópia a onda sai
+preta e o disco desbota. `MarcaImpacto` parametriza a cor da onda, mas o disco é fixo em
+`var(--color-realce)`. Redefinir `--color-realce` dentro dos `@media print` que já
+existem resolve, e é a variante monocromática que o estudo `marca2.png` já validou.
 
 **O corte por nível é por SEÇÃO, não por componente.** As três seções de
 `Lideranca.tsx` entram em níveis diferentes: encaixe é S1, liderança e como liderar

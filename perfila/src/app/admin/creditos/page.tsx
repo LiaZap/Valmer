@@ -4,28 +4,17 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { Icon } from '@/components/ui/Icon'
 import { AutoGrid } from '@/components/ui/Layout'
 import { PageHeader } from '@/components/ui/PageHeader'
-import { Pill } from '@/components/ui/Pill'
-import { Table, Td, Th, Tr, tableStyles } from '@/components/ui/Table'
-import type { TipoTransacao } from '@/data/facilitadores'
+import { TabelaExtrato } from '@/components/creditos/TabelaExtrato'
 import { custoPorCredito, moeda, pacotesCreditos } from '@/data/planos'
 import { metricasPlataforma } from '@/lib/metricas'
-import { assessmentsVisiveis, listarFacilitadores, listarTransacoes } from '@/lib/painel'
+import {
+  assessmentsVisiveis,
+  empresasPorId,
+  listarFacilitadores,
+  listarTransacoes,
+} from '@/lib/painel'
 import ui from '@/styles/common.module.css'
 import styles from './page.module.css'
-
-const ROTULO_TIPO: Record<TipoTransacao, string> = {
-  compra: 'Compra',
-  uso: 'Uso',
-  estorno: 'Estorno',
-  bonus: 'Bônus',
-}
-
-const TOM_TIPO: Record<TipoTransacao, 'success' | 'neutral' | 'warning'> = {
-  compra: 'success',
-  uso: 'neutral',
-  estorno: 'warning',
-  bonus: 'success',
-}
 
 /**
  * Créditos vendidos e o extrato de todos os parceiros.
@@ -46,7 +35,12 @@ export default async function CreditosAdminPage() {
   ])
 
   const m = metricasPlataforma({ facilitadores, assessments, transacoes })
-  const nomes = new Map(facilitadores.map((facilitador) => [facilitador.id, facilitador.nome]))
+
+  // Os nomes saem dos ids que aparecem NO EXTRATO, e não da lista de
+  // parceiros: quem movimenta crédito nem sempre tem papel de facilitador — o
+  // próprio dono da plataforma tem lançamentos —, e montar o mapa só com
+  // parceiros fazia a coluna cair no id cru daquelas linhas.
+  const nomes = await empresasPorId([...new Set(transacoes.map((t) => t.facilitadorId))])
 
   return (
     <>
@@ -92,38 +86,7 @@ export default async function CreditosAdminPage() {
             Nenhum movimento de crédito ainda. As compras e os usos dos parceiros aparecem aqui.
           </EmptyState>
         ) : (
-        <Table>
-          <thead>
-            <tr>
-              <Th>Data</Th>
-              <Th>Facilitador</Th>
-              <Th>Movimento</Th>
-              <Th>Descrição</Th>
-              <Th align="right">Créditos</Th>
-            </tr>
-          </thead>
-          <tbody>
-            {transacoes.map((transacao) => (
-              <Tr key={transacao.id}>
-                <Td muted>{transacao.data}</Td>
-                <Td>
-                  <span className={tableStyles.primary}>
-                    {nomes.get(transacao.facilitadorId) ?? transacao.facilitadorId}
-                  </span>
-                </Td>
-                <Td>
-                  <Pill tone={TOM_TIPO[transacao.tipo]}>{ROTULO_TIPO[transacao.tipo]}</Pill>
-                </Td>
-                <Td muted>{transacao.descricao}</Td>
-                <Td align="right">
-                  <span className={transacao.quantidade < 0 ? styles.saida : styles.entrada}>
-                    {transacao.quantidade > 0 ? `+${transacao.quantidade}` : transacao.quantidade}
-                  </span>
-                </Td>
-              </Tr>
-            ))}
-          </tbody>
-        </Table>
+          <TabelaExtrato itens={transacoes} nomes={nomes} />
         )}
       </Card>
     </>

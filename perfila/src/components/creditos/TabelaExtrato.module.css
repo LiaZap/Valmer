@@ -1,0 +1,10 @@
+/* Entrada e saída de crédito: o sinal já diz, a cor reforça. */
+.entrada {
+  font-weight: var(--fw-semibold);
+  color: var(--color-accent);
+}
+
+.saida {
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-muted);
+}

@@ -19,7 +19,15 @@ export const degustacao = {
   utilizadas: 3,
 }
 
-/** Indicadores do topo do Dashboard. */
+/**
+ * Indicadores do topo do Dashboard que ainda nao tem tabela no banco.
+ *
+ * Clientes, devolutivas e faturamento sao telas ainda nao construidas — os
+ * numeros aqui sao de protótipo. O indicador de creditos saiu desta lista: ele
+ * tem tabela (`creditos_transacoes`) e a pagina o monta a partir dela, porque
+ * numero de credito inventado ao lado do saldo real e o que fez o parceiro
+ * parar de acreditar nos dois.
+ */
 export const indicadores = [
   {
     label: 'Total de clientes',
@@ -38,11 +46,5 @@ export const indicadores = [
     icon: 'dollar',
     valor: 'R$ 0,00',
     nota: 'Nenhuma venda no período',
-  },
-  {
-    label: 'Créditos utilizados',
-    icon: 'card',
-    valor: '2',
-    nota: '3 de degustação · 0 da plataforma',
   },
 ] as const

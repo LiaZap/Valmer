@@ -160,70 +160,79 @@ async function main(): Promise<void> {
       return;
     }
 
-    await db.insert(usuarios).values(
-      facilitadores.map((facilitador) => ({
-        id: idUsuario[facilitador.id]!,
-        nome: facilitador.nome,
-        email: facilitador.email,
-        // O dono e o unico admin; tambem aplica assessments como os demais.
-        papel: facilitador.id === "valmer" ? ("admin" as const) : ("facilitador" as const),
-        empresa: facilitador.empresa,
-        telefone: facilitador.telefone,
-        creditos: saldo(facilitador.id),
-        ativo: facilitador.ativo,
-        created_at: dataBr(facilitador.criadoEm),
-        modified_by: idUsuario.valmer!,
-      })),
-    );
+    // Tudo numa transacao so: a partir da 0005 o banco confere no COMMIT se
+    // usuarios.creditos bate com a soma do extrato. Semear os usuarios com saldo
+    // num commit e as transacoes em outro deixaria o primeiro commit fora da
+    // invariante. De quebra, seed que falha no meio nao deixa banco pela metade.
+    await db.transaction(async (tx) => {
+      await tx.insert(usuarios).values(
+        facilitadores.map((facilitador) => ({
+          id: idUsuario[facilitador.id]!,
+          nome: facilitador.nome,
+          email: facilitador.email,
+          // O dono e o unico admin; tambem aplica assessments como os demais.
+          papel: facilitador.id === "valmer" ? ("admin" as const) : ("facilitador" as const),
+          empresa: facilitador.empresa,
+          telefone: facilitador.telefone,
+          creditos: saldo(facilitador.id),
+          ativo: facilitador.ativo,
+          created_at: dataBr(facilitador.criadoEm),
+          modified_by: idUsuario.valmer!,
+        })),
+      );
 
-    await db.insert(tabelaAssessments).values(
+      await tx.insert(tabelaAssessments).values(
       dadosAssessments.map((assessment) => ({
-        id: idAssessment[assessment.id]!,
-        token: assessment.token,
-        facilitador_id: idUsuario[assessment.facilitadorId]!,
-        avaliado_nome: assessment.avaliadoNome,
-        avaliado_email: assessment.avaliadoEmail,
-        tipo_relatorio: assessment.tipoRelatorio,
-        situacao: assessment.situacao,
-        creditos_usados: assessment.creditosUsados,
-        expira_em: expiraEm(assessment.situacao, assessment.expiraEm),
-        concluido_em: assessment.concluidoEm ? dataBr(assessment.concluidoEm) : null,
-        contador_d: assessment.contadores?.D ?? null,
-        contador_i: assessment.contadores?.I ?? null,
-        contador_s: assessment.contadores?.S ?? null,
-        contador_c: assessment.contadores?.C ?? null,
-        created_at: dataBr(assessment.criadoEm),
-        modified_by: idUsuario[assessment.facilitadorId]!,
-      })),
-    );
+          id: idAssessment[assessment.id]!,
+          token: assessment.token,
+          facilitador_id: idUsuario[assessment.facilitadorId]!,
+          avaliado_nome: assessment.avaliadoNome,
+          avaliado_email: assessment.avaliadoEmail,
+          tipo_relatorio: assessment.tipoRelatorio,
+          situacao: assessment.situacao,
+          creditos_usados: assessment.creditosUsados,
+          expira_em: expiraEm(assessment.situacao, assessment.expiraEm),
+          concluido_em: assessment.concluidoEm ? dataBr(assessment.concluidoEm) : null,
+          contador_d: assessment.contadores?.D ?? null,
+          contador_i: assessment.contadores?.I ?? null,
+          contador_s: assessment.contadores?.S ?? null,
+          contador_c: assessment.contadores?.C ?? null,
+          created_at: dataBr(assessment.criadoEm),
+          modified_by: idUsuario[assessment.facilitadorId]!,
+        })),
+      );
 
-    await db.insert(assessmentsRespostas).values(
-      respostasEmAndamento.map((resposta) => ({
-        assessment_id: idAssessment.a3!,
-        questao_codigo: resposta.questao_codigo,
-        fator: resposta.fator,
-        modified_by: RESPONDENTE,
-      })),
-    );
+      await tx.insert(assessmentsRespostas).values(
+        respostasEmAndamento.map((resposta) => ({
+          assessment_id: idAssessment.a3!,
+          questao_codigo: resposta.questao_codigo,
+          fator: resposta.fator,
+          modified_by: RESPONDENTE,
+        })),
+      );
 
-    // As credenciais vao pelo Better Auth, e nao por INSERT: assim a senha e
-    // derivada exatamente como no cadastro real, e o login do seed exercita o
-    // mesmo caminho de producao em vez de um atalho que so existe aqui.
+      await tx.insert(creditosTransacoes).values(linhasTransacao);
+
+      // A narrativa de exemplo vira a v1 do relatorio do assessment concluido
+      // que a rota /relatorio/k3mq81 mostra hoje.
+      await tx.insert(assessmentsRelatorios).values({
+        assessment_id: idAssessment.a2!,
+        versao: 1,
+        narrativa: narrativaExemplo,
+        modified_by: idUsuario.valmer!,
+      });
+    });
+
+    // Fora da transacao acima: o Better Auth abre a propria conexao, entao nao
+    // teria como participar dela. Roda depois, com os usuarios ja gravados.
+    //
+    // As credenciais vao por ele, e nao por INSERT: assim a senha e derivada
+    // exatamente como no cadastro real, e o login do seed exercita o mesmo
+    // caminho de producao em vez de um atalho que so existe aqui.
     const { definirSenha } = await import("../auth/senha");
     for (const facilitador of facilitadores) {
       await definirSenha(idUsuario[facilitador.id]!, SENHA_DEV);
     }
-
-    await db.insert(creditosTransacoes).values(linhasTransacao);
-
-    // A narrativa de exemplo vira a v1 do relatorio do assessment concluido
-    // que a rota /relatorio/k3mq81 mostra hoje.
-    await db.insert(assessmentsRelatorios).values({
-      assessment_id: idAssessment.a2!,
-      versao: 1,
-      narrativa: narrativaExemplo,
-      modified_by: idUsuario.valmer!,
-    });
 
     console.log("Seed concluido:");
     console.log(`  usuarios:     ${facilitadores.length}`);

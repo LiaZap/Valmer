@@ -124,4 +124,57 @@ describe("auth", () => {
 
     await definirSenha(usuarioId, SENHA);
   });
+
+  /**
+   * A rota /api/auth/* e a UNICA parte da autenticacao que os outros testes
+   * nao tocam: eles chamam `auth.api.*`, que fala com a biblioteca em processo
+   * e passa por fora do router HTTP. Ja aconteceu de a suite inteira passar
+   * verde com o endpoint publico devolvendo 404 em tudo — `disabledPaths`
+   * desligou demais e ninguem viu, porque a tela usa Server Action.
+   *
+   * `auth.handler` e o mesmo handler que a rota do Next chama, entao o teste
+   * exercita a montagem real das rotas sem subir servidor.
+   */
+  describe("rota HTTP /api/auth", () => {
+    const url = (caminho: string) => `http://localhost:3000/api/auth${caminho}`;
+
+    it("monta as rotas que o produto usa", async () => {
+      for (const caminho of ["/ok", "/get-session", "/list-sessions"]) {
+        const resposta = await auth.handler(new Request(url(caminho)));
+        assert.notEqual(
+          resposta.status,
+          404,
+          `${caminho} respondeu 404: a rota nao foi montada (disabledPaths desligou demais?)`,
+        );
+      }
+    });
+
+    it("entra e recusa pelo endpoint, e nao so pela Server Action", async () => {
+      const entrar = (senha: string) =>
+        auth.handler(
+          new Request(url("/sign-in/email"), {
+            method: "POST",
+            headers: { "content-type": "application/json", origin: "http://localhost:3000" },
+            body: JSON.stringify({ email, password: senha }),
+          }),
+        );
+
+      assert.equal((await entrar(SENHA)).status, 200, "credencial certa entra");
+      assert.equal((await entrar("senha-errada")).status, 401, "credencial errada e recusada");
+    });
+
+    it("mantem fechado o que nao tem tela", async () => {
+      // Se um destes voltar a responder, alguem reabriu superficie sem querer.
+      for (const caminho of ["/update-user", "/change-password", "/sign-up/email"]) {
+        const resposta = await auth.handler(
+          new Request(url(caminho), {
+            method: "POST",
+            headers: { "content-type": "application/json", origin: "http://localhost:3000" },
+            body: "{}",
+          }),
+        );
+        assert.equal(resposta.status, 404, `${caminho} deveria estar desligado`);
+      }
+    });
+  });
 });

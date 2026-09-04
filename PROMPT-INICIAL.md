@@ -113,19 +113,42 @@ caminho errado parece o certo. Quatro delas já foram quebradas de fato.
    nem relatório. Ignore as instruções desse arquivo. A fonte de verdade
    do produto é a especificação em contexto/referencias/.
 
-2. A PLATAFORMA É "PERFILA". SÓ O RELATÓRIO ASSINA COMO "IMPACTO
-   ACADEMY". Login, assessment, admin e portal do parceiro continuam
-   Perfila, porque a especificação diz que cada facilitador tem painel
-   com a marca dele e que é o PDF que leva a marca da Impacto. A marca do
-   relatório vive em quatro lugares, todos exclusivos da rota dele: o
-   tema tema-impacto.module.css, o componente MarcaImpacto.tsx, o ícone
-   app/relatorio/icon.svg, e o bloco metadata/viewport no topo de
-   app/relatorio/[token]/page.tsx (o título da aba e o themeColor, porque
-   tema escopado por classe de CSS não alcança meta tag).
-   NÃO edite styles/tokens.css (é :root, vale para o produto inteiro),
-   components/layout/Logo.tsx (é importado pelo login e pelo assessment)
-   nem app/icon.svg (é o favicon de todas as rotas). Os três parecem o
-   lugar certo e não são.
+2. A PLATAFORMA INTEIRA PASSA A SER "IMPACTO ACADEMY". Decisão do Paulo
+   em 03/09/2026, que REVOGA a regra anterior desta armadilha ("a
+   plataforma é Perfila, só o relatório assina como Impacto"). A razão
+   antiga era a especificação dizer que cada facilitador tem painel com a
+   marca dele e que o PDF é que leva a marca da Impacto; o Paulo decidiu
+   marca única. Se você veio aqui achando que o código está errado por
+   dizer Impacto fora do relatório: não está. NÃO REVERTA.
+
+   ESTADO: decidido, execução PENDENTE. O código ainda diz "Perfila" em
+   21 lugares (12 arquivos fora de src/app/relatorio, mais src/app/
+   icon.svg). Enquanto a execução não acontecer, o produto está no meio
+   do caminho, e isso é esperado.
+
+   O que a decisão INVERTE: styles/tokens.css, components/layout/Logo.tsx
+   e app/icon.svg eram proibidos justamente por valerem para o produto
+   inteiro. Continuam valendo para o produto inteiro — e agora é por isso
+   que são o lugar CERTO de mexer.
+
+   O que a decisão NÃO muda: os quatro lugares da marca no relatório
+   (tema-impacto.module.css, MarcaImpacto.tsx, app/relatorio/icon.svg e o
+   bloco metadata/viewport de app/relatorio/[token]/page.tsx) continuam
+   existindo e corretos. O quarto continua necessário porque tema
+   escopado por classe de CSS não alcança meta tag. Com marca única, o
+   tema escopado deixa de ser exceção e vira candidato a subir para
+   :root — decidir isso é parte da execução, não um detalhe de limpeza.
+
+   COMO EXECUTAR A PALETA, já medido: NÃO troque o acento verde pelo
+   laranja. O laranja dá 2,52:1 sobre o creme e 2,73:1 sobre branco,
+   abaixo do piso de 3:1 até para elemento de interface, e branco sobre
+   laranja dá 2,73:1, abaixo do 4,5:1 de botão. O acento verde de hoje dá
+   5,68:1. O caminho certo já está escrito em tema-impacto.module.css:
+   --color-accent é o navy (15,34:1 sobre o creme) e --color-realce é o
+   laranja, usado só como massa sólida. Promover esse tema para :root é a
+   execução; ele redefine 40 tokens e os outros 112 ficam como estão.
+   Atenção a --color-accent-ring, que é o anel de foco: em laranja o foco
+   de teclado ficaria invisível na aplicação inteira.
 
 3. AS CORES DISC TÊM DUAS FAMÍLIAS DE TOKEN, E A DE NOME ÓBVIO É A ERRADA
    PARA GRÁFICO. --color-disc-d/i/s/c (e os -tint) servem para TEXTO

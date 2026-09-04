@@ -8,8 +8,10 @@
  * ensina a biblioteca a usar as nossas. Ver ADR-0004.
  */
 import { betterAuth } from "better-auth";
+import { APIError, createAuthMiddleware } from "better-auth/api";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { contas, sessoes, usuarios, verificacoes } from "@/lib/db/schema";
 
@@ -21,6 +23,52 @@ if (!segredo) {
   throw new Error(
     "BETTER_AUTH_SECRET nao definida. Gere uma com `openssl rand -base64 32` e coloque em .env.local.",
   );
+}
+
+/** So o caminho de credencial passa por aqui; os demais seguem intactos. */
+const ENTRAR = "/sign-in/email";
+
+/**
+ * Limite de tentativas por CONTA, e nao por IP.
+ *
+ * O Map vai no escopo global pelo mesmo motivo do pool em `lib/db`: o Next
+ * instancia este modulo UMA VEZ POR BUNDLE, e a Server Action e a rota
+ * /api/auth/* estao em bundles diferentes. Com o Map no escopo do modulo,
+ * cada porta contava a sua propria conta — travar por um caminho deixava o
+ * outro zerado, que e exatamente o buraco que este hook veio fechar. Medido:
+ * seis falhas no endpoint davam 429 la e 401 na action.
+ *
+ * ponytail: contador em memoria, por processo. Segura o ataque de uma origem
+ * so; nao sobrevive a restart nem enxerga as outras instancias. Trocar por
+ * Redis (ou pelo secondaryStorage do Better Auth) quando houver mais de um
+ * processo servindo login.
+ */
+const TENTATIVAS_MAX = 5;
+const JANELA_MS = 15 * 60 * 1000;
+
+type Tentativa = { contador: number; ate: number };
+const escopoGlobal = globalThis as unknown as { __valmerTentativasLogin?: Map<string, Tentativa> };
+const tentativas = (escopoGlobal.__valmerTentativasLogin ??= new Map<string, Tentativa>());
+
+function registrarTentativa(chave: string): boolean {
+  const agora = Date.now();
+  const atual = tentativas.get(chave);
+
+  if (!atual || agora > atual.ate) {
+    tentativas.set(chave, { contador: 1, ate: agora + JANELA_MS });
+    return true;
+  }
+
+  atual.contador += 1;
+  return atual.contador <= TENTATIVAS_MAX;
+}
+
+/** Codigo proprio: e por ele que a tela distingue "travado" de "senha errada". */
+export const MUITAS_TENTATIVAS = "MUITAS_TENTATIVAS";
+
+function emailDoCorpo(corpo: unknown): string {
+  const email = (corpo as { email?: unknown } | undefined)?.email;
+  return typeof email === "string" ? email.trim().toLowerCase() : "";
 }
 
 export const auth = betterAuth({
@@ -88,6 +136,136 @@ export const auth = betterAuth({
       // creditos_transacoes apontam para uuid.
       generateId: false,
     },
+  },
+
+  /**
+   * A rota catch-all publica 30 endpoints do Better Auth. O produto usa quatro:
+   * entrar, sair, ler a sessao e listar as proprias sessoes. O resto — editar
+   * perfil, trocar senha, apagar conta, recuperar senha, OAuth — nao tem tela,
+   * nao tem cliente e nao tem provedor configurado. Endpoint que ninguem chama
+   * e superficie que so o atacante usa.
+   *
+   * A lista abaixo e o COMPLEMENTO de uma allowlist: fica de pe o que um
+   * cliente HTTP legitimo da biblioteca precisa, cai o que so existe porque a
+   * biblioteca traz. `disabledPaths` vale SO para o router HTTP — `auth.api.*`
+   * nao consulta a lista —, entao ela nunca alcanca as Server Actions, o seed
+   * nem os testes, que falam com a biblioteca em processo.
+   *
+   * `/sign-in/email` fica ABERTO de proposito, e e seguro por causa dos hooks
+   * abaixo: sem eles este endpoint seria a segunda porta, sem limite por conta
+   * e emitindo cookie para conta desativada. A protecao esta na regra, nao em
+   * esconder a rota.
+   *
+   * MEDIDO: `disabledPaths` compara a string do caminho, entao padrao com
+   * parametro nao casa e NAO da para desligar por aqui. Ficam de pe
+   * `/callback/:id` (302 para /api/auth/error?error=state_not_found, sem
+   * provedor configurado) e `/reset-password/:token` (302 com
+   * error=INVALID_TOKEN). Os dois sao inertes hoje: um exige provedor OAuth,
+   * o outro exige token de verificacao que so nasce por
+   * `/request-password-reset`, que esta 404 aqui e sem envio de e-mail no ar.
+   * Nao entram na lista porque config que nao surte efeito e pior que config
+   * ausente: passa impressao de cobertura que nao existe.
+   *
+   * ponytail: lista explicita, escrita a mao. Uma versao nova da biblioteca que
+   * traga endpoint novo o publica por padrao — ao subir o Better Auth, rodar
+   * `grep -rhoE 'createAuthEndpoint\(\s*"/[a-z0-9/:_.-]+"' node_modules/better-auth/dist/api`
+   * e conferir se apareceu caminho fora desta lista. O teste
+   * "a rota HTTP responde" em tests/auth.test.mts trava o outro lado: se algum
+   * dia alguem desligar demais, ele quebra.
+   */
+  disabledPaths: [
+    // Cadastro: conta se cria pelo admin. Redundante com disableSignUp acima,
+    // e de proposito — as duas linhas dizem a mesma coisa em camadas diferentes.
+    "/sign-up/email",
+    "/verify-password",
+
+    // Sessao alheia: encerrar e listar a propria sessao continuam abertos
+    // (/sign-out, /list-sessions); mexer em sessao por id, nao.
+    "/update-session",
+    "/revoke-session",
+    "/revoke-sessions",
+    "/revoke-other-sessions",
+
+    // Conta e perfil: quem edita usuario e a tela do admin, com sessao e RBAC.
+    // Aberto aqui, o /update-user seria o caminho para trocar o proprio e-mail
+    // sem passar por regra nenhuma do produto.
+    "/update-user",
+    "/change-email",
+    "/change-password",
+    "/delete-user",
+    "/delete-user/callback",
+    "/account-info",
+    "/list-accounts",
+
+    // Recuperacao e verificacao por e-mail: nao ha envio de e-mail no ar
+    // (falta o Resend), entao os fluxos existem sem ter como comecar.
+    "/request-password-reset",
+    "/reset-password",
+    "/send-verification-email",
+    "/verify-email",
+
+    // OAuth: nao ha provedor configurado. Reabrir junto com o primeiro.
+    // (`/callback/:id` nao entra: ver a nota sobre parametros acima.)
+    "/sign-in/social",
+    "/link-social",
+    "/unlink-account",
+    "/get-access-token",
+    "/refresh-token",
+  ],
+
+
+  /**
+   * As duas regras de negocio do login moram aqui, e nao na Server Action.
+   *
+   * Motivo: a rota catch-all publica `POST /api/auth/sign-in/email`, que nao
+   * passa por `actions/auth.ts`. Com as regras la, bastava chamar o endpoint
+   * direto para gastar tentativas infinitas e para uma conta desativada
+   * receber cookie valido de 24h. Hooks sao o unico ponto por onde as DUAS
+   * portas passam — o dispatch do Better Auth roda os mesmos hooks para o
+   * router HTTP e para `auth.api.*` — entao a regra vale para as duas, e
+   * para qualquer cliente que apareca depois.
+   */
+  hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path !== ENTRAR) return;
+
+      const email = emailDoCorpo(ctx.body);
+      if (!email) return;
+
+      if (!registrarTentativa(email)) {
+        throw new APIError("TOO_MANY_REQUESTS", {
+          code: MUITAS_TENTATIVAS,
+          message: "Muitas tentativas. Espere alguns minutos e tente de novo.",
+        });
+      }
+
+      // Conta desativada nao entra. `ativo` e coluna nossa: a biblioteca
+      // autentica a credencial, nao a regra de negocio. A recusa sai ANTES da
+      // sessao nascer, e com a MESMA mensagem de credencial invalida — dizer
+      // "conta desativada" confirmaria a quem tentou que o e-mail existe.
+      const [usuario] = await db
+        .select({ ativo: usuarios.ativo })
+        .from(usuarios)
+        .where(and(eq(usuarios.email, email), eq(usuarios.is_deleted, false)))
+        .limit(1);
+
+      if (usuario && !usuario.ativo) {
+        throw new APIError("UNAUTHORIZED", {
+          code: "INVALID_EMAIL_OR_PASSWORD",
+          message: "Invalid email or password",
+        });
+      }
+    }),
+
+    after: createAuthMiddleware(async (ctx) => {
+      if (ctx.path !== ENTRAR) return;
+
+      // Credencial aceita zera o contador. Sem isto o limite contaria acertos
+      // junto com erros, e cinco logins legitimos em quinze minutos — duas
+      // abas, um restart de aba — trancariam a pessoa para fora.
+      if (ctx.context.returned instanceof APIError) return;
+      tentativas.delete(emailDoCorpo(ctx.body));
+    }),
   },
 
   // Sem isto, chamar signIn de dentro de uma Server Action nao grava o cookie:

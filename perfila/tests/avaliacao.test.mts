@@ -106,19 +106,30 @@ before(async () => {
 after(async () => {
   // Limpeza de fixture, com SQL cru: e o unico lugar do projeto onde apagar de
   // verdade e o certo. A aplicacao nunca faz isso — ver excluir().
+  //
+  // Numa transacao so por causa de `saldo_bate_com_extrato`, a constraint da
+  // 0005: apagar o extrato num commit deixaria, naquele instante, um usuario
+  // com saldo que lancamento nenhum explica, e o banco recusaria o teardown.
+  // Hoje este fixture tem saldo zero e o delete nao pega linha nenhuma, entao
+  // passaria de qualquer jeito — mas passaria por sorte, e o dia em que alguem
+  // der credito a este facilitador a suite quebraria dentro do `after`, com
+  // erro que nao aponta para a causa. Apagando tudo junto o usuario ja nao
+  // existe no COMMIT e a checagem pula quem sumiu.
   const tokens = [tokenAberto, tokenExpirado, tokenConcluidoVencido, tokenBorda];
   const lista = tokens.map((token) => `'${token}'`).join(",");
 
-  await db.execute(
-    `delete from auditoria where registro_id in (select id from assessments where token in (${lista}))`,
-  );
-  await db.execute(
-    `delete from assessments_respostas where assessment_id in (select id from assessments where token in (${lista}))`,
-  );
-  await db.execute(`delete from creditos_transacoes where usuario_id = '${facilitador}'`);
-  await db.execute(`delete from assessments where token in (${lista})`);
-  await db.execute(`delete from auditoria where user_id = '${facilitador}'`);
-  await db.execute(`delete from usuarios where id = '${facilitador}'`);
+  await db.transaction(async (tx) => {
+    await tx.execute(
+      `delete from auditoria where registro_id in (select id from assessments where token in (${lista}))`,
+    );
+    await tx.execute(
+      `delete from assessments_respostas where assessment_id in (select id from assessments where token in (${lista}))`,
+    );
+    await tx.execute(`delete from creditos_transacoes where usuario_id = '${facilitador}'`);
+    await tx.execute(`delete from assessments where token in (${lista})`);
+    await tx.execute(`delete from auditoria where user_id = '${facilitador}'`);
+    await tx.execute(`delete from usuarios where id = '${facilitador}'`);
+  });
 });
 
 describe("avaliacao", () => {

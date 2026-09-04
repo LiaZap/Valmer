@@ -8,11 +8,11 @@ import { Pill } from '@/components/ui/Pill'
 import { Progress } from '@/components/ui/Progress'
 import { Select } from '@/components/ui/Select'
 import { cursosDestaque } from '@/data/aprendizado'
-import { faltamParaGold, situacaoPrograma } from '@/data/beneficios'
+
 import { degustacao, indicadores } from '@/data/creditos'
 import { opcoes } from '@/data/opcoes'
 import { dataPorExtenso, saudacao } from '@/lib/data-extenso'
-import { contaAtual, transacoesDaConta } from '@/lib/painel'
+import { contaAtual, progressoDoPrograma, transacoesDaConta } from '@/lib/painel'
 import ui from '@/styles/common.module.css'
 import styles from './page.module.css'
 
@@ -26,7 +26,11 @@ import styles from './page.module.css'
  */
 export default async function DashboardPage() {
   const agora = new Date()
-  const [conta, extrato] = await Promise.all([contaAtual(), transacoesDaConta()])
+  const [conta, extrato, programa] = await Promise.all([
+    contaAtual(),
+    transacoesDaConta(),
+    progressoDoPrograma(),
+  ])
 
   const recebidos = extrato
     .filter((movimento) => movimento.quantidade > 0)
@@ -169,9 +173,9 @@ export default async function DashboardPage() {
           <div className={styles.programaTopo}>
             <div>
               <div className={`${ui.eyebrow} ${ui.eyebrowOnInk}`}>Programa de benefícios</div>
-              <div className={styles.programaCategoria}>{situacaoPrograma.categoria}</div>
+              <div className={styles.programaCategoria}>{programa.categoria}</div>
             </div>
-            <Pill tone="onInk">Expira {situacaoPrograma.expiraEm}</Pill>
+            <Pill tone="onInk">Expira {programa.expiraEm}</Pill>
           </div>
 
           <div className={styles.programaBarras}>
@@ -179,35 +183,42 @@ export default async function DashboardPage() {
               <div className={styles.barraLabel}>
                 <span>Créditos utilizados</span>
                 <span className={styles.barraValor}>
-                  {situacaoPrograma.utilizados.atual} de {situacaoPrograma.utilizados.meta}
+                  {programa.utilizados.atual} de {programa.utilizados.meta}
                 </span>
               </div>
               <Progress
                 tone="onInk"
                 label="Créditos utilizados no ciclo"
-                value={
-                  (situacaoPrograma.utilizados.atual / situacaoPrograma.utilizados.meta) * 100
-                }
+                value={(programa.utilizados.atual / programa.utilizados.meta) * 100}
               />
             </div>
             <div>
               <div className={styles.barraLabel}>
                 <span>Créditos comprados</span>
                 <span className={styles.barraValor}>
-                  {situacaoPrograma.comprados.atual} de {situacaoPrograma.comprados.meta}
+                  {programa.comprados.atual} de {programa.comprados.meta}
                 </span>
               </div>
               <Progress
                 tone="onInk"
                 label="Créditos comprados no ciclo"
-                value={(situacaoPrograma.comprados.atual / situacaoPrograma.comprados.meta) * 100}
+                value={(programa.comprados.atual / programa.comprados.meta) * 100}
               />
             </div>
           </div>
 
+          {/* No topo da régua não há próxima categoria, e a frase "faltam N
+              para null" era o que apareceria. Quem chegou lá merece a frase
+              que diz isso. */}
           <div className={styles.programaNota}>
-            Faltam {faltamParaGold.utilizados} créditos para a categoria{' '}
-            <b>{situacaoPrograma.proximaCategoria}</b>.{' '}
+            {programa.proximaCategoria ? (
+              <>
+                Faltam {programa.faltam.utilizados} créditos utilizados para a categoria{' '}
+                <b>{programa.proximaCategoria}</b>.{' '}
+              </>
+            ) : (
+              <>Você está na categoria mais alta do programa. </>
+            )}
             <Link href="/facilitador/beneficios" className={styles.programaLink}>
               Ver benefícios
             </Link>

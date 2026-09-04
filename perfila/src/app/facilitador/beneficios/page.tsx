@@ -1,33 +1,36 @@
-'use client'
-
 import type { CSSProperties } from 'react'
-import { Button } from '@/components/ui/Button'
+import { BotaoAviso } from '@/components/ui/BotaoAviso'
 import { Card } from '@/components/ui/Card'
 import { Icon } from '@/components/ui/Icon'
 import { AutoGrid } from '@/components/ui/Layout'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { tableStyles } from '@/components/ui/Table'
-import { useToast } from '@/components/ui/Toast'
-import { beneficios, categorias, faltamParaGold, situacaoPrograma } from '@/data/beneficios'
+import { beneficios, categorias } from '@/data/beneficios'
+import { progressoDoPrograma } from '@/lib/painel'
 import ui from '@/styles/common.module.css'
 import styles from './page.module.css'
 
 /** Percentual arredondado para baixo: só mostra a meta batida. */
 function progresso(atual: number, meta: number) {
-  return Math.floor((atual / meta) * 100)
+  return Math.min(100, Math.floor((atual / meta) * 100))
 }
 
-export default function BeneficiosPage() {
-  const { toast } = useToast()
+/**
+ * Programa de benefícios do parceiro.
+ *
+ * Server Component: a situação vem de `progressoDoPrograma()`, a mesma leitura
+ * que alimenta o cartão do dashboard. Antes as duas telas liam um objeto fixo
+ * que dizia "71 de 80 utilizados" para todo mundo; agora, se discordarem, é
+ * porque discordam do banco — não uma da outra.
+ *
+ * A régua (faixas, limites, matriz de vantagens) continua vindo do arquivo:
+ * aquilo é o contrato do programa, igual para todos os parceiros.
+ */
+export default async function BeneficiosPage() {
+  const programa = await progressoDoPrograma()
 
-  const pctUtilizados = progresso(
-    situacaoPrograma.utilizados.atual,
-    situacaoPrograma.utilizados.meta,
-  )
-  const pctComprados = progresso(
-    situacaoPrograma.comprados.atual,
-    situacaoPrograma.comprados.meta,
-  )
+  const pctUtilizados = progresso(programa.utilizados.atual, programa.utilizados.meta)
+  const pctComprados = progresso(programa.comprados.atual, programa.comprados.meta)
 
   return (
     <>
@@ -35,19 +38,19 @@ export default function BeneficiosPage() {
         title="Programa de Benefícios"
         subtitle="Quanto mais créditos você compra ou utiliza, mais vantagens desbloqueia."
         actions={
-          <Button icon={<Icon name="chat" />} onClick={() => toast('Abrindo WhatsApp')}>
+          <BotaoAviso icon={<Icon name="chat" />} aviso="Abrindo WhatsApp">
             Falar com o consultor
-          </Button>
+          </BotaoAviso>
         }
       />
 
       <AutoGrid min={240}>
         <Card tone="ink" className={styles.categoria}>
           <div className={`${ui.eyebrow} ${ui.eyebrowOnInk}`}>Categoria atual</div>
-          <div className={styles.categoriaNome}>{situacaoPrograma.categoria}</div>
+          <div className={styles.categoriaNome}>{programa.categoria}</div>
           <div className={styles.categoriaNota}>
-            Expira em {situacaoPrograma.expiraEm} · valores considerados a partir de{' '}
-            {situacaoPrograma.cicloIniciadoEm}
+            Expira em {programa.expiraEm} · valores considerados a partir de{' '}
+            {programa.cicloIniciadoEm}
           </div>
         </Card>
 
@@ -62,8 +65,15 @@ export default function BeneficiosPage() {
           <div>
             <div className={ui.cardTitle}>Créditos utilizados</div>
             <div className={styles.metaTexto}>
-              {situacaoPrograma.utilizados.atual} de {situacaoPrograma.utilizados.meta} · faltam{' '}
-              {faltamParaGold.utilizados} para <b>{situacaoPrograma.proximaCategoria}</b>
+              {programa.utilizados.atual} de {programa.utilizados.meta}
+              {programa.proximaCategoria ? (
+                <>
+                  {' '}
+                  · faltam {programa.faltam.utilizados} para <b>{programa.proximaCategoria}</b>
+                </>
+              ) : (
+                <> · categoria máxima atingida</>
+              )}
             </div>
           </div>
         </Card>
@@ -79,8 +89,15 @@ export default function BeneficiosPage() {
           <div>
             <div className={ui.cardTitle}>Créditos comprados</div>
             <div className={styles.metaTexto}>
-              {situacaoPrograma.comprados.atual} de {situacaoPrograma.comprados.meta} · faltam{' '}
-              {faltamParaGold.comprados} para <b>{situacaoPrograma.proximaCategoria}</b>
+              {programa.comprados.atual} de {programa.comprados.meta}
+              {programa.proximaCategoria ? (
+                <>
+                  {' '}
+                  · faltam {programa.faltam.comprados} para <b>{programa.proximaCategoria}</b>
+                </>
+              ) : (
+                <> · categoria máxima atingida</>
+              )}
             </div>
           </div>
         </Card>

@@ -31,27 +31,45 @@ function entrarComo(id: string) {
 }
 
 before(async () => {
-  const [a] = await db
-    .insert(usuarios)
-    .values({
-      nome: "Facilitador A",
-      email: `a.${marca}@exemplo.com`,
-      papel: "facilitador",
-      creditos: 10,
-      modified_by: SISTEMA,
-    })
-    .returning();
+  // Os 10 creditos de A nascem com lastro no extrato, na mesma transacao.
+  //
+  // A partir da 0005 o banco confere no COMMIT se `usuarios.creditos` bate com
+  // a soma do extrato. Um facilitador com saldo que transacao nenhuma explica e
+  // exatamente o estado que a guarda proibe — e o fixture nao deve ensaiar um
+  // caminho que producao nao permite. B fica com 0, que a soma vazia ja explica.
+  const [a, b] = await db.transaction(async (tx) => {
+    const [criadoA] = await tx
+      .insert(usuarios)
+      .values({
+        nome: "Facilitador A",
+        email: `a.${marca}@exemplo.com`,
+        papel: "facilitador",
+        creditos: 10,
+        modified_by: SISTEMA,
+      })
+      .returning();
 
-  const [b] = await db
-    .insert(usuarios)
-    .values({
-      nome: "Facilitador B",
-      email: `b.${marca}@exemplo.com`,
-      papel: "facilitador",
-      creditos: 0,
+    await tx.insert(creditosTransacoes).values({
+      usuario_id: criadoA.id,
+      tipo: "bonus",
+      quantidade: 10,
+      descricao: "Saldo inicial do fixture",
       modified_by: SISTEMA,
-    })
-    .returning();
+    });
+
+    const [criadoB] = await tx
+      .insert(usuarios)
+      .values({
+        nome: "Facilitador B",
+        email: `b.${marca}@exemplo.com`,
+        papel: "facilitador",
+        creditos: 0,
+        modified_by: SISTEMA,
+      })
+      .returning();
+
+    return [criadoA, criadoB];
+  });
 
   facilitadorA = a.id;
   facilitadorB = b.id;
@@ -60,17 +78,22 @@ before(async () => {
 after(async () => {
   // Limpeza de fixture, com SQL cru: e o unico lugar do projeto onde apagar
   // de verdade e o certo. A aplicacao nunca faz isso — ver excluir().
+  //
+  // Numa transacao so por causa da guarda da 0005: apagar o extrato num commit
+  // deixaria, naquele instante, um usuario com saldo que transacao nenhuma
+  // explica. Apagando tudo junto o usuario ja nao existe no COMMIT, e a
+  // checagem pula quem sumiu.
   const ids = [facilitadorA, facilitadorB];
-  await db.execute(
-    `delete from auditoria where user_id in ('${ids.join("','")}')`,
-  );
-  await db.execute(
-    `delete from creditos_transacoes where usuario_id in ('${ids.join("','")}')`,
-  );
-  await db.execute(
-    `delete from assessments where facilitador_id in ('${ids.join("','")}')`,
-  );
-  await db.execute(`delete from usuarios where id in ('${ids.join("','")}')`);
+  await db.transaction(async (tx) => {
+    await tx.execute(`delete from auditoria where user_id in ('${ids.join("','")}')`);
+    await tx.execute(
+      `delete from creditos_transacoes where usuario_id in ('${ids.join("','")}')`,
+    );
+    await tx.execute(
+      `delete from assessments where facilitador_id in ('${ids.join("','")}')`,
+    );
+    await tx.execute(`delete from usuarios where id in ('${ids.join("','")}')`);
+  });
 });
 
 describe("assessments", () => {

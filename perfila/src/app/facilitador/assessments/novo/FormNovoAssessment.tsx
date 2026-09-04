@@ -58,10 +58,11 @@ export function FormNovoAssessment({ creditos }: { creditos: number }) {
         return
       }
 
-      // `refresh` antes do `push`: a lista é Server Component e o navegador
-      // guarda o payload dela. Sem invalidar, o facilitador volta para a lista
-      // e não encontra o assessment que acabou de criar.
-      router.refresh()
+      // Sem `router.refresh()` aqui: chamado antes do `push` ele atualizava a
+      // rota que está saindo, e a navegação seguinte servia o layout do cache
+      // mesmo assim — a lista dizia 11 créditos e o chip da barra lateral,
+      // 12. Quem invalida agora é o `revalidatePath` da própria action, que
+      // derruba o layout e tudo abaixo dele antes desta navegação acontecer.
       router.push('/facilitador/assessments')
       toast(`Assessment criado para ${nome.trim()}. O link está na lista.`)
     })

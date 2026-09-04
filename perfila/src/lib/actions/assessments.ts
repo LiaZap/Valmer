@@ -9,6 +9,7 @@
 
 import { randomBytes } from "node:crypto";
 import { and, desc, eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 
 import { ZodError } from "zod";
 import { db } from "@/lib/db";
@@ -177,17 +178,26 @@ export async function criar(dados: unknown) {
  * Devolve o token porque o link do avaliado e o produto desta tela: sem ele o
  * facilitador nao tem o que entregar.
  *
- * Quem atualiza a lista depois e o `router.refresh()` da tela, e nao um
- * `revalidatePath` daqui: estas rotas sao dinamicas por sessao, entao nao ha
- * cache compartilhado para invalidar — so o cache de rotas do navegador. E
- * `revalidatePath` exige uma requisicao em curso, o que quebraria esta funcao
- * para qualquer chamador que nao seja uma tela (um script, um teste).
+ * A invalidacao aponta para o LAYOUT porque e la que mora o saldo que ficava
+ * velho: o subtitulo da lista vem da pagina, mas o chip da barra lateral vem
+ * de `facilitador/layout.tsx`, e numa navegacao pelo cliente o Next
+ * reaproveita o layout compartilhado. Sem invalidar do servidor, a tela
+ * mostrava "11 creditos" no subtitulo e "12 creditos" no chip ao mesmo tempo
+ * — e numa tela cujo proposito e decidir gasto de credito, dois saldos
+ * diferentes valem menos que nenhum.
+ *
+ * Nao adianta `router.refresh()` antes do `push`: ele atualiza a rota que esta
+ * saindo, nao a que vai entrar.
+ *
+ * Por causa disto esta funcao exige uma requisicao em curso: `revalidatePath`
+ * lanca fora de uma. Quem chama de script ou de teste usa `criar()` direto.
  */
 export async function criarPelaTela(
   dados: unknown,
 ): Promise<{ ok: true; token: string } | { ok: false; erro: string }> {
   try {
     const criado = await criar(dados);
+    revalidatePath("/facilitador", "layout");
     return { ok: true, token: criado.token };
   } catch (erro) {
     if (erro instanceof RecusaDeRegra) return { ok: false, erro: erro.message };

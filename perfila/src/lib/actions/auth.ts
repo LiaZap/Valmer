@@ -1,9 +1,11 @@
 /**
  * Entrar e sair da plataforma.
  *
- * A mecanica de credencial, cookie e sessao e do Better Auth (lib/auth/config).
- * O que mora aqui e o que e do produto: a mensagem que nao entrega quem e
- * cliente, o limite de tentativas e o destino por papel.
+ * A mecanica de credencial, cookie e sessao e do Better Auth (lib/auth/config),
+ * e as REGRAS do login tambem: limite de tentativas por conta e recusa de conta
+ * desativada sao hooks da biblioteca, porque a rota /api/auth/* e uma segunda
+ * porta que nao passa por aqui. O que sobrou nesta action e o que so a tela
+ * precisa: a mensagem que nao entrega quem e cliente, e o destino por papel.
  *
  * O respondente nao passa por aqui: o assessment dele e sem cadastro, com o
  * token do link como credencial.
@@ -13,7 +15,7 @@
 import { headers } from "next/headers";
 import { APIError } from "better-auth/api";
 import { registrarAuditoria } from "@/lib/audit/logger";
-import { auth } from "@/lib/auth/config";
+import { auth, MUITAS_TENTATIVAS } from "@/lib/auth/config";
 import { getSession } from "@/lib/auth/sessao";
 import { loginSchema } from "@/lib/validators/auth";
 
@@ -26,38 +28,11 @@ import { loginSchema } from "@/lib/validators/auth";
  */
 const CREDENCIAL_INVALIDA = "E-mail ou senha incorretos.";
 
-/**
- * ponytail: contador em memoria, por processo. Segura o ataque de forca bruta
- * de uma origem so; nao sobrevive a restart nem enxerga as outras instancias.
- * Trocar por Redis (ou pelo secondaryStorage do Better Auth) quando houver
- * mais de um processo servindo login.
- */
-const TENTATIVAS_MAX = 5;
-const JANELA_MS = 15 * 60 * 1000;
-const tentativas = new Map<string, { contador: number; ate: number }>();
-
-function registrarTentativa(chave: string): boolean {
-  const agora = Date.now();
-  const atual = tentativas.get(chave);
-
-  if (!atual || agora > atual.ate) {
-    tentativas.set(chave, { contador: 1, ate: agora + JANELA_MS });
-    return true;
-  }
-
-  atual.contador += 1;
-  return atual.contador <= TENTATIVAS_MAX;
-}
-
 export type ResultadoLogin = { ok: true; destino: string } | { ok: false; erro: string };
 
 export async function login(email: string, senha: string): Promise<ResultadoLogin> {
   const validado = loginSchema.safeParse({ email, senha });
   if (!validado.success) return { ok: false, erro: CREDENCIAL_INVALIDA };
-
-  if (!registrarTentativa(validado.data.email)) {
-    return { ok: false, erro: "Muitas tentativas. Espere alguns minutos e tente de novo." };
-  }
 
   try {
     // O plugin nextCookies grava o cookie da resposta; sem ele a sessao nasce
@@ -67,14 +42,7 @@ export async function login(email: string, senha: string): Promise<ResultadoLogi
       headers: await headers(),
     });
 
-    const usuario = resposta.user as { id: string; papel?: string; ativo?: boolean };
-
-    // Conta desativada nao entra. A checagem e aqui porque `ativo` e coluna
-    // nossa: o Better Auth autentica a credencial, nao a regra de negocio.
-    if (usuario.ativo === false) {
-      await auth.api.signOut({ headers: await headers() });
-      return { ok: false, erro: CREDENCIAL_INVALIDA };
-    }
+    const usuario = resposta.user as { id: string; papel?: string };
 
     await registrarAuditoria({
       userId: usuario.id,
@@ -86,9 +54,17 @@ export async function login(email: string, senha: string): Promise<ResultadoLogi
 
     return { ok: true, destino: usuario.papel === "admin" ? "/admin" : "/facilitador" };
   } catch (erro) {
-    // A biblioteca distingue "usuario nao existe" de "senha errada"; o produto
-    // nao pode. Toda falha de credencial sai com a mesma frase.
-    if (erro instanceof APIError) return { ok: false, erro: CREDENCIAL_INVALIDA };
+    if (erro instanceof APIError) {
+      // Travado por tentativas e o UNICO caso que a tela precisa distinguir:
+      // repetir "e-mail ou senha incorretos" a quem ja acertou faria a pessoa
+      // trocar uma senha que estava certa.
+      const codigo = (erro.body as { code?: string } | undefined)?.code;
+      if (codigo === MUITAS_TENTATIVAS) return { ok: false, erro: erro.message };
+
+      // No resto a biblioteca distingue "usuario nao existe" de "senha errada";
+      // o produto nao pode. Toda falha de credencial sai com a mesma frase.
+      return { ok: false, erro: CREDENCIAL_INVALIDA };
+    }
     throw erro;
   }
 }

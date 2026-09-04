@@ -10,11 +10,12 @@
  * servidor. Transformar leitura de tela em endpoint POST publico so aumentaria
  * a superficie exposta.
  */
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, lt, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { assessments, creditosTransacoes, usuarios } from "@/lib/db/schema";
 import { getSession, temPermissao, type Sessao } from "@/lib/auth";
 import { initials } from "@/lib/text";
+import { categoriaAtingida, cicloDe, faltamPara, metaDaBarra } from "@/lib/beneficios";
 import type { Assessment, Facilitador, Transacao } from "@/data/facilitadores";
 import type { FatorDisc } from "@/data/dna";
 
@@ -132,6 +133,17 @@ export async function listarFacilitadores(): Promise<Facilitador[]> {
   return linhas.map(paraFacilitador);
 }
 
+function paraTransacao(linha: typeof creditosTransacoes.$inferSelect): Transacao {
+  return {
+    id: linha.id,
+    facilitadorId: linha.usuario_id,
+    tipo: linha.tipo,
+    quantidade: linha.quantidade,
+    descricao: linha.descricao,
+    data: data(linha.created_at),
+  };
+}
+
 /** Extrato de creditos de todos os parceiros, do mais novo ao mais antigo. */
 export async function listarTransacoes(): Promise<Transacao[]> {
   await exigirSessao("usuarios");
@@ -142,14 +154,38 @@ export async function listarTransacoes(): Promise<Transacao[]> {
     .where(eq(creditosTransacoes.is_deleted, false))
     .orderBy(desc(creditosTransacoes.created_at));
 
-  return linhas.map((linha) => ({
-    id: linha.id,
-    facilitadorId: linha.usuario_id,
-    tipo: linha.tipo,
-    quantidade: linha.quantidade,
-    descricao: linha.descricao,
-    data: data(linha.created_at),
-  }));
+  return linhas.map(paraTransacao);
+}
+
+/**
+ * Extrato de quem esta logado.
+ *
+ * Existe separada de `listarTransacoes` de proposito: aquela e do admin e
+ * devolve o extrato de todos os parceiros. O recorte por dono vai no WHERE,
+ * como em `assessmentsVisiveis` — filtrar depois da consulta significaria
+ * carregar o extrato da plataforma inteira para mostrar o de uma conta, e
+ * bastaria um `.filter` esquecido para o dinheiro de um parceiro aparecer na
+ * tela de outro.
+ *
+ * Nao ha excecao para o admin aqui: esta e a tela "meus creditos", e o extrato
+ * dele e o dele. Para ver o dos outros existe /admin/creditos.
+ */
+export async function transacoesDaConta(): Promise<Transacao[]> {
+  const sessao = await getSession();
+  if (!sessao) throw new Error("Nao autenticado");
+
+  const linhas = await db
+    .select()
+    .from(creditosTransacoes)
+    .where(
+      and(
+        eq(creditosTransacoes.is_deleted, false),
+        eq(creditosTransacoes.usuario_id, sessao.userId),
+      ),
+    )
+    .orderBy(desc(creditosTransacoes.created_at));
+
+  return linhas.map(paraTransacao);
 }
 
 /** A conta de quem esta logado: saldo e dados do cabecalho das telas. */
@@ -183,4 +219,60 @@ export async function empresasPorId(ids: string[]): Promise<Record<string, strin
     .where(and(inArray(usuarios.id, ids), eq(usuarios.is_deleted, false)));
 
   return Object.fromEntries(linhas.map((linha) => [linha.id, linha.empresa ?? linha.nome]));
+}
+
+/**
+ * Situacao do parceiro no programa de beneficios, no ciclo vigente.
+ *
+ * As somas acontecem no banco, com a janela do ciclo no WHERE: o que a tela
+ * precisa sao dois totais, e trazer o extrato inteiro para soma-lo aqui viraria
+ * uma leitura que cresce todo ano sem que a tela mostre uma linha a mais.
+ *
+ * Bonus nao entra em "comprados": a regra do programa fala em credito
+ * COMPRADO, e bonus e concessao. Contar bonus ali daria categoria a quem
+ * recebeu cortesia, que e o oposto do que o programa recompensa.
+ */
+export async function progressoDoPrograma() {
+  const sessao = await getSession();
+  if (!sessao) throw new Error("Nao autenticado");
+
+  const [dono] = await db
+    .select({ criadoEm: usuarios.created_at })
+    .from(usuarios)
+    .where(and(eq(usuarios.id, sessao.userId), eq(usuarios.is_deleted, false)))
+    .limit(1);
+
+  if (!dono) throw new Error("Usuario da sessao nao encontrado");
+
+  const ciclo = cicloDe(dono.criadoEm, new Date());
+
+  const [totais] = await db
+    .select({
+      comprados: sql<number>`coalesce(sum(case when ${creditosTransacoes.tipo} = 'compra' then ${creditosTransacoes.quantidade} else 0 end), 0)::int`,
+      utilizados: sql<number>`coalesce(sum(case when ${creditosTransacoes.tipo} = 'uso' then abs(${creditosTransacoes.quantidade}) else 0 end), 0)::int`,
+    })
+    .from(creditosTransacoes)
+    .where(
+      and(
+        eq(creditosTransacoes.is_deleted, false),
+        eq(creditosTransacoes.usuario_id, sessao.userId),
+        gte(creditosTransacoes.created_at, ciclo.inicio),
+        lt(creditosTransacoes.created_at, ciclo.fim),
+      ),
+    );
+
+  const comprados = totais?.comprados ?? 0;
+  const utilizados = totais?.utilizados ?? 0;
+  const { atual, proxima } = categoriaAtingida(comprados, utilizados);
+  const meta = metaDaBarra(atual, proxima);
+
+  return {
+    categoria: atual.name,
+    proximaCategoria: proxima?.name ?? null,
+    cicloIniciadoEm: data(ciclo.inicio),
+    expiraEm: data(ciclo.fim),
+    comprados: { atual: comprados, meta: meta.comprados },
+    utilizados: { atual: utilizados, meta: meta.utilizados },
+    faltam: faltamPara(proxima, comprados, utilizados),
+  };
 }

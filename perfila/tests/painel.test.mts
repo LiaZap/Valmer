@@ -16,7 +16,7 @@ import { config } from "dotenv";
 config({ path: [".env.local", ".env"] });
 
 const { db } = await import("@/lib/db");
-const { usuarios, assessments } = await import("@/lib/db/schema");
+const { usuarios, assessments, creditosTransacoes } = await import("@/lib/db/schema");
 const painel = await import("@/lib/painel");
 
 const marca = `teste-${Date.now()}`;
@@ -40,18 +40,38 @@ function entrarComo(id: string) {
   process.env.SESSAO_DEV_USUARIO_ID = id;
 }
 
+/**
+ * O saldo do fixture nasce com lastro no extrato.
+ *
+ * A partir da 0005 o banco confere, no COMMIT, se `usuarios.creditos` bate com
+ * a soma do extrato do usuario. Criar um facilitador com 10 creditos que
+ * transacao nenhuma explica e o estado que a guarda existe para proibir — em
+ * producao seria credito surgido do nada. As duas escritas vao na mesma
+ * transacao, exatamente como `criar()` faz.
+ */
 async function criarUsuario(nome: string, papel: "admin" | "facilitador") {
-  const [linha] = await db
-    .insert(usuarios)
-    .values({
-      nome,
-      email: `${nome.toLowerCase().replace(/\s/g, ".")}.${marca}@exemplo.com`,
-      papel,
-      creditos: 10,
+  return db.transaction(async (tx) => {
+    const [linha] = await tx
+      .insert(usuarios)
+      .values({
+        nome,
+        email: `${nome.toLowerCase().replace(/\s/g, ".")}.${marca}@exemplo.com`,
+        papel,
+        creditos: 10,
+        modified_by: SISTEMA,
+      })
+      .returning();
+
+    await tx.insert(creditosTransacoes).values({
+      usuario_id: linha.id,
+      tipo: "bonus",
+      quantidade: 10,
+      descricao: "Saldo inicial do fixture",
       modified_by: SISTEMA,
-    })
-    .returning();
-  return linha.id;
+    });
+
+    return linha.id;
+  });
 }
 
 async function criarAssessment(dono: string, situacao: "pendente" | "concluido", expira: Date) {
@@ -87,9 +107,17 @@ before(async () => {
 after(async () => {
   // Limpeza de fixture, com SQL cru: e o unico lugar do projeto onde apagar
   // de verdade e o certo. A aplicacao nunca faz isso.
+  //
+  // Numa transacao so por causa da guarda da 0005: apagar o extrato num commit
+  // deixaria, naquele instante, um usuario com saldo que transacao nenhuma
+  // explica. Apagando tudo junto o usuario ja nao existe no COMMIT, e a
+  // checagem pula quem sumiu.
   const ids = [facilitadorA, facilitadorB, admin];
-  await db.execute(`delete from assessments where facilitador_id in ('${ids.join("','")}')`);
-  await db.execute(`delete from usuarios where id in ('${ids.join("','")}')`);
+  await db.transaction(async (tx) => {
+    await tx.execute(`delete from creditos_transacoes where usuario_id in ('${ids.join("','")}')`);
+    await tx.execute(`delete from assessments where facilitador_id in ('${ids.join("','")}')`);
+    await tx.execute(`delete from usuarios where id in ('${ids.join("','")}')`);
+  });
   delete process.env.SESSAO_DEV_USUARIO_ID;
 });
 
