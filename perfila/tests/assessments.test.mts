@@ -156,34 +156,14 @@ describe("assessments", () => {
     );
   });
 
-  /**
-   * O formulario da tela chama `criarPelaTela`, e nao `criar`. Se ele voltar a
-   * so navegar e avisar "Assessment criado", ou se a recusa virar excecao
-   * opaca, e aqui que quebra.
+  /*
+   * `criarPelaTela` e o que o formulario da tela chama. O caminho de sucesso
+   * dela nao cabe aqui: ele termina em `revalidatePath`, que exige uma
+   * requisicao do Next em curso. A gravacao e o desconto ja estao cobertos
+   * acima, em `criar()`, que e quem faz o trabalho — o que sobra para estes
+   * dois casos e o que so existe no invólucro: recusa vira objeto legivel em
+   * vez de excecao, que em producao chegaria a tela como um digest opaco.
    */
-  it("criarPelaTela grava de verdade e cobra o credito", async () => {
-    entrarComo(facilitadorA);
-    const [antes] = await db.select().from(usuarios).where(eq(usuarios.id, facilitadorA));
-
-    const resposta = await acoes.criarPelaTela({
-      avaliado_nome: "Carla Nunes",
-      avaliado_email: `carla.${marca}@exemplo.com`,
-      tipo_relatorio: "S2",
-    });
-
-    assert.equal(resposta.ok, true);
-    assert.ok(resposta.ok && resposta.token, "devolve o token do link do avaliado");
-
-    const [gravado] = await db
-      .select()
-      .from(assessments)
-      .where(eq(assessments.token, resposta.ok ? resposta.token : ""));
-    assert.equal(gravado.avaliado_nome, "Carla Nunes");
-
-    const [depois] = await db.select().from(usuarios).where(eq(usuarios.id, facilitadorA));
-    assert.equal(depois.creditos, antes.creditos - 2, "S2 custa 2 creditos");
-  });
-
   it("criarPelaTela devolve a falta de saldo como recusa, e nao como excecao", async () => {
     entrarComo(facilitadorB);
     const resposta = await acoes.criarPelaTela({

@@ -29,6 +29,8 @@ const AMANHA = new Date(Date.now() + DIA);
 let facilitadorA = "";
 let facilitadorB = "";
 let admin = "";
+/** Conta velha o bastante para ter um ciclo anterior ao vigente. */
+let facilitadorCiclo = "";
 
 /** Ids dos assessments criados aqui, na ordem em que sao inseridos. */
 let vencido = "";
@@ -102,7 +104,65 @@ before(async () => {
   noPrazo = await criarAssessment(facilitadorA, "pendente", AMANHA);
   concluidoVencido = await criarAssessment(facilitadorA, "concluido", ONTEM);
   deOutroDono = await criarAssessment(facilitadorB, "pendente", AMANHA);
+
+  facilitadorCiclo = await criarParceiroComHistorico();
 });
+
+/**
+ * Parceiro com dois ciclos de historico.
+ *
+ * A conta nasceu ha ~820 dias, entao o ciclo vigente comecou no aniversario de
+ * ~90 dias atras. Os lancamentos ficam dos dois lados dessa fronteira de
+ * proposito: e o unico jeito de provar que a janela corta.
+ *
+ * O saldo declarado (10) e a soma de TODAS as linhas, e nao das do ciclo — a
+ * constraint `saldo_bate_com_extrato` conta o extrato inteiro. Que o saldo e o
+ * progresso do programa contem coisas diferentes e o ponto: saldo e a vida
+ * toda da conta, categoria e o ciclo corrente.
+ */
+async function criarParceiroComHistorico() {
+  const diasAtras = (dias: number) => new Date(Date.now() - dias * DIA);
+
+  return db.transaction(async (tx) => {
+    const [linha] = await tx
+      .insert(usuarios)
+      .values({
+        nome: "Facilitador Ciclo",
+        email: `ciclo.${marca}@exemplo.com`,
+        papel: "facilitador",
+        creditos: 10,
+        created_at: diasAtras(820),
+        modified_by: SISTEMA,
+      })
+      .returning();
+
+    const lancar = (
+      tipo: "compra" | "uso" | "bonus",
+      quantidade: number,
+      dias: number,
+      descricao: string,
+    ) =>
+      tx.insert(creditosTransacoes).values({
+        usuario_id: linha.id,
+        tipo,
+        quantidade,
+        descricao,
+        created_at: diasAtras(dias),
+        modified_by: SISTEMA,
+      });
+
+    // Ciclo ANTERIOR: nao pode contar para a categoria de hoje.
+    await lancar("compra", 10, 500, "Compra do ciclo passado");
+    await lancar("uso", -4, 500, "Uso do ciclo passado");
+
+    // Ciclo VIGENTE.
+    await lancar("compra", 5, 30, "Compra deste ciclo");
+    await lancar("bonus", 2, 30, "Bonus deste ciclo");
+    await lancar("uso", -3, 30, "Uso deste ciclo");
+
+    return linha.id;
+  });
+}
 
 after(async () => {
   // Limpeza de fixture, com SQL cru: e o unico lugar do projeto onde apagar
@@ -112,7 +172,7 @@ after(async () => {
   // deixaria, naquele instante, um usuario com saldo que transacao nenhuma
   // explica. Apagando tudo junto o usuario ja nao existe no COMMIT, e a
   // checagem pula quem sumiu.
-  const ids = [facilitadorA, facilitadorB, admin];
+  const ids = [facilitadorA, facilitadorB, admin, facilitadorCiclo];
   await db.transaction(async (tx) => {
     await tx.execute(`delete from creditos_transacoes where usuario_id in ('${ids.join("','")}')`);
     await tx.execute(`delete from assessments where facilitador_id in ('${ids.join("','")}')`);
@@ -178,6 +238,100 @@ describe("painel", () => {
 
     assert.equal(conta.id, facilitadorB);
     assert.equal(conta.creditos, 10);
+  });
+
+  it("transacoesDaConta traz so o extrato de quem esta logado", async () => {
+    entrarComo(facilitadorA);
+    const meu = await painel.transacoesDaConta();
+
+    assert.ok(meu.length > 0, "o saldo do fixture tem lastro no extrato");
+    assert.ok(
+      meu.every((movimento) => movimento.facilitadorId === facilitadorA),
+      "nenhum movimento de outro dono atravessa o recorte",
+    );
+
+    // O admin nao e excecao aqui: esta e a tela "meus creditos". Para ver o
+    // dos outros existe /admin/creditos, que usa listarTransacoes().
+    entrarComo(admin);
+    const doAdmin = await painel.transacoesDaConta();
+    assert.ok(doAdmin.every((movimento) => movimento.facilitadorId === admin));
+  });
+
+  it("o extrato exibido explica o saldo exibido", async () => {
+    entrarComo(facilitadorA);
+    const [conta, extrato] = await Promise.all([
+      painel.contaAtual(),
+      painel.transacoesDaConta(),
+    ]);
+
+    // E o invariante que a tela de creditos mostra em texto: recebidos menos
+    // consumidos da o saldo. O banco garante com a constraint
+    // `saldo_bate_com_extrato`; aqui se confere que as DUAS leituras que a
+    // tela usa continuam contando a mesma historia — uma consulta com o
+    // recorte errado quebraria isto sem quebrar a constraint.
+    const soma = extrato.reduce((total, movimento) => total + movimento.quantidade, 0);
+    assert.equal(soma, conta.creditos);
+  });
+
+  it("sem sessao nao ha extrato", async () => {
+    delete process.env.SESSAO_DEV_USUARIO_ID;
+    await assert.rejects(() => painel.transacoesDaConta(), /Nao autenticado/);
+  });
+
+  it("o programa conta so o ciclo vigente, e bonus nao e compra", async () => {
+    entrarComo(facilitadorCiclo);
+    const programa = await painel.progressoDoPrograma();
+
+    // O parceiro comprou 15 e usou 7 na vida da conta. No ciclo vigente:
+    // comprou 5 e usou 3. O que o ciclo passado moveu ficou para tras — e a
+    // categoria de hoje nao pode ser paga com credito do ano retrasado.
+    assert.equal(programa.comprados.atual, 5, "compra do ciclo anterior nao entra");
+    assert.equal(programa.utilizados.atual, 3, "uso do ciclo anterior nao entra");
+
+    // Os 2 de bonus estao DENTRO do ciclo e mesmo assim nao contam: a regra
+    // premia credito comprado, e bonus e cortesia. Se contasse, daria para
+    // subir de categoria recebendo presente.
+    assert.notEqual(programa.comprados.atual, 7, "bonus nao conta como comprado");
+
+    assert.equal(programa.categoria, "Membro");
+    assert.equal(programa.proximaCategoria, "Gold");
+    assert.equal(programa.faltam.comprados, 115, "faltam 120 - 5 para Gold");
+    assert.equal(programa.faltam.utilizados, 77, "faltam 80 - 3 para Gold");
+  });
+
+  it("o saldo e a vida toda da conta; a categoria e so o ciclo", async () => {
+    entrarComo(facilitadorCiclo);
+    const [conta, extrato, programa] = await Promise.all([
+      painel.contaAtual(),
+      painel.transacoesDaConta(),
+      painel.progressoDoPrograma(),
+    ]);
+
+    // As duas leituras contam coisas diferentes de proposito, e as duas
+    // aparecem na mesma tela. O saldo fecha com o extrato INTEIRO (invariante
+    // do banco); o progresso fecha so com a janela. Confundir as duas faria a
+    // tela de creditos e a de beneficios discordarem sem ninguem estar errado.
+    const soma = extrato.reduce((total, movimento) => total + movimento.quantidade, 0);
+    assert.equal(soma, conta.creditos, "saldo = extrato inteiro");
+    assert.equal(extrato.length, 5, "as cinco linhas continuam visiveis no extrato");
+    assert.ok(
+      programa.comprados.atual < 15,
+      "o programa olha uma janela menor que o extrato",
+    );
+  });
+
+  it("o ciclo vigente comeca no aniversario da conta", async () => {
+    entrarComo(facilitadorCiclo);
+    const programa = await painel.progressoDoPrograma();
+
+    // Conta de ~820 dias: o ciclo corrente e o terceiro, e termina um ano
+    // depois de comecar. Datas ja formatadas para a tela (dd/mm/aaaa).
+    const [diaI, mesI, anoI] = programa.cicloIniciadoEm.split("/").map(Number);
+    const [diaF, mesF, anoF] = programa.expiraEm.split("/").map(Number);
+
+    assert.equal(diaF, diaI, "mesmo dia do mes");
+    assert.equal(mesF, mesI, "mesmo mes");
+    assert.equal(anoF, anoI! + 1, "um ano de janela");
   });
 
   it("empresasPorId resolve os nomes numa consulta so", async () => {
