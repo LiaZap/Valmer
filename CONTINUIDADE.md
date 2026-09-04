@@ -48,8 +48,10 @@ Rotas para conferir rápido: `/`, `/admin`, `/facilitador`, `/avaliacao/demo`,
 ## O que está pronto
 
 **Design system** em `perfila/src/styles/tokens.css`. Toda cor, fonte, raio e
-espaçamento sai de token. Neutros quentes com um acento verde-floresta, Sora nos
-títulos e Figtree no texto.
+espaçamento sai de token. Desde 04/09/2026 os tokens carregam a paleta oficial
+da Impacto Academy: Areia `#F5F2EC` de fundo, Azul Impacto `#0A1F44` de acento,
+Preto Impacto `#0B0B0D` no texto forte e Laranja Impacto `#FF6B00` só como
+realce. Sentient nos títulos e o stack da Nimbus Sans no texto.
 
 **Portal do Parceiro**, 21 telas. Dashboard, assessments (lista e criação), envio
 rápido, campanhas (lista e criação), DNA organizacional (lista, criação e
@@ -145,61 +147,107 @@ tinta clara. Como área preenchida elas ficam claras demais, então existem
 `--chart-disc-*`, validadas para faixa de luminosidade, piso de croma e separação
 sob daltonismo.
 
-Ressalva honesta sobre contraste: três das quatro passam o piso de 3:1 sobre o
-creme do relatório (D 6,05:1, S 4,34:1, C 4,56:1), e o âmbar do Influência fica em
-2,95:1. Ele continua onde está porque escurecê-lo o aproxima do vermelho do
+Ressalva honesta sobre contraste: três das quatro passam o piso de 3:1 sobre a
+Areia (D 5,85:1, S 4,19:1, C 4,41:1), e o âmbar do Influência fica em 2,85:1. Ele continua onde está porque escurecê-lo o aproxima do vermelho do
 Dominância, e separação entre fatores vizinhos é o critério que não tem
 compensação, enquanto contraste tem: cada barra carrega a letra do fator, o nome
 por extenso e o percentual ao lado, então a cor nunca é o único portador do dado.
 O validador de paleta trata esse caso como aviso e o considera resolvido
 justamente por rótulo visível.
 
-**O laranja da Impacto não entra no gráfico.** (Continua valendo, e com marca única
-passa a valer no produto inteiro, não só no relatório.) Ele e o âmbar do fator Influência
-têm ΔE 5,2 em visão normal, medido em OKLab ×100, contra um piso de 15: lado a
-lado ninguém distingue os dois. E sobre o creme da marca o laranja dá 2,52:1,
-abaixo do piso de 3:1 até para elemento de interface. Onde ele entra é sobre o navy, que lhe dá 6,08:1, e
-como forma decorativa sólida. Quem carrega texto de acento é o navy.
+**O laranja da Impacto não entra no gráfico.** Vale no produto inteiro, não só no
+relatório. Ele e o âmbar do fator Influência têm ΔE 5,2 em visão normal, medido em
+OKLab ×100, contra um piso de 15: lado a lado ninguém distingue os dois. E sobre a
+Areia o Laranja Impacto `#FF6B00` dá 2,56:1, abaixo do piso de 3:1 até para
+elemento de interface. Onde ele entra é sobre o Azul Impacto, que lhe dá 5,69:1, e
+como forma decorativa sólida. Quem carrega texto de acento é o azul.
 
-**Marca única: a plataforma inteira é Impacto Academy.** Decisão do Paulo em
-03/09/2026. REVOGA a regra anterior, que dizia "só o relatório assina como Impacto
-Academy; login, assessment, admin e portal do parceiro continuam Perfila". Aquela
-regra vinha da especificação (cada facilitador com painel próprio, marca da Impacto
-só no PDF); o Paulo decidiu marca única para o produto todo. **Se o código disser
-Impacto fora do relatório, está certo. Não reverta.**
+**A tipografia é a do manual.** Sentient nos títulos, Nimbus Sans no corpo. Saíram
+Sora e Figtree, que eram escolha nossa de quando não havia manual. Sentient é da
+Indian Type Foundry e a Fontshare distribui de graça: os três pesos (400, 500, 700)
+estão em `perfila/src/styles/fonts/` e são servidos por `next/font/local`, do nosso
+próprio servidor e não de um CDN de terceiro. Nimbus Sans é da URW e não tem
+distribuição web livre; o próprio manual autoriza Helvetica Neue ou Arial como
+substituta, então o corpo sai pelo stack `"Nimbus Sans","Helvetica Neue",Helvetica,
+"Liberation Sans",Arial,sans-serif`, sem webfont. Quem tem a Nimbus instalada vê a
+Nimbus. Entrelinha 1,1 em título e 1,6 em corpo, caixa alta curta com 0,18em a
+0,22em de espaçamento — tudo do manual.
 
-Estado: decidido, execução PENDENTE. O código ainda diz "Perfila" em 21 lugares —
-12 arquivos fora de `src/app/relatorio` (os três layouts, `app/layout.tsx`,
-`app/page.tsx`, `AppShell.tsx`, `Logo.tsx`, `Sidebar.tsx`, `globals.css`,
-`facilitador/configuracoes`, `facilitador/ead`, `data/respondente.ts`) mais
-`src/app/icon.svg`. Estar no meio do caminho é esperado até a execução rodar.
+**Dois nomes: "Impacto DISC" é o produto, "Impacto Academy" é a empresa.** Decisão
+do Paulo em 03/09/2026, executada em 04/09/2026. REVOGA a regra anterior, que dizia
+"só o relatório assina como Impacto Academy; login, assessment, admin e portal do
+parceiro continuam Perfila". **Se o código disser Impacto fora do relatório, está
+certo. Não reverta.**
 
-A decisão INVERTE três arquivos: `styles/tokens.css`, `components/layout/Logo.tsx`
-e `app/icon.svg` eram proibidos justamente por valerem para o produto inteiro.
-Continuam valendo para o produto inteiro — e por isso agora são o lugar certo.
+O software assina **Impacto DISC**: títulos de aba, login, sidebar, cabeçalho do
+assessment, e o nome do instrumento na capa e no rodapé do relatório. A empresa
+assina **Impacto Academy**: a assinatura do relatório, o `© {ano}` do rodapé e as
+comunicações ao parceiro. Os dois nunca aparecem colados, e DISC é sempre caixa
+alta. "Perfila" sobrevive apenas como caminho — a pasta `perfila/`, o endereço do
+repositório e os commits antigos.
 
-A decisão NÃO invalida os quatro lugares da marca no relatório (`tema-impacto.module.css`,
-`MarcaImpacto`, `app/relatorio/icon.svg` e o bloco `metadata`/`viewport` de
-`app/relatorio/[token]/page.tsx`). O quarto continua necessário porque tema escopado
-por classe de CSS não alcança meta tag. Com marca única, o tema escopado deixa de ser
-exceção e vira candidato a subir para `:root`.
+Ao mexer em nome, NÃO faça localizar-e-substituir de "Perfil": há 132 usos de
+"perfil" como substantivo comum e como identificador (`PerfilEstatico`,
+`perfilPrimario`, `perfilNatural`…) que são o vocabulário do domínio e continuam.
+A busca segura é a palavra inteira `Perfila`.
 
-**Como executar a paleta, já medido.** Não troque o acento verde pelo laranja: ele dá
-2,52:1 sobre o creme e 2,73:1 sobre branco, abaixo do piso de 3:1 até para elemento de
-interface, e branco sobre laranja dá 2,73:1, abaixo do 4,5:1 de botão. O verde de hoje
-dá 5,68:1. O caminho certo já está escrito em `tema-impacto.module.css`, que separa
-`--color-accent` (navy, 15,34:1 sobre o creme) de `--color-realce` (laranja, só como
-massa sólida) e põe o laranja em `--color-accent-on-dark`, onde ele dá 6,08:1. A
-execução é promover esse tema para `:root`: ele redefine 40 tokens; os outros 112 de
-`tokens.css` ficam como estão. Cuidado com `--color-accent-ring`, que é o anel de foco:
-o acento tem 89 usos em mais de 20 arquivos, e em laranja o foco de teclado ficaria
-invisível no produto inteiro.
+**Um símbolo só.** `LogoMark` (quatro barras verdes, a marca da Perfila) foi
+aposentada e o arquivo `components/layout/Logo.tsx` saiu. `MarcaImpacto` mudou de
+`components/relatorio/` para `components/layout/` e vale para o produto inteiro. O
+favicon `app/icon.svg` recebeu o desenho que era do relatório, e `app/relatorio/
+icon.svg`, agora idêntico, saiu.
 
-**O símbolo impresso precisa de uma variante.** Em escala de cinza a onda navy vira
-16,57:1 contra o papel, mas o disco laranja vira só 2,73:1: numa fotocópia a onda sai
-preta e o disco desbota. `MarcaImpacto` parametriza a cor da onda, mas o disco é fixo em
-`var(--color-realce)`. Redefinir `--color-realce` dentro dos `@media print` que já
-existem resolve, e é a variante monocromática que o estudo `marca2.png` já validou.
+As cores do símbolo são tokens próprios — `--color-marca-fundo` (`#0A1F44`),
+`--color-marca-disco` (`#FF6B00`) e `--color-marca-onda` (`#F5F2EC`) — e NÃO o
+acento da interface. Continuam separadas mesmo agora que compartilham o azul: o
+símbolo é identidade e não muda com o tema, enquanto o acento muda. Quem editar o
+símbolo mexe nestes três, nunca em `--color-accent`.
+
+**A paleta oficial está no produto inteiro.** Feita em 04/09/2026, quando o cliente
+entregou o manual da marca (`manual-marca-impacto-academy.html`, v1.0). O manual
+revoga os hexadecimais que tinham sido desenhados aqui por falta dele: navy
+`#0B1E3D` virou `#0A1F44`, laranja `#F47B20` virou `#FF6B00`, creme `#F8F6F1` virou
+Areia `#F5F2EC` e preto `#080D14` virou `#0B0B0D`. O tema saiu da classe escopada
+de `tema-impacto.module.css`, que foi apagado, e subiu para `:root` em
+`styles/tokens.css`, então vale no login, no assessment, no admin, no portal do
+parceiro e no relatório.
+
+O acento da interface é o **azul**, não o laranja, e isso não é gosto: o laranja
+sobre a Areia dá 2,56:1, abaixo do piso de 3:1 até para elemento de interface, e
+branco sobre laranja dá 2,86:1, que o próprio manual reprova. O azul dá 14,54:1.
+`--color-accent-ring` — o anel de foco, 89 usos em mais de 20 arquivos — é azul
+pelo mesmo motivo: em laranja o foco de teclado sumiria no produto inteiro.
+O laranja vive em `--color-realce` (massa sólida decorativa) e em
+`--color-accent-on-dark` (5,69:1 sobre o azul). Se um dia ele precisar carregar
+texto, vira Laranja Brasa `#D95100`, e mesmo assim só acima de 24px.
+
+Contrastes medidos sobre a Areia, anotados também em comentário no `tokens.css`:
+texto 17,60 · secundário 14,54 · apoio 7,61 · sutil 5,85 · placeholder 4,54 ·
+acento 14,54 · hover 10,08. Sobre o azul escuro: branco 16,25 · laranja 5,69.
+Os cinco níveis de texto passam o piso de 4,5:1 — o placeholder antigo ficava em
+1,98:1. `--chart-disc-*` não mudou; a rampa sequencial `--chart-seq-*` foi
+reancorada no `#0A1F44`.
+
+O Cinza Neutro `#8A94A6` do manual não virou cor de texto da interface clara:
+sobre a Areia ele dá 2,74:1. Ele só vale sobre azul ou preto, e nesse papel já
+estava coberto pelos `--color-on-ink-*`, que resolvem `#919AAB` sobre o azul.
+
+**A régua laranja do fecho fica em `#FF6B00`, e 2,56:1 não a reprova.** Ela dá
+2,56:1 sobre a Areia, e a pergunta de trocar por Laranja Brasa `#D95100` (3,67:1)
+já foi feita e respondida: a WCAG 1.4.11 cobre componente de interface e objeto
+gráfico necessário ao conteúdo, e a régua não é nenhum dos dois. O próprio código
+declara isso em `PlanoFecho.tsx:153`, com `aria-hidden`: 44×2px, sem texto, sem
+alvo de clique, sem dado. Decoração é exceção explícita do critério, e o manual
+pede o Laranja Impacto nesse filete. A ressalva: isso vale enquanto for decoração.
+Se a régua virar separador que organiza leitura, ou ganhar `aria`, o piso passa a
+valer e o Brasa entra.
+
+**A variante monocromática de impressão está feita.** Em escala de cinza a onda
+azul vira 16,57:1 contra o papel, mas o disco laranja vira só 2,73:1: numa
+fotocópia a onda sai preta e o disco desbota. O `@media print` de
+`app/globals.css` passa `--color-marca-disco` e `--color-realce` para o azul, e o
+símbolo imprime de uma cor só. (O disco nunca foi `var(--color-realce)`, como esta
+seção afirmava antes: ele é `var(--color-marca-disco)`.)
 
 **O corte por nível é por SEÇÃO, não por componente.** As três seções de
 `Lideranca.tsx` entram em níveis diferentes: encaixe é S1, liderança e como liderar
@@ -253,12 +301,13 @@ e fixos. Mandá-los ao modelo seria pagar para ele repetir o que já sabemos.
    pilar Espiritual veio do sistema original, com as perguntas de apoio.
 4. **Fotos de cursos e mentores** seguem como espaço reservado.
 5. **O símbolo da Impacto Academy foi desenhado aqui**, por falta de arquivo
-   oficial: não havia logo no material enviado e `impactoacademy.com.br` não
-   resolvia. Se o Valmer tiver o SVG de verdade, a troca é em
-   `perfila/src/components/relatorio/MarcaImpacto.tsx` mais
-   `perfila/src/app/relatorio/icon.svg`. O arquivo novo precisa continuar legível
-   a 14px e impresso em preto e branco, e o laranja só pode entrar como área
-   sólida grande ou sobre o navy.
+   oficial. O manual da marca confirma a lacuna: o lockup exibido nele é
+   reconstrução tipográfica, e ele mesmo pede o SVG ou AI original. Em 04/09/2026
+   o Valmer mandou por WhatsApp uma logo própria, um escudo com duas espadas, mas
+   o vetor não chegou. Quando chegar, a troca é em
+   `perfila/src/components/layout/MarcaImpacto.tsx` mais `perfila/src/app/icon.svg`.
+   O arquivo novo precisa continuar legível a 14px e impresso em preto e branco, e
+   o laranja só pode entrar como área sólida grande ou sobre o azul.
 
 ---
 

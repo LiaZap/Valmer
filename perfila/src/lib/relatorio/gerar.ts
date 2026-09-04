@@ -198,7 +198,11 @@ export async function gerarNarrativa({
     )
   }
 
-  const client = new Anthropic()
+  // O padrão do SDK é duas tentativas. Num lote de centenas de relatórios o
+  // 429 deixa de ser exceção e vira o regime normal, e desistir na segunda
+  // tentativa transforma limite de taxa em relatório faltando. O SDK respeita
+  // o `retry-after` da resposta, então esperar mais vezes não vira tempestade.
+  const client = new Anthropic({ maxRetries: 5 })
 
   const fatores = (['D', 'I', 'S', 'C'] as FatorDisc[])
     .map((fator) => {

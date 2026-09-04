@@ -7,3 +7,7 @@ next-env.d.ts
 .env*.local
 .DS_Store
 .env
+
+# Saida de execucao do gerador de relatorio: PDF com dado de avaliado
+# nao entra no repositorio.
+pdfs/

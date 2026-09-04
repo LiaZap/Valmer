@@ -71,3 +71,17 @@
   background: var(--color-surface-muted);
   border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
 }
+
+/* ---------- Impressão ---------- */
+
+@media print {
+  /* Cabeçalho de card não fecha a folha sozinho. Sem isto o título de
+     uma seção cai no pé de uma página e o texto dele começa na
+     seguinte: medido no PDF do relatório, "Plano de desenvolvimento"
+     ficava órfão no fim da página 7. `PlanoFecho.module.css` já evitava
+     o mesmo entre a chamada e a primeira ação, mas só de lá para baixo;
+     o título ficava de fora porque mora no <CardHeader>. */
+  .header {
+    break-after: avoid;
+  }
+}
