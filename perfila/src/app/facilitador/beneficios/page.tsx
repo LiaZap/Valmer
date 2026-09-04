@@ -1,9 +1,8 @@
-import type { CSSProperties } from 'react'
 import { BotaoAviso } from '@/components/ui/BotaoAviso'
 import { Card } from '@/components/ui/Card'
 import { Icon } from '@/components/ui/Icon'
-import { AutoGrid } from '@/components/ui/Layout'
 import { PageHeader } from '@/components/ui/PageHeader'
+import { Progress } from '@/components/ui/Progress'
 import { tableStyles } from '@/components/ui/Table'
 import { beneficios, categorias } from '@/data/beneficios'
 import { progressoDoPrograma } from '@/lib/painel'
@@ -32,11 +31,18 @@ export default async function BeneficiosPage() {
   const pctUtilizados = progresso(programa.utilizados.atual, programa.utilizados.meta)
   const pctComprados = progresso(programa.comprados.atual, programa.comprados.meta)
 
+  // Onde ele esta na trilha. -1 nunca acontece com dado do banco, mas se a
+  // regua mudar sem a leitura acompanhar, o 0 mantem a tela de pe.
+  const indiceAtual = Math.max(
+    0,
+    categorias.findIndex((categoria) => categoria.name === programa.categoria),
+  )
+
   return (
     <>
       <PageHeader
-        title="Programa de Benefícios"
-        subtitle="Quanto mais créditos você compra ou utiliza, mais vantagens desbloqueia."
+        title="Trilha do Parceiro"
+        subtitle="Cada nível da trilha abre uma vantagem nova. Você sobe comprando ou aplicando créditos."
         actions={
           <BotaoAviso icon={<Icon name="chat" />} aviso="Abrindo WhatsApp">
             Falar com o consultor
@@ -44,64 +50,62 @@ export default async function BeneficiosPage() {
         }
       />
 
-      <AutoGrid min={240}>
-        <Card tone="ink" className={styles.categoria}>
-          <div className={`${ui.eyebrow} ${ui.eyebrowOnInk}`}>Categoria atual</div>
-          <div className={styles.categoriaNome}>{programa.categoria}</div>
-          <div className={styles.categoriaNota}>
-            Expira em {programa.expiraEm} · valores considerados a partir de{' '}
-            {programa.cicloIniciadoEm}
-          </div>
-        </Card>
+      {/* A trilha, e nao tres cartoes lado a lado. A plataforma antiga mostra
+          categoria e metas como caixas independentes, e o parceiro nao ve que
+          uma leva a outra. Aqui os cinco niveis sao uma linha so, com o dele
+          marcado, entao a proxima parada e a leitura principal da tela. */}
+      <Card tone="ink" className={styles.trilha}>
+        <div className={`${ui.eyebrow} ${ui.eyebrowOnInk}`}>Seu nível</div>
+        <div className={styles.nivelNome}>{programa.categoria}</div>
 
-        <Card className={styles.meta}>
-          <div
-            className={styles.anel}
-            style={{ '--valor': `${pctUtilizados}%` } as CSSProperties}
-            aria-hidden
-          >
-            <div className={styles.anelCentro}>{pctUtilizados}%</div>
-          </div>
-          <div>
-            <div className={ui.cardTitle}>Créditos utilizados</div>
-            <div className={styles.metaTexto}>
-              {programa.utilizados.atual} de {programa.utilizados.meta}
-              {programa.proximaCategoria ? (
-                <>
-                  {' '}
-                  · faltam {programa.faltam.utilizados} para <b>{programa.proximaCategoria}</b>
-                </>
-              ) : (
-                <> · categoria máxima atingida</>
-              )}
-            </div>
-          </div>
-        </Card>
+        <ol className={styles.passos}>
+          {categorias.map((categoria, indice) => {
+            const estado =
+              indice < indiceAtual ? styles.feito : indice === indiceAtual ? styles.atual : ''
+            return (
+              <li key={categoria.name} className={`${styles.passo} ${estado}`}>
+                <span className={styles.marco} aria-hidden />
+                <span className={styles.passoNome}>{categoria.name}</span>
+                <span className={styles.passoRegra}>{categoria.rule}</span>
+              </li>
+            )
+          })}
+        </ol>
 
-        <Card className={styles.meta}>
-          <div
-            className={styles.anel}
-            style={{ '--valor': `${pctComprados}%` } as CSSProperties}
-            aria-hidden
-          >
-            <div className={styles.anelCentro}>{pctComprados}%</div>
-          </div>
-          <div>
-            <div className={ui.cardTitle}>Créditos comprados</div>
-            <div className={styles.metaTexto}>
-              {programa.comprados.atual} de {programa.comprados.meta}
-              {programa.proximaCategoria ? (
-                <>
-                  {' '}
-                  · faltam {programa.faltam.comprados} para <b>{programa.proximaCategoria}</b>
-                </>
-              ) : (
-                <> · categoria máxima atingida</>
-              )}
+        <div className={styles.medidores}>
+          <div className={styles.medidor}>
+            <div className={styles.medidorTopo}>
+              <span>Créditos utilizados</span>
+              <span className={styles.medidorNumero}>
+                {programa.utilizados.atual} de {programa.utilizados.meta}
+              </span>
             </div>
+            <Progress value={pctUtilizados} tone="onInk" label="Créditos utilizados no ciclo" />
           </div>
-        </Card>
-      </AutoGrid>
+
+          <div className={styles.medidor}>
+            <div className={styles.medidorTopo}>
+              <span>Créditos comprados</span>
+              <span className={styles.medidorNumero}>
+                {programa.comprados.atual} de {programa.comprados.meta}
+              </span>
+            </div>
+            <Progress value={pctComprados} tone="onInk" label="Créditos comprados no ciclo" />
+          </div>
+        </div>
+
+        <div className={styles.rodape}>
+          {programa.proximaCategoria ? (
+            <>
+              Faltam {programa.faltam.utilizados} utilizados ou {programa.faltam.comprados}{' '}
+              comprados para <b>{programa.proximaCategoria}</b>.
+            </>
+          ) : (
+            <>Você está no último nível da trilha.</>
+          )}{' '}
+          Ciclo de {programa.cicloIniciadoEm} a {programa.expiraEm}.
+        </div>
+      </Card>
 
       {/* Matriz: uma linha por benefício, uma coluna por categoria. */}
       <Card padding="none" clip scrollX>
@@ -109,7 +113,7 @@ export default async function BeneficiosPage() {
           <thead>
             <tr>
               <th scope="col" className={styles.matrizCabecalho}>
-                Nossos benefícios
+                Vantagem
               </th>
               {categorias.map((categoria) => (
                 <th

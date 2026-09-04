@@ -44,9 +44,9 @@ export const NAV_FACILITADOR: NavGroup[] = [
   {
     label: 'Operação',
     items: [
-      { href: '/facilitador', label: 'Dashboard', icon: 'dash' },
+      { href: '/facilitador', label: 'Visão Geral', icon: 'dash' },
       { href: '/facilitador/assessments', label: 'Mapas Comportamentais', icon: 'file' },
-      { href: '/facilitador/envio-rapido', label: 'Envio Rápido', icon: 'zap' },
+      { href: '/facilitador/envio-rapido', label: 'Aplicação Rápida', icon: 'zap' },
       { href: '/facilitador/campanhas', label: 'Turmas', icon: 'bag' },
       { href: '/facilitador/dna', label: 'DNA Organizacional', icon: 'dna' },
       { href: '/facilitador/arquitetura', label: 'Arquitetura de Cargos', icon: 'layers' },
@@ -56,9 +56,9 @@ export const NAV_FACILITADOR: NavGroup[] = [
   {
     label: 'Conta',
     items: [
-      { href: '/facilitador/beneficios', label: 'Programa de Benefícios', icon: 'star' },
+      { href: '/facilitador/beneficios', label: 'Trilha do Parceiro', icon: 'star' },
       { href: '/facilitador/creditos', label: 'Créditos', icon: 'card' },
-      { href: '/facilitador/degustacao', label: 'Degustação', icon: 'gift' },
+      { href: '/facilitador/degustacao', label: 'Demonstração', icon: 'gift' },
       { href: '/facilitador/clientes', label: 'Clientes', icon: 'users' },
     ],
   },
@@ -66,7 +66,7 @@ export const NAV_FACILITADOR: NavGroup[] = [
     label: 'Aprendizado',
     items: [
       { href: '/facilitador/cursos', label: 'Cursos', icon: 'book' },
-      { href: '/facilitador/mentores', label: 'Mentores Especialistas', icon: 'award' },
+      { href: '/facilitador/mentores', label: 'Mentores', icon: 'award' },
       { href: '/facilitador/ead', label: 'EAD', icon: 'play' },
     ],
   },

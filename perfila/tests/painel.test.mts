@@ -293,10 +293,10 @@ describe("painel", () => {
     // subir de categoria recebendo presente.
     assert.notEqual(programa.comprados.atual, 7, "bonus nao conta como comprado");
 
-    assert.equal(programa.categoria, "Membro");
-    assert.equal(programa.proximaCategoria, "Gold");
-    assert.equal(programa.faltam.comprados, 115, "faltam 120 - 5 para Gold");
-    assert.equal(programa.faltam.utilizados, 77, "faltam 80 - 3 para Gold");
+    assert.equal(programa.categoria, "Parceiro");
+    assert.equal(programa.proximaCategoria, "Formador");
+    assert.equal(programa.faltam.comprados, 115, "faltam 120 - 5 para Formador");
+    assert.equal(programa.faltam.utilizados, 77, "faltam 80 - 3 para Formador");
   });
 
   it("o saldo e a vida toda da conta; a categoria e so o ciclo", async () => {

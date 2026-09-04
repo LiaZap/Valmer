@@ -18,7 +18,7 @@ export default function DegustacaoPage() {
   return (
     <>
       <PageHeader
-        title="Degustação"
+        title="Demonstração"
         subtitle="Ofereça uma amostra gratuita do relatório e converta em clientes."
       />
 

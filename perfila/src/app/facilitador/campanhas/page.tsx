@@ -59,8 +59,8 @@ export default function CampanhasPage() {
           <Field label="Nome" className={tableStyles.filterGrow}>
             {(id) => <Input id={id} placeholder="Buscar por nome" />}
           </Field>
-          <Field label="Degustação" className={tableStyles.filterLg}>
-            {(id) => <Select id={id} options={opcoes.degustacao} label="Degustação" />}
+          <Field label="Demonstração" className={tableStyles.filterLg}>
+            {(id) => <Select id={id} options={opcoes.degustacao} label="Demonstração" />}
           </Field>
           <Field label="Tipo de relatório" className={tableStyles.filterXl}>
             {(id) => (

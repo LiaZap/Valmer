@@ -8,7 +8,7 @@
  * que o parceiro consegue conferir linha a linha.
  *
  * Consequencia aceita e visivel na tela: durante o ciclo a categoria so sobe,
- * e na virada ela volta a Membro junto com os contadores. E o que "Expira em
+ * e na virada ela volta a Parceiro junto com os contadores. E o que "Expira em
  * <data>" significa nesta tela.
  *
  * Modulo puro, sem banco: quem le e `painel.ts`. Assim as duas regras que
@@ -50,8 +50,8 @@ export function cicloDe(criadoEm: Date, agora: Date): Ciclo {
  * Faixa alcancada com o que foi comprado e utilizado no ciclo.
  *
  * Basta bater UM dos dois criterios — e o "ou" da regra escrita. Percorre de
- * cima para baixo e para na primeira que couber: assim quem satisfaz Diamond
- * nao para em Gold so porque Gold vem antes na lista.
+ * cima para baixo e para na primeira que couber: assim quem satisfaz Especialista
+ * nao para em Formador so porque Formador vem antes na lista.
  */
 export function categoriaAtingida(
   comprados: number,

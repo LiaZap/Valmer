@@ -1,4 +1,4 @@
-/** Programa de Benefícios — categorias e a matriz de vantagens. */
+/** Trilha do Parceiro — os niveis e a matriz de vantagens. */
 
 export type Categoria = {
   name: string
@@ -7,7 +7,7 @@ export type Categoria = {
   /**
    * A mesma regra em número, que é o que decide a categoria de fato.
    *
-   * Basta bater UM dos dois — comprar 120 ou utilizar 80 dá Gold. Existe
+   * Basta bater UM dos dois — comprar 120 ou utilizar 80 dá Formador. Existe
    * separado de `rule` porque aquilo é texto de tela e pertence a quem escreve
    * a tela; ler número de dentro de frase para decidir benefício seria uma
    * regra de negócio refém de vírgula. Um teste confere que os dois contam a
@@ -21,7 +21,7 @@ export type Categoria = {
 
 export const categorias: Categoria[] = [
   {
-    name: 'Membro',
+    name: 'Parceiro',
     rule: '0 créditos comprados ou 0 utilizados',
     limite: { comprados: 0, utilizados: 0 },
     bg: 'var(--color-bg)',
@@ -29,7 +29,7 @@ export const categorias: Categoria[] = [
     sub: 'var(--color-text-muted)',
   },
   {
-    name: 'Gold',
+    name: 'Formador',
     rule: '120 comprados ou 80 utilizados',
     limite: { comprados: 120, utilizados: 80 },
     bg: 'var(--color-warning-tint)',
@@ -37,7 +37,7 @@ export const categorias: Categoria[] = [
     sub: 'var(--color-warning)',
   },
   {
-    name: 'Platinum',
+    name: 'Multiplicador',
     rule: '300 comprados ou 150 utilizados',
     limite: { comprados: 300, utilizados: 150 },
     bg: 'var(--color-border-soft)',
@@ -45,7 +45,7 @@ export const categorias: Categoria[] = [
     sub: 'var(--color-text-muted)',
   },
   {
-    name: 'Diamond',
+    name: 'Especialista',
     rule: '800 comprados ou 500 utilizados',
     limite: { comprados: 800, utilizados: 500 },
     bg: 'var(--color-info-tint)',
@@ -53,7 +53,7 @@ export const categorias: Categoria[] = [
     sub: 'var(--color-info-soft)',
   },
   {
-    name: 'Black',
+    name: 'Embaixador',
     rule: '1800 comprados ou 1200 utilizados',
     limite: { comprados: 1800, utilizados: 1200 },
     bg: 'var(--color-ink)',
@@ -75,16 +75,32 @@ export type Beneficio = {
   cells: ValorBeneficio[]
 }
 
+/*
+ * PENDENTE DE CONFIRMACAO DO CLIENTE.
+ *
+ * As linhas anteriores anunciavam produtos que NAO sao da Impacto Academy:
+ * "Formacao em Analista de Percepcao Infantil (Mini Mega Assessment)",
+ * "Formacao em Coaching de Carreira (FCC)", "Jornada do Coach de Carreira" e
+ * "Assinatura White Label". Entraram porque o prototipo foi montado a partir
+ * de prints da plataforma antiga, e ali eles fazem sentido. Aqui a tela
+ * oferecia desconto no catalogo de um concorrente para o parceiro do Valmer.
+ *
+ * O que esta abaixo veio do que ele disse na reuniao de 04/09: formacao em
+ * perfil comportamental, os cursos que ele vai hospedar aqui, mentoria e o
+ * livro da editora. Os PERCENTUAIS sao os da regua antiga, mantidos so para a
+ * tela nao ficar vazia. Nome e desconto de cada linha precisam do aval dele
+ * antes de qualquer parceiro ver isso.
+ */
 export const beneficios: Beneficio[] = [
-  { name: 'Créditos (unidade)', cells: ['no', 'no', 'no', 'no', 'no'] },
-  { name: 'Assinatura White Label', cells: ['no', '15%', '25%', '40%', '50%'] },
+  { name: 'Credito avulso', cells: ['no', '5%', '10%', '15%', '20%'] },
   {
-    name: 'Formação em Analista de Percepção Infantil (Mini Mega Assessment)',
+    name: 'Formacao em Perfil Comportamental',
     cells: ['no', '15%', '25%', '50%', 'yes'],
   },
-  { name: 'Formação em Coaching de Carreira (FCC)', cells: ['no', '15%', '25%', '50%', 'yes'] },
-  { name: 'Jornada do Coach de Carreira', cells: ['no', '15%', '25%', '50%', 'yes'] },
-  { name: 'Grupo WhatsApp exclusivo', cells: ['no', 'yes', 'yes', 'yes', 'yes'] },
+  { name: 'Cursos da plataforma', cells: ['no', '15%', '25%', '40%', 'yes'] },
+  { name: 'Mentoria individual', cells: ['no', 'no', '25%', '50%', 'yes'] },
+  { name: 'Livro Impacto Academy', cells: ['no', 'yes', 'yes', 'yes', 'yes'] },
+  { name: 'Grupo de WhatsApp exclusivo', cells: ['no', 'yes', 'yes', 'yes', 'yes'] },
 ]
 
 /*

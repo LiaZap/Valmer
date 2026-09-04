@@ -1,57 +1,145 @@
-/* ---------- Cartão da categoria atual ---------- */
-.categoria {
+/* ---------- Trilha do parceiro ----------
+   Os cinco niveis numa linha so. O marco do nivel alcancado usa o laranja da
+   marca, que sobre o navy da 5,69:1 e e o unico lugar da interface onde o
+   manual autoriza ele como sinal, e nao so como decoracao. */
+.trilha {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-14);
+}
+
+.nivelNome {
+  font-family: var(--font-display);
+  font-size: var(--fs-26);
+  font-weight: var(--fw-semibold);
+  margin-top: calc(var(--space-8) * -1);
+}
+
+.passos {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-8);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* A linha que liga os marcos nasce do proprio passo, para nao depender de um
+   elemento decorativo extra. Ela para no ultimo. */
+.passo {
+  position: relative;
+  padding-top: var(--space-18);
+  min-width: 0;
+}
+
+.passo::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-on-ink-14);
+}
+
+.passo:last-child::before {
+  right: 50%;
+}
+
+.passo:first-child::before {
+  left: 50%;
+}
+
+.marco {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full);
+  background: var(--color-on-ink-18);
+}
+
+.feito .marco,
+.atual .marco {
+  background: var(--color-accent-on-dark);
+}
+
+.atual .marco {
+  box-shadow: 0 0 0 4px var(--color-accent-glow);
+}
+
+.passoNome {
+  display: block;
+  font-size: var(--fs-125);
+  font-weight: var(--fw-medium);
+  color: var(--color-on-ink-65);
+}
+
+.atual .passoNome {
+  color: var(--color-on-ink);
+  font-weight: var(--fw-bold);
+}
+
+.feito .passoNome {
+  color: var(--color-on-ink-75);
+}
+
+.passoRegra {
+  display: block;
+  margin-top: var(--space-2);
+  font-size: var(--fs-11);
+  line-height: var(--leading-snug);
+  color: var(--color-on-ink-55);
+}
+
+.medidores {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-16);
+}
+
+.medidor {
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
 }
 
-.categoriaNome {
-  font-family: var(--font-display);
-  font-size: var(--fs-26);
-  font-weight: var(--fw-semibold);
+.medidorTopo {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-8);
+  font-size: var(--fs-125);
+  color: var(--color-on-ink-70);
 }
 
-.categoriaNota {
+.medidorNumero {
+  font-weight: var(--fw-semibold);
+  color: var(--color-on-ink);
+}
+
+.rodape {
   font-size: var(--fs-125);
   color: var(--color-on-ink-65);
 }
 
-/* ---------- Indicadores de progresso em anel ---------- */
-.meta {
-  display: flex;
-  align-items: center;
-  gap: var(--space-16);
+.rodape b {
+  color: var(--color-on-ink);
 }
 
-/* O anel é um conic-gradient; o furo branco no meio é um círculo
-   menor por cima. A porcentagem entra como variável CSS. */
-.anel {
-  width: 64px;
-  height: 64px;
-  flex: none;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: conic-gradient(var(--color-accent) var(--valor), var(--color-hover) 0);
-}
+@media (max-width: 560px) {
+  .passos {
+    grid-template-columns: 1fr 1fr;
+    row-gap: var(--space-14);
+  }
 
-.anelCentro {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: var(--color-surface);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--fs-13);
-  font-weight: var(--fw-bold);
-}
+  .passo::before {
+    display: none;
+  }
 
-.metaTexto {
-  font-size: var(--fs-13);
-  color: var(--color-text-muted);
-  margin-top: var(--space-2);
+  .medidores {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ---------- Matriz de benefícios ---------- */

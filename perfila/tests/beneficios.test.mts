@@ -67,35 +67,35 @@ describe("categoria alcancada", () => {
   it("quem nao movimentou nada fica na primeira faixa", () => {
     const { atual, proxima } = categoriaAtingida(0, 0);
 
-    assert.equal(atual.name, "Membro");
-    assert.equal(proxima?.name, "Gold");
+    assert.equal(atual.name, "Parceiro");
+    assert.equal(proxima?.name, "Formador");
   });
 
   it("basta bater UM dos dois criterios", () => {
-    // A regra do Gold e "120 comprados OU 80 utilizados".
-    assert.equal(categoriaAtingida(120, 0).atual.name, "Gold");
-    assert.equal(categoriaAtingida(0, 80).atual.name, "Gold");
-    assert.equal(categoriaAtingida(119, 79).atual.name, "Membro", "um a menos nao basta");
+    // A regra do Formador e "120 comprados OU 80 utilizados".
+    assert.equal(categoriaAtingida(120, 0).atual.name, "Formador");
+    assert.equal(categoriaAtingida(0, 80).atual.name, "Formador");
+    assert.equal(categoriaAtingida(119, 79).atual.name, "Parceiro", "um a menos nao basta");
   });
 
   it("nao para na primeira faixa que couber, vai ate a mais alta", () => {
-    // Quem comprou 800 satisfaz Gold e Platinum tambem; a resposta e Diamond.
-    assert.equal(categoriaAtingida(800, 0).atual.name, "Diamond");
-    assert.equal(categoriaAtingida(2000, 0).atual.name, "Black");
+    // Quem comprou 800 satisfaz Formador e Multiplicador tambem; a resposta e Especialista.
+    assert.equal(categoriaAtingida(800, 0).atual.name, "Especialista");
+    assert.equal(categoriaAtingida(2000, 0).atual.name, "Embaixador");
   });
 
   it("no topo nao ha proxima faixa nem quanto falta", () => {
     const { atual, proxima } = categoriaAtingida(2000, 2000);
 
-    assert.equal(atual.name, "Black");
+    assert.equal(atual.name, "Embaixador");
     assert.equal(proxima, null);
     assert.deepEqual(faltamPara(proxima, 2000, 2000), { comprados: 0, utilizados: 0 });
   });
 
   it("quanto falta nunca e negativo", () => {
     const { proxima } = categoriaAtingida(0, 100);
-    // 100 utilizados ja passou dos 80 do Gold, mas nao dos 300 comprados
-    // do Platinum: o que falta de utilizados para Platinum e 50, e o que
+    // 100 utilizados ja passou dos 80 do Formador, mas nao dos 300 comprados
+    // do Multiplicador: o que falta de utilizados para Multiplicador e 50, e o que
     // falta de comprados nao pode virar numero negativo na tela.
     const faltam = faltamPara(proxima, 0, 100);
 
