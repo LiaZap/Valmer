@@ -14,10 +14,10 @@ export default async function NovoAssessmentPage() {
 
   return (
     <>
-      <BackLink href="/facilitador/assessments">Voltar para assessments</BackLink>
+      <BackLink href="/facilitador/assessments">Voltar para mapas comportamentais</BackLink>
 
       <PageHeader
-        title="Novo assessment"
+        title="Novo mapa comportamental"
         // Não promete e-mail: não existe envio no sistema. Quem entrega o link
         // é o facilitador, copiando da lista.
         subtitle="Cria um link único para o avaliado responder sem criar conta. O link vale por 7 dias e o crédito é consumido agora."

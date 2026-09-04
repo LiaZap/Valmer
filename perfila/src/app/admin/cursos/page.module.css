@@ -1,0 +1,13 @@
+/* Mesmo corpo de formulário das outras telas de criação. */
+.corpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  padding: var(--space-24);
+}
+
+@media (max-width: 560px) {
+  .corpo {
+    padding: var(--space-16);
+  }
+}

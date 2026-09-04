@@ -27,7 +27,7 @@ export default async function AvaliacaoPage({ params }: { params: Promise<{ toke
           </span>
           <span>
             Este link expirou em {DATA_BR.format(avaliacao.expiraEm)}. Peça um novo convite a{' '}
-            {avaliacao.facilitador} para responder o assessment.
+            {avaliacao.facilitador} para responder o mapa comportamental.
           </span>
         </div>
       </Card>
@@ -44,7 +44,7 @@ export default async function AvaliacaoPage({ params }: { params: Promise<{ toke
             <Icon name="check" />
           </span>
           <span>
-            Você já respondeu este assessment, {avaliacao.nome.split(' ')[0]}. O relatório completo
+            Você já respondeu este mapa comportamental, {avaliacao.nome.split(' ')[0]}. O relatório
             está com quem enviou o convite.
           </span>
         </div>

@@ -28,7 +28,7 @@ export default async function FacilitadoresPage() {
     <>
       <PageHeader
         title="Facilitadores"
-        subtitle="Parceiros e empresas que compram créditos e aplicam assessments."
+        subtitle="Parceiros e empresas que compram créditos e aplicam mapas comportamentais."
         actions={
           <>
             <BotaoAviso icon={<Icon name="download" />} aviso="Exportação iniciada">

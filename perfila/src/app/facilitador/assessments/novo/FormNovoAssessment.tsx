@@ -64,7 +64,7 @@ export function FormNovoAssessment({ creditos }: { creditos: number }) {
       // 12. Quem invalida agora é o `revalidatePath` da própria action, que
       // derruba o layout e tudo abaixo dele antes desta navegação acontecer.
       router.push('/facilitador/assessments')
-      toast(`Assessment criado para ${nome.trim()}. O link está na lista.`)
+      toast(`Mapa comportamental criado para ${nome.trim()}. O link está na lista.`)
     })
   }
 
@@ -144,7 +144,7 @@ export function FormNovoAssessment({ creditos }: { creditos: number }) {
 
           <div className={styles.resumo}>
             <span>
-              Saldo atual: <strong>{creditos}</strong> · este assessment consome{' '}
+              Saldo atual: <strong>{creditos}</strong> · este mapa consome{' '}
               <strong>{escolhido.creditos}</strong>
             </span>
             <span>

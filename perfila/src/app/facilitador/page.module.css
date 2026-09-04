@@ -45,7 +45,7 @@
   gap: var(--space-16);
 }
 
-/* Halo verde no canto: dá profundidade ao card escuro. */
+/* Halo de realce no canto: dá profundidade ao card escuro. */
 .programaGlow {
   position: absolute;
   right: -40px;

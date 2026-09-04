@@ -6,7 +6,7 @@ import { exigirSessaoNaTela } from '@/lib/auth/tela'
 import { BASE_FACILITADOR, NAV_FACILITADOR } from '@/lib/routes'
 
 export const metadata: Metadata = {
-  title: 'Perfila · Portal do Parceiro',
+  title: 'Impacto DISC · Portal do Parceiro',
 }
 
 /**
@@ -29,7 +29,7 @@ export default async function FacilitadorLayout({ children }: { children: React.
       base={BASE_FACILITADOR}
       subtitulo="Portal do Parceiro"
       raiz="Parceiro"
-      buscaPlaceholder="Buscar avaliado, campanha…"
+      buscaPlaceholder="Buscar avaliado, turma…"
       usuario={{
         nome: sessao.nome.split(' ').slice(0, 2).join(' '),
         iniciais: initials(sessao.nome),

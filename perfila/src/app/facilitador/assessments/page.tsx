@@ -18,7 +18,7 @@ export default async function AssessmentsFacilitadorPage() {
   return (
     <>
       <PageHeader
-        title="Assessments"
+        title="Mapas Comportamentais"
         subtitle={`${meus.length} enviados · ${aguardando} aguardando resposta · ${conta.creditos} créditos disponíveis`}
         actions={
           <Button
@@ -26,7 +26,7 @@ export default async function AssessmentsFacilitadorPage() {
             variant="primary"
             icon={<Icon name="plus" />}
           >
-            Novo assessment
+            Novo mapa
           </Button>
         }
       />

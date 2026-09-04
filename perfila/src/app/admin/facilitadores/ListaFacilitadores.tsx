@@ -104,7 +104,7 @@ export function ListaFacilitadores({
               <Th>Parceiro</Th>
               <Th>Empresa</Th>
               <Th align="right">Saldo</Th>
-              <Th align="right">Assessments</Th>
+              <Th align="right">Mapas</Th>
               <Th>Criado em</Th>
               <Th>Situação</Th>
               <Th align="right">Ações</Th>

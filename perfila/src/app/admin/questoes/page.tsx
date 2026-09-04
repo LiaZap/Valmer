@@ -49,7 +49,7 @@ export default function QuestoesPage() {
           <Icon name="info" />
         </span>
         <span>
-          Mexer aqui muda o cálculo de todos os assessments futuros. Os já respondidos guardam a
+          Mexer aqui muda o cálculo de todos os mapas futuros. Os já respondidos guardam a
           resposta escolhida, então não são afetados.
         </span>
       </div>

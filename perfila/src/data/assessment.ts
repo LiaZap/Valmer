@@ -28,14 +28,37 @@ export type Questao = {
 export type BlocoAssessment = {
   numero: number
   nome: string
+  /**
+   * Abertura do bloco, escrita para quem responde.
+   *
+   * Aparece na primeira questão de cada bloco, e de novo no banco de questões
+   * do admin. Uma frase, voz ativa, sem travessão: é a regra de escrita do
+   * projeto, a mesma que o prompt de `lib/relatorio/gerar.ts` carrega.
+   */
   descricao: string
 }
 
 export const blocosAssessment: BlocoAssessment[] = [
-  { numero: 1, nome: 'Comportamento no Trabalho', descricao: 'Situações do dia a dia' },
-  { numero: 2, nome: 'Liderança e Relacionamentos', descricao: 'Como você se relaciona e conduz' },
-  { numero: 3, nome: 'Tomada de Decisão', descricao: 'Como você escolhe e decide' },
-  { numero: 4, nome: 'Autoconhecimento', descricao: 'Como você se enxerga' },
+  {
+    numero: 1,
+    nome: 'Comportamento no Trabalho',
+    descricao: 'Estas situações mostram como você age no dia a dia do trabalho.',
+  },
+  {
+    numero: 2,
+    nome: 'Liderança e Relacionamentos',
+    descricao: 'Aqui você conta como conduz pessoas e como se relaciona com a equipe.',
+  },
+  {
+    numero: 3,
+    nome: 'Tomada de Decisão',
+    descricao: 'Estas questões revelam como você decide e o que pesa na sua escolha.',
+  },
+  {
+    numero: 4,
+    nome: 'Autoconhecimento',
+    descricao: 'Neste bloco você diz como se enxerga e o que reconhece em si.',
+  },
 ]
 
 export const questoes: Questao[] = [

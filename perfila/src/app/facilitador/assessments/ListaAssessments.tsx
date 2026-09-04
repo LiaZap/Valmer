@@ -89,20 +89,20 @@ export function ListaAssessments({ itens }: { itens: Assessment[] }) {
       ) : itens.length === 0 ? (
         <EmptyState>
           <p>
-            Você ainda não enviou nenhum assessment. Cada envio gera um link único, que o avaliado
-            responde sem criar conta.
+            Você ainda não enviou nenhum mapa comportamental. Cada envio gera um link único, que o
+            avaliado responde sem criar conta.
           </p>
           <Button href="/facilitador/assessments/novo" variant="primary" icon={<Icon name="plus" />}>
-            Novo assessment
+            Novo mapa
           </Button>
         </EmptyState>
       ) : (
         <EmptyState>
           <p>
-            Nenhum assessment corresponde ao filtro.{' '}
+            Nenhum mapa corresponde ao filtro.{' '}
             {itens.length === 1
-              ? 'Seu único assessment continua aqui.'
-              : `Seus ${itens.length} assessments continuam aqui.`}
+              ? 'Seu único mapa continua aqui.'
+              : `Seus ${itens.length} mapas continuam aqui.`}
           </p>
           <Button variant="secondary" onClick={limpar}>
             Limpar filtros

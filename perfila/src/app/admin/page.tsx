@@ -45,7 +45,7 @@ export default async function AdminPage() {
       nota: `${m.creditosEmCarteira} ainda em carteira`,
     },
     {
-      label: 'Assessments',
+      label: 'Mapas comportamentais',
       icon: 'file' as const,
       valor: String(m.assessmentsTotal),
       nota: `${m.assessmentsConcluidos} concluídos`,
@@ -89,7 +89,7 @@ export default async function AdminPage() {
           <Stack gap={16}>
             <div>
               <div className={styles.usoLinha}>
-                <span>Consumidos em assessments</span>
+                <span>Consumidos em mapas</span>
                 <span className={styles.usoValor}>
                   {m.creditosUsados} de {m.creditosVendidos}
                 </span>
@@ -101,10 +101,10 @@ export default async function AdminPage() {
             </div>
             <div>
               <div className={styles.usoLinha}>
-                <span>Assessments respondidos</span>
+                <span>Mapas respondidos</span>
                 <span className={styles.usoValor}>{conclusao}%</span>
               </div>
-              <Progress value={conclusao} label="Taxa de conclusão dos assessments" />
+              <Progress value={conclusao} label="Taxa de conclusão dos mapas" />
             </div>
           </Stack>
           <p className={ui.prose}>

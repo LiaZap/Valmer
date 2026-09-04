@@ -17,7 +17,17 @@ import { dnas } from '@/data/dna'
 
 export type NavItem = {
   href: string
-  /** Rótulo na sidebar — também usado no breadcrumb. */
+  /**
+   * Rótulo na sidebar — também usado no breadcrumb.
+   *
+   * O rótulo é vocabulário da Impacto, e a rota é identificador: os dois
+   * mudam separado. "Assessments" virou "Mapas Comportamentais" e
+   * "Campanhas" virou "Turmas" a pedido do cliente, para o produto não
+   * repetir o vocabulário da plataforma concorrente. As rotas
+   * `/assessments` e `/campanhas` continuam como estão, e junto com elas os
+   * nomes de tabela, de arquivo e de campo. Ao renomear outro item, mexa só
+   * no `label`.
+   */
   label: string
   icon: IconName
 }
@@ -35,9 +45,9 @@ export const NAV_FACILITADOR: NavGroup[] = [
     label: 'Operação',
     items: [
       { href: '/facilitador', label: 'Dashboard', icon: 'dash' },
-      { href: '/facilitador/assessments', label: 'Assessments', icon: 'file' },
+      { href: '/facilitador/assessments', label: 'Mapas Comportamentais', icon: 'file' },
       { href: '/facilitador/envio-rapido', label: 'Envio Rápido', icon: 'zap' },
-      { href: '/facilitador/campanhas', label: 'Campanhas', icon: 'bag' },
+      { href: '/facilitador/campanhas', label: 'Turmas', icon: 'bag' },
       { href: '/facilitador/dna', label: 'DNA Organizacional', icon: 'dna' },
       { href: '/facilitador/arquitetura', label: 'Arquitetura de Cargos', icon: 'layers' },
       { href: '/facilitador/devolutiva', label: 'Devolutiva', icon: 'chat' },
@@ -76,7 +86,7 @@ export const NAV_ADMIN: NavGroup[] = [
     items: [
       { href: '/admin', label: 'Visão geral', icon: 'dash' },
       { href: '/admin/facilitadores', label: 'Facilitadores', icon: 'users' },
-      { href: '/admin/assessments', label: 'Assessments', icon: 'file' },
+      { href: '/admin/assessments', label: 'Mapas Comportamentais', icon: 'file' },
     ],
   },
   {
@@ -88,7 +98,10 @@ export const NAV_ADMIN: NavGroup[] = [
   },
   {
     label: 'Conteúdo',
-    items: [{ href: '/admin/questoes', label: 'Banco de questões', icon: 'book' }],
+    items: [
+      { href: '/admin/questoes', label: 'Banco de questões', icon: 'book' },
+      { href: '/admin/cursos', label: 'Cursos', icon: 'play' },
+    ],
   },
 ]
 
@@ -110,8 +123,8 @@ export type Breadcrumb = {
 
 /** Sub-rótulos fixos das telas de detalhe e criação. */
 const STATIC_SUBS: Record<string, string> = {
-  '/facilitador/assessments/novo': 'Novo assessment',
-  '/facilitador/campanhas/nova': 'Nova campanha',
+  '/facilitador/assessments/novo': 'Novo mapa',
+  '/facilitador/campanhas/nova': 'Nova turma',
   '/facilitador/dna/novo': 'Novo DNA',
   '/facilitador/ead': 'Treinamentos',
   '/admin/facilitadores/novo': 'Novo facilitador',

@@ -103,7 +103,7 @@ export default function ConfiguracoesPage() {
         </Card>
 
         <Card padding="none">
-          <div className={styles.secaoTitulo}>Comunicações da Perfila</div>
+          <div className={styles.secaoTitulo}>Comunicações da Impacto Academy</div>
           <label className={styles.opcaoEmail}>
             <input type="checkbox" />
             Quero deixar de receber conteúdos e promoções no meu e-mail.

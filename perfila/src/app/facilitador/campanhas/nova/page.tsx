@@ -19,21 +19,21 @@ export default function NovaCampanhaPage() {
 
   function salvar() {
     router.push('/facilitador/campanhas')
-    toast('Campanha salva')
+    toast('Turma salva')
   }
 
   return (
     <>
-      <BackLink href="/facilitador/campanhas">Voltar para campanhas</BackLink>
+      <BackLink href="/facilitador/campanhas">Voltar para turmas</BackLink>
 
       <PageHeader
-        title="Criar campanha"
-        subtitle="Uma campanha agrupa os passaportes enviados e define o tipo de relatório gerado."
+        title="Criar turma"
+        subtitle="Uma turma agrupa os passaportes enviados e define o tipo de relatório gerado."
       />
 
       <Card padding="none" className={styles.form}>
         <div className={styles.corpo}>
-          <Field label="Nome da campanha">
+          <Field label="Nome da turma">
             {(id) => <Input id={id} placeholder="Ex.: Capacitação Liderança 2026" />}
           </Field>
 
@@ -68,7 +68,7 @@ export default function NovaCampanhaPage() {
             Cancelar
           </Button>
           <Button variant="primary" onClick={salvar}>
-            Salvar campanha
+            Salvar turma
           </Button>
         </CardFooter>
       </Card>

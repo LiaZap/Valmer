@@ -69,7 +69,7 @@ export default async function DashboardPage() {
               Envio rápido
             </Button>
             <Button href="/facilitador/campanhas/nova" variant="primary" icon={<Icon name="plus" />}>
-              Nova campanha
+              Nova turma
             </Button>
           </>
         }

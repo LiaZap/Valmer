@@ -20,7 +20,7 @@
   height: 26px;
   flex: none;
   border-radius: var(--radius-md);
-  background: var(--color-accent);
+  background: var(--color-marca-fundo);
   color: var(--color-on-ink);
   display: flex;
   align-items: center;
@@ -53,5 +53,10 @@
 @media (max-width: 560px) {
   .conteudo {
     padding: var(--space-20) var(--space-16) 40px;
+  }
+
+  /* Mesma margem do conteudo: o simbolo alinha com a borda do card. */
+  .topo {
+    padding: 0 var(--space-16);
   }
 }

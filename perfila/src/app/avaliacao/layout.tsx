@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
-import { LogoMark } from '@/components/layout/Logo'
+import { MarcaImpacto } from '@/components/layout/MarcaImpacto'
 import styles from './layout.module.css'
 
 export const metadata: Metadata = {
-  title: 'Perfila · Assessment',
-  description: 'Responda o assessment comportamental e receba o seu perfil.',
+  title: 'Impacto DISC · Mapa Comportamental',
+  description: 'Responda o mapa comportamental e receba o seu perfil.',
 }
 
 /**
@@ -19,9 +19,9 @@ export default function AvaliacaoLayout({ children }: { children: React.ReactNod
     <div className={styles.pagina}>
       <header className={styles.topo}>
         <span className={styles.marca}>
-          <LogoMark size={16} />
+          <MarcaImpacto size={11} onda="var(--color-marca-onda)" />
         </span>
-        <span className={styles.nome}>Perfila</span>
+        <span className={styles.nome}>Impacto DISC</span>
       </header>
 
       <main className={styles.conteudo}>{children}</main>

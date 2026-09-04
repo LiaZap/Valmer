@@ -111,13 +111,13 @@ export function ListaAssessments({
         <TabelaAssessments itens={filtrados} mostrarFacilitador empresas={empresas} />
       ) : itens.length === 0 ? (
         <EmptyState>
-          Nenhum parceiro enviou assessments ainda. Eles aparecem aqui assim que o primeiro link
-          for criado no portal do facilitador.
+          Nenhum parceiro enviou mapas comportamentais ainda. Eles aparecem aqui assim que o
+          primeiro link for criado no portal do facilitador.
         </EmptyState>
       ) : (
         <EmptyState>
           <p>
-            Nenhum assessment corresponde aos filtros. Os {itens.length} da plataforma continuam
+            Nenhum mapa corresponde aos filtros. Os {itens.length} da plataforma continuam
             aqui.
           </p>
           <Button variant="secondary" onClick={limpar}>

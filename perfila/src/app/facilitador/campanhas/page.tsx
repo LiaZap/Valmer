@@ -30,8 +30,8 @@ export default function CampanhasPage() {
   return (
     <>
       <PageHeader
-        title="Campanhas"
-        subtitle={`${campanhasResumo.quantidade} campanhas · ${campanhasResumo.passaportes} passaportes enviados`}
+        title="Turmas"
+        subtitle={`${campanhasResumo.quantidade} turmas · ${campanhasResumo.passaportes} passaportes enviados`}
         actions={
           <>
             <Button icon={<Icon name="download" />} onClick={() => toast('Exportação iniciada')}>
@@ -48,7 +48,7 @@ export default function CampanhasPage() {
               Remover pendentes
             </Button>
             <Button href="/facilitador/campanhas/nova" variant="primary" icon={<Icon name="plus" />}>
-              Nova campanha
+              Nova turma
             </Button>
           </>
         }
@@ -84,7 +84,7 @@ export default function CampanhasPage() {
         <Table>
           <thead>
             <tr>
-              <Th style={{ minWidth: 240 }}>Campanha</Th>
+              <Th style={{ minWidth: 240 }}>Turma</Th>
               <Th>Finalidade</Th>
               <Th>Criada em</Th>
               <Th style={{ width: 260 }}>Respostas</Th>

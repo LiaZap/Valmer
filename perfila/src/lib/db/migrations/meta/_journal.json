@@ -43,6 +43,13 @@
       "when": 1788475154363,
       "tag": "0005_saldo_confere_com_extrato",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1788535700055,
+      "tag": "0006_wide_black_bird",
+      "breakpoints": true
     }
   ]
 }

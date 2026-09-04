@@ -15,7 +15,7 @@
   color: var(--color-text-muted);
 }
 
-/* Card verde de recarga automática. */
+/* Card de acento, para a recarga automática. */
 .recarga {
   display: flex;
   flex-direction: column;

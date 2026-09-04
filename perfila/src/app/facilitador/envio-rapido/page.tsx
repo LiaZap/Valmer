@@ -25,16 +25,16 @@ export default function EnvioRapidoPage() {
     <>
       <PageHeader
         title="Envio rápido"
-        subtitle="Envie passaportes para uma campanha existente ou crie uma nova em segundos."
+        subtitle="Envie passaportes para uma turma existente ou crie uma nova em segundos."
       />
 
       <AutoGrid min={300} alignStart>
         <Card padding="none" className={styles.cardBusca}>
           <div className={styles.busca}>
-            <span className={styles.buscaLabel}>Campanha</span>
+            <span className={styles.buscaLabel}>Turma</span>
             <div className={styles.buscaLinha}>
               <SearchInput
-                placeholder="Procurar uma campanha existente"
+                placeholder="Procurar uma turma existente"
                 size="lg"
                 className={styles.buscaCampo}
               />
@@ -43,7 +43,7 @@ export default function EnvioRapidoPage() {
                 icon={<Icon name="plus" />}
                 className={styles.buscaBotao}
               >
-                Nova campanha
+                Nova turma
               </Button>
             </div>
           </div>
@@ -105,7 +105,7 @@ export default function EnvioRapidoPage() {
         <Card className={styles.ajuda}>
           <div className={ui.cardTitle}>Como funciona</div>
           <ol className={styles.passos}>
-            <li>Escolha ou crie a campanha que receberá os passaportes.</li>
+            <li>Escolha ou crie a turma que receberá os passaportes.</li>
             <li>Adicione destinatários manualmente ou por planilha.</li>
             <li>Cada envio consome 1 crédito (ou 1 degustação, se configurada).</li>
           </ol>

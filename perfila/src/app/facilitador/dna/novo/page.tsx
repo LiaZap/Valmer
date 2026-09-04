@@ -28,7 +28,7 @@ export default function NovoDnaPage() {
 
       <PageHeader
         title="Novo DNA"
-        subtitle="Dê um nome à empresa e vincule campanhas e inventários."
+        subtitle="Dê um nome à empresa e vincule turmas e inventários."
       />
 
       <AutoGrid min={300} alignStart>
@@ -42,14 +42,14 @@ export default function NovoDnaPage() {
 
           <Card padding="none">
             <CardHeader
-              title="Campanhas"
+              title="Turmas"
               actions={
                 <Button size="sm" icon={<Icon name="plus" />} onClick={() => toast('Adicionado')}>
-                  Adicionar campanha
+                  Adicionar turma
                 </Button>
               }
             />
-            <EmptyState>Nenhuma campanha vinculada.</EmptyState>
+            <EmptyState>Nenhuma turma vinculada.</EmptyState>
           </Card>
 
           <Card padding="none">
@@ -86,7 +86,7 @@ export default function NovoDnaPage() {
           <div className={styles.explicacaoTitulo}>O que é um DNA?</div>
           <p className={ui.prose}>
             O DNA Organizacional consolida os perfis DISC de um grupo e mostra o comportamento
-            predominante da equipe. Vincule uma campanha para importar os respondentes
+            predominante da equipe. Vincule uma turma para importar os respondentes
             automaticamente.
           </p>
         </Card>

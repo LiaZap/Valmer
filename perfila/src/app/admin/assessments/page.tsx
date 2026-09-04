@@ -24,7 +24,7 @@ export default async function AssessmentsAdminPage() {
   return (
     <>
       <PageHeader
-        title="Assessments"
+        title="Mapas Comportamentais"
         subtitle={`${itens.length} enviados · ${concluidos} concluídos`}
         actions={
           <BotaoAviso icon={<Icon name="download" />} aviso="Exportação iniciada">

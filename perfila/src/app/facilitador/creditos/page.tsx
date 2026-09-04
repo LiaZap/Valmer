@@ -87,7 +87,7 @@ export default async function CreditosPage() {
           <div className={`${ui.metricLg} ${styles.valor}`}>
             {saidas} <span className={styles.unidade}>créditos</span>
           </div>
-          <div className={ui.note}>Assessments aplicados</div>
+          <div className={ui.note}>Mapas aplicados</div>
         </Card>
 
         <Card tone="accent" className={styles.recarga}>
@@ -114,7 +114,7 @@ export default async function CreditosPage() {
 
         {extrato.length === 0 ? (
           <EmptyState>
-            Nenhum movimento ainda. Compras, bônus e o consumo de cada assessment aparecem aqui.
+            Nenhum movimento ainda. Compras, bônus e o consumo de cada mapa aparecem aqui.
           </EmptyState>
         ) : (
           <>

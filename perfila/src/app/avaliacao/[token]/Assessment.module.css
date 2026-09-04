@@ -171,6 +171,22 @@
   color: var(--color-text-subtle);
 }
 
+/* No celular os tres itens do rodape nao cabem lado a lado: "Voltar",
+   "12 de 28 respondidas" e "Avancar" somam mais que a largura util de um
+   telefone de 360px, e o que cedia era o texto dos botoes. O contador sobe
+   para a linha de cima e os botoes ficam com a linha inteira. */
+@media (max-width: 560px) {
+  .navegacao {
+    flex-wrap: wrap;
+  }
+
+  .salvo {
+    order: -1;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 /* ---------- Conclusão ---------- */
 .conclusao {
   display: flex;

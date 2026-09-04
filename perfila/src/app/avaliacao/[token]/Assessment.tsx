@@ -66,6 +66,9 @@ export function Assessment({
 
   const questao = questoes[indice]!
   const bloco = blocosAssessment.find((item) => item.numero === questao.bloco)!
+  // A abertura do bloco só aparece na primeira questão dele: repetida em todas
+  // as sete, vira ruído que a pessoa aprende a pular.
+  const abrindoBloco = questoes.findIndex((item) => item.bloco === questao.bloco) === indice
   const respondidas = Object.keys(respostas).length
   const retomado = Object.keys(respostasIniciais).length > 0
   // Link morto ou já enviado: continuar responderia para o vazio.
@@ -254,7 +257,7 @@ export function Assessment({
         </div>
         <Progress
           value={(indice / questoes.length) * 100}
-          label={`Progresso do assessment: questão ${indice + 1} de ${questoes.length}`}
+          label={`Progresso do mapa comportamental: questão ${indice + 1} de ${questoes.length}`}
         />
       </div>
 
@@ -272,6 +275,20 @@ export function Assessment({
           </div>
         ) : null}
       </div>
+
+      {abrindoBloco ? (
+        <div className={`${ui.callout} ${ui.calloutInfo}`}>
+          <span className={ui.calloutIcon}>
+            <Icon name="info" />
+          </span>
+          <span>
+            <b>
+              Bloco {bloco.numero} de {blocosAssessment.length}: {bloco.nome}.
+            </b>{' '}
+            {bloco.descricao}
+          </span>
+        </div>
+      ) : null}
 
       <Card padding="lg">
         <fieldset className={styles.questao} disabled={travado}>
