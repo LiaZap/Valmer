@@ -4,8 +4,13 @@
 #   Rodar COMO ROOT, depois do 02.
 #   bash 03-runtime.sh
 #
-# Instala: patch automatico de seguranca, Docker, Node 22 LTS, Nginx, Certbot,
-# cliente do Postgres 16 (para o pg_dump rodar no host) e swap.
+# Instala so o que vale nos dois caminhos possiveis (painel ou manual): patch
+# automatico de seguranca, Docker, cliente do Postgres 16 (para o pg_dump rodar
+# no host) e swap.
+#
+# Node, Nginx e Certbot NAO entram aqui. No caminho com EasyPanel quem faz proxy
+# e TLS e o Traefik do painel, e um Nginx ocupando 80/443 impede o painel de
+# subir. Eles sao instalados pelo 04-ambiente.sh, que e o caminho manual.
 #
 # Idempotente.
 set -euo pipefail
@@ -58,33 +63,6 @@ systemctl enable --now docker >/dev/null
 usermod -aG docker "${DEPLOY_USER:-deploy}" 2>/dev/null || true
 info "docker $(docker --version | awk '{print $3}' | tr -d ,) pronto."
 
-# --- Node 22 LTS --------------------------------------------------------------
-# Next 16 exige Node >= 20.9. O 22 e o LTS com suporte mais longo hoje.
-if ! command -v node >/dev/null || [ "$(node -v | cut -c2-3)" -lt 22 ]; then
-  curl -fsSL https://deb.nodesource.com/setup_22.x | bash - >/dev/null
-  apt-get install -y nodejs >/dev/null
-fi
-info "node $(node -v) / npm $(npm -v)."
-
-# --- Nginx + Certbot ----------------------------------------------------------
-apt-get install -y nginx certbot python3-certbot-nginx >/dev/null
-# A versao do servidor no cabecalho so ajuda quem esta procurando alvo.
-sed -i 's/^\s*#\?\s*server_tokens.*/\tserver_tokens off;/' /etc/nginx/nginx.conf
-grep -q server_tokens /etc/nginx/nginx.conf || \
-  sed -i '/http {/a \\tserver_tokens off;' /etc/nginx/nginx.conf
-
-# Zona de rate limit do login. Precisa existir no contexto http, e nao no vhost.
-cat > /etc/nginx/conf.d/valmer-limites.conf <<'EOF'
-# Gerado por scripts/infra/03-runtime.sh
-# Forca bruta em /api/auth e o ataque mais barato contra esta plataforma.
-limit_req_zone $binary_remote_addr zone=valmer_auth:10m rate=10r/m;
-limit_req_status 429;
-EOF
-nginx -t
-systemctl enable --now nginx >/dev/null
-systemctl reload nginx
-info "nginx e certbot prontos."
-
 # --- swap ---------------------------------------------------------------------
 # A imagem da Hostinger vem sem swap. `next build` tem pico de memoria; 4 GB de
 # folga custam disco e evitam um OOM kill no meio do deploy.
@@ -100,5 +78,5 @@ fi
 info "swap: $(swapon --show=NAME,SIZE --noheadings | tr '\n' ' ')"
 
 echo
-info "Conferir:  docker ps ; node -v ; nginx -t ; free -h ; systemctl status unattended-upgrades"
-info "Desfazer:  apt-get remove --purge docker-ce nodejs nginx certbot ; swapoff /swapfile"
+info "Conferir:  docker ps ; free -h ; systemctl status unattended-upgrades"
+info "Desfazer:  apt-get remove --purge docker-ce ; swapoff /swapfile"

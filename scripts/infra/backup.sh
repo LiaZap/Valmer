@@ -20,7 +20,17 @@ info() { echo "[backup-$AMB] $*"; }
 # --- conexao ------------------------------------------------------------------
 # A senha vai por variavel de ambiente, e nao na linha de comando: argumento de
 # processo aparece inteiro num `ps aux` para qualquer usuario da maquina.
-set -a; . "$BASE/env/app.env"; set +a
+# Com EasyPanel (ADR-0006) as variaveis vivem no painel e nao ha app.env no
+# disco: quem quiser backup precisa deixar a DATABASE_URL em backup.env. No
+# caminho manual o app.env ja tem tudo. Os dois servem, nesta ordem.
+set -a
+[ -f "$BASE/env/app.env" ]    && . "$BASE/env/app.env"
+[ -f "$BASE/env/backup.env" ] && . "$BASE/env/backup.env"
+set +a
+[ -n "${DATABASE_URL:-}" ] || {
+  echo "erro: DATABASE_URL nao encontrada em $BASE/env/{app,backup}.env" >&2
+  exit 1
+}
 . "$(dirname "$(readlink -f "$0")")/lib-pg.sh"
 pg_conexao "$DATABASE_URL"
 
@@ -43,10 +53,7 @@ info "$(basename "$ARQUIVO") — $((bytes / 1024)) KB, conferido."
 [ "$(date +%u)" = "7" ] && cp -p "$ARQUIVO" "$DESTINO/semanal/"
 
 # --- fora da maquina ----------------------------------------------------------
-BACKUP_REMOTE=""
-[ -f "$BASE/env/backup.env" ] && { set -a; . "$BASE/env/backup.env"; set +a; }
-
-if [ -n "$BACKUP_REMOTE" ]; then
+if [ -n "${BACKUP_REMOTE:-}" ]; then
   rclone copy "$ARQUIVO" "$BACKUP_REMOTE/" --no-traverse
   info "copiado para $BACKUP_REMOTE."
 elif [ "$AMB" = "prd" ]; then

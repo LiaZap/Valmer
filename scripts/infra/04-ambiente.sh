@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
-# 04-ambiente.sh — cria UM ambiente (hml ou prd) na maquina.
+# 04-ambiente.sh — cria UM ambiente (hml ou prd) na maquina, SEM painel.
+#
+# CAMINHO MANUAL. O projeto adotou o EasyPanel (ADR-0006), e no caminho do
+# painel quem cria ambiente, proxy e TLS e ele — este script nao roda.
+# Fica aqui como caminho de volta: se o painel quebrar, mudar de licenca ou for
+# descontinuado, esta e a estrutura que ja funcionava, com systemd e Nginx.
 #
 #   Rodar COMO ROOT, depois do 03. Uma vez para cada ambiente:
 #     DOMINIO=hml.perfila.com.br bash 04-ambiente.sh hml
@@ -29,6 +34,24 @@ REPO="${REPO:-https://github.com/LiaZap/Valmer.git}"
 DEPLOY_USER="${DEPLOY_USER:-deploy}"
 BASE="/srv/valmer/$AMB"
 info() { echo "[04-$AMB] $*"; }
+
+# Node, Nginx e Certbot sairam do 03 porque brigam com o Traefik do painel.
+# Quem escolhe o caminho manual precisa deles, e e aqui que eles entram.
+export DEBIAN_FRONTEND=noninteractive
+if ! command -v node >/dev/null || [ "$(node -v | cut -c2-3)" -lt 22 ]; then
+  curl -fsSL https://deb.nodesource.com/setup_22.x | bash - >/dev/null
+  apt-get install -y nodejs >/dev/null
+fi
+apt-get install -y nginx certbot python3-certbot-nginx >/dev/null
+if [ ! -f /etc/nginx/conf.d/valmer-limites.conf ]; then
+  # Forca bruta em /api/auth e o ataque mais barato contra esta plataforma.
+  # A zona precisa existir no contexto http, e nao dentro do vhost.
+  cat > /etc/nginx/conf.d/valmer-limites.conf <<'LIM'
+limit_req_zone $binary_remote_addr zone=valmer_auth:10m rate=10r/m;
+limit_req_status 429;
+LIM
+fi
+sed -i 's/^\s*#\?\s*server_tokens.*/	server_tokens off;/' /etc/nginx/nginx.conf
 
 # --- diretorios ---------------------------------------------------------------
 install -d -o "$DEPLOY_USER" -g "$DEPLOY_USER" -m 750 \

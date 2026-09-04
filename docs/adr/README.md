@@ -26,3 +26,4 @@ numerado e imutavel — se a decisao muda, cria-se um novo ADR que supersede o a
 | [0003](0003-autenticacao-com-scrypt-e-sessao-no-banco.md) | Autenticacao com scrypt e sessao no banco | Substituido por ADR-0004 |
 | [0004](0004-better-auth-sobre-o-schema-existente.md) | Better Auth sobre o schema existente | Aceito |
 | [0005](0005-uma-vps-para-hml-e-prd.md) | Uma VPS para HML e PRD | Aceito |
+| [0006](0006-easypanel-como-plataforma-de-operacao.md) | EasyPanel como plataforma de operacao | Aceito |

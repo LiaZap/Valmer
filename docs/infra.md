@@ -53,46 +53,47 @@ banco, porta, segredo e volume ficam separados de verdade; kernel, disco, IP e
 janela de manutencao sao compartilhados e nao ha como separar.
 
 ---
-
 ## Desenho — o que roda onde
+
+O EasyPanel (ADR-0006) e dono do proxy, do TLS e do build. O que esta fora dele
+— acesso, firewall, backup e monitoramento — continua sendo nosso, de proposito:
+se o painel cair, essas quatro coisas precisam continuar de pe.
 
 ```
                           internet
                              |
-                        [ UFW ] 22/2222, 80, 443 — o resto fechado
+                        [ UFW ] SSH, 80, 443 — o resto fechado
                              |
-                        [ Nginx ]  TLS, HSTS, cabecalhos, rate limit /api/auth
-                       /                    \
-        app.perfila (PRD)                hml.perfila (HML)
-        127.0.0.1:3000                   127.0.0.1:3001
-        systemd valmer-prd               systemd valmer-hml
-        MemoryMax 8G  CPUWeight 200      MemoryMax 4G  CPUWeight 50
-              |                                  |
-        127.0.0.1:5432                     127.0.0.1:5433
-        docker valmer_prd_db               docker valmer_hml_db
-        volume valmer_prd_pgdata           volume valmer_hml_pgdata
+                    [ Traefik do EasyPanel ]  TLS, roteamento por dominio
+                    /            |            \
+       painel.perfila     hml.perfila       app.perfila
+       (2a autenticacao)   projeto hml       projeto prd
+                                |                 |
+                          app + postgres    app + postgres
+                          (containers)      (containers)
+
+     fora do painel:  01/02 acesso e firewall · backup.sh · restore.sh
+                      monitor.sh · timers do systemd
 ```
 
-Nada alem do Nginx escuta em interface publica. O Postgres nunca.
+Nada alem do Traefik escuta em interface publica. O Postgres nunca — e isso
+precisa ser CONFERIDO depois de criar cada servico, e nao presumido.
 
 ```
 /srv/valmer/
-  bin/                       scripts de operacao (o CI e os timers chamam daqui)
+  bin/                       scripts de operacao (os timers chamam daqui)
+  monitor.env                HEARTBEAT_URL e o que checar (0600)
   <amb>/
-    env/app.env              DATABASE_URL, BETTER_AUTH_SECRET, ANTHROPIC_API_KEY (0600)
-    env/postgres.env         senha do banco (0600)
-    env/backup.env           destino off-site (0600)
-    repo/                    clone bare, cache do git
-    releases/<data>-<sha>/   uma pasta por publicacao, as 3 ultimas
-    current -> releases/...  o que esta no ar
+    env/backup.env           DATABASE_URL e destino off-site (0600)
     backups/                 dumps diarios + semanal/
-    postgres.compose.yml
 ```
 
-Usuarios: `paulo` (sudo, administra) e `deploy` (sem sudo; so pode reiniciar
-`valmer-hml` e `valmer-prd`). Root nao entra por SSH.
+As variaveis da aplicacao vivem no painel. O `backup.env` existe porque os
+scripts de backup rodam fora dele e precisam da string de conexao — e a unica
+duplicata, e ela e deliberada.
 
----
+Usuarios: `paulo` (sudo, administra) e `deploy` (sem sudo). Root nao entra por
+SSH. O painel tem conta propria, que **nao** e a do sistema.
 
 ## Ordem de instalacao
 
@@ -162,8 +163,12 @@ firewall fechado e nada avisa.
 sudo bash 03-runtime.sh
 ```
 
-Patch de seguranca automatico (com reboot as 04:00), Docker, Node 22 LTS,
-Nginx, Certbot, `postgresql-client-16` e 4 GB de swap.
+Patch de seguranca automatico (com reboot as 04:00), Docker,
+`postgresql-client-16` (o `pg_dump` roda no host) e 4 GB de swap.
+
+Node, Nginx e Certbot **nao** entram aqui: no caminho do painel quem faz proxy e
+TLS e o Traefik, e um Nginx ocupando 80 e 443 impede o painel de subir. Quem for
+pelo Anexo os instala com o `04-ambiente.sh`.
 
 O `deploy` entra no grupo `docker` para subir e descer o Postgres. Grupo docker
 equivale a root na maquina — e uma concessao consciente: sem ela, cada operacao
@@ -171,84 +176,74 @@ de banco precisaria de sudo, e a chave que o CI usa passaria a ter caminho para
 sudo. O risco fica contido pelo que o `deploy` **nao** tem: shell interativo
 comum, senha e acesso a `/etc/sudoers.d` alem da linha dos servicos.
 
-- **Conferir**: `docker ps`, `node -v` (v22), `nginx -t`, `free -h` (swap 4G),
+- **Conferir**: `docker ps`, `free -h` (swap 4G),
   `systemctl status unattended-upgrades`.
-- **Desfazer**: `sudo apt-get remove --purge docker-ce nodejs nginx certbot` e
+- **Desfazer**: `sudo apt-get remove --purge docker-ce` e
   `sudo swapoff /swapfile`.
+### Etapa 4 — EasyPanel  *(obrigatoria)*
 
-### Etapa 4 — Ambientes  *(HML obrigatoria; PRD quando houver dominio)*
-
-Uma vez por ambiente. **Precisa do DNS ja apontando para o IP.**
-
-```bash
-sudo DOMINIO=hml.perfila.com.br bash 04-ambiente.sh hml
-sudo DOMINIO=app.perfila.com.br bash 04-ambiente.sh prd
-```
-
-Cria diretorios, gera os segredos (uma unica vez, `0600`, fora do git), sobe o
-Postgres do ambiente no localhost, registra o servico systemd com teto de
-memoria e publica o vhost.
-
-`MemoryMax` e `CPUWeight` sao o que impede o HML de derrubar o PRD numa maquina
-so. Sem eles, um build em homologacao vira incidente em producao.
-
-O script **nao sobrescreve** arquivo de segredo existente. Rodar de novo depois
-de trocar o dominio atualiza vhost e unidade, e preserva senha e segredo.
-
-Depois de rodar, preencha a chave da Anthropic:
+O painel instala o proprio Docker, sobe o Traefik e assume 80 e 443. Por isso o
+03 nao instala mais Nginx: os dois brigam pela mesma porta.
 
 ```bash
-sudo -u deploy nano /srv/valmer/prd/env/app.env    # ANTHROPIC_API_KEY=
-sudo systemctl restart valmer-prd
+curl -sSL https://get.easypanel.io | sh
 ```
 
-- **Conferir**: `docker compose -f /srv/valmer/hml/postgres.compose.yml ps` diz
-  `healthy`; `ss -ltnp | grep 5433` mostra `127.0.0.1` e nunca `0.0.0.0`;
-  `curl -I http://hml.perfila.com.br` responde 502 (esperado, ainda nao ha
-  deploy).
-- **Desfazer**: `systemctl disable --now valmer-hml`,
-  `rm /etc/nginx/sites-enabled/valmer-hml && systemctl reload nginx`,
-  `docker compose -f .../postgres.compose.yml down` (com `-v` **apaga o banco**).
+Depois: aponte um subdominio (ex.: `painel.perfila.com.br`) para o IP, abra o
+painel, crie a conta de administrador com senha longa e unica, e configure o
+dominio do painel dentro dele para que ele emita o proprio certificado.
 
-### Etapa 5 — TLS  *(obrigatoria antes de qualquer login real)*
+- **Conferir**: `docker ps` mostra os containers do painel; `curl -I
+  https://painel...` responde 200; acessar pelo IP **nao** deve servir o painel.
+- **Desfazer**: `docker rm -f` nos containers do painel e apagar `/etc/easypanel`.
+  Feito isso, o caminho manual do Anexo volta a ser possivel.
 
-O cookie de sessao do Better Auth e `secure` (ADR-0004): sem HTTPS o navegador
-descarta o cookie e ninguem entra. TLS aqui nao e camada extra, e requisito de
-funcionamento.
+### Etapa 5 — Proteger o painel  *(obrigatoria, junto com a 4)*
 
-```bash
-sudo certbot --nginx -d hml.perfila.com.br -d app.perfila.com.br \
-  --agree-tos -m <email> --redirect --hsts
-```
+Quem entra no painel controla os dois ambientes e todos os segredos. **A senha
+do painel nao pode ser a unica coisa entre a internet e o root da maquina.**
 
-`--redirect` manda 80 para 443, `--hsts` adiciona o cabecalho. O timer de
-renovacao do certbot ja vem instalado pelo pacote.
+1. Segunda camada antes do painel: Cloudflare Access no subdominio, ou
+   restricao por IP. Sem isso, uma senha vazada entrega a plataforma inteira.
+2. 2FA no painel, se o produto oferecer — **a verificar na instalacao**.
+3. Painel so pelo subdominio, nunca por IP.
+4. Atualizar o painel faz parte da rotina: e software exposto na internet.
 
-- **Conferir**: `curl -I http://hml...` responde 301; `curl -I https://hml...`
-  traz `Strict-Transport-Security`; `sudo certbot renew --dry-run` passa.
-  Renovacao automatica que nunca foi testada nao conta.
-- **Desfazer**: `sudo certbot delete --cert-name hml.perfila.com.br` e
-  restaurar o vhost com `sudo bash 04-ambiente.sh hml`.
+- **Conferir**: de uma rede nao autorizada, o painel nao deve nem mostrar a tela
+  de login. Se mostrar, a camada 1 nao esta valendo.
+- **Desfazer**: remover a politica de acesso — e voltar a ter so a senha.
 
-### Etapa 6 — Primeiro deploy  *(obrigatoria)*
+### Etapa 6 — Os dois ambientes no painel  *(HML primeiro)*
 
-```bash
-# caminho estavel, que o CI e os timers tambem usam
-sudo install -d -m 755 /srv/valmer/bin
-sudo install -m 750 /root/infra/*.sh /srv/valmer/bin/
-sudo -u deploy bash /srv/valmer/bin/deploy.sh hml develop
-```
+Um **projeto** por ambiente: `valmer-hml` e `valmer-prd`. Dentro de cada um,
+dois servicos: a aplicacao (do repositorio, pasta `perfila/`) e o Postgres.
 
-O `deploy.sh` monta uma release nova em `releases/`, roda `npm ci` e
-`npm run build`, aplica migracoes e **so entao** troca o symlink `current` e
-reinicia o servico. Build quebrado nao derruba o que esta no ar. Ao final ele
-copia os scripts para `/srv/valmer/bin`, que e de onde o CI e os timers passam
-a chamar.
+Configuracao que nao e opcional:
 
-- **Conferir**: o proprio script confere — espera ate 60s por HTTP 200 em
-  `127.0.0.1:3001` e, se nao vier, imprime o log e sai com erro. Depois:
-  `curl -I https://hml.perfila.com.br` responde 200.
-- **Desfazer**: `bash /srv/valmer/bin/deploy.sh rollback hml`.
+| Item | HML | PRD |
+| --- | --- | --- |
+| Branch de deploy | `develop` | `master` |
+| Dominio | `hml.perfila.com.br` | `app.perfila.com.br` |
+| Limite de memoria | 4 GB | 8 GB |
+| Postgres | servico proprio, **sem porta publicada** | idem |
+
+Variaveis, por ambiente: `DATABASE_URL`, `BETTER_AUTH_SECRET` (um por ambiente,
+`openssl rand -base64 32`), `BETTER_AUTH_URL`, `ANTHROPIC_API_KEY` e
+`NODE_ENV=production`.
+
+**`SESSAO_DEV_USUARIO_ID` nunca.** Ela entra como qualquer usuario sem senha, e
+o unico freio e `NODE_ENV=production`. No painel ela entra com dois cliques —
+antes exigia editar um arquivo `0600` por SSH. Nao a crie em ambiente nenhum.
+
+As migracoes (`npm run db:migrate`) precisam rodar no deploy. Onde isso se
+configura no EasyPanel — comando de build, de start ou hook — **fica a verificar
+na instalacao**; nao vale inventar a tela que ninguem viu.
+
+- **Conferir**: `https://hml...` responde 200 e o login funciona (o cookie
+  `secure` exige TLS valido); `ss -ltnp | grep 5432` **nao** mostra `0.0.0.0`;
+  publicar um commit em `develop` atualiza so o HML.
+- **Desfazer**: o painel guarda historico de deploy — redeploy do commit
+  anterior. **Isso devolve o codigo, nao o banco**; ver a secao de rollback.
 
 ### Etapa 7 — Backup e restore  *(obrigatoria antes do PRD receber dado real)*
 
@@ -312,50 +307,61 @@ que a maquina caiu.
 
 ## Operacao do dia a dia
 
-| Situacao | Comando |
+| Situacao | Onde |
 | --- | --- |
-| Publicar em HML | push em `develop` (o CI faz), ou `bash /srv/valmer/bin/deploy.sh hml` |
-| Publicar em PRD | merge em `master`, ou `bash /srv/valmer/bin/deploy.sh prd` |
-| Voltar a versao anterior | `bash /srv/valmer/bin/deploy.sh rollback prd` |
+| Publicar em HML | push em `develop` — o painel publica sozinho |
+| Publicar em PRD | merge em `master` — **com backup antes**, ver abaixo |
+| Voltar a versao anterior | painel: historico de deploy, redeploy do commit anterior |
+| Ver log da app, variaveis, containers | painel |
 | Backup manual | `bash /srv/valmer/bin/backup.sh prd` |
 | Testar o restore | `bash /srv/valmer/bin/restore.sh hml` |
-| Ver o log da app | `valmer logs prd -f` |
-| Ver o log do banco | `docker logs -f valmer_prd_db` |
-| Estado geral | `valmer status` |
-| Mudar variavel de ambiente | `valmer env prd` (edita e reinicia se mudou) |
-| Abrir o banco | `valmer db hml` |
-| Ver os containers | `valmer ps` |
+| Estado geral (fora do painel) | `valmer status` |
+| Abrir o banco | `valmer db prd` |
 
-### Por que nao ha painel (EasyPanel, Portainer)
+O que esta no painel voce aprende em video. O que ficou no SSH e justamente o
+que nao pode depender do painel estar de pe.
+### Por que ha painel, e o que ele custa
 
-`valmer` sem argumento lista tudo o que da para fazer. E o que substitui um
-painel aqui, e a troca e deliberada.
+A decisao esta no ADR-0006. O motivo nao e tecnico, e de continuidade: uma
+estrutura sob medida so se aprende com quem a escreveu, e a hipotese de trabalho
+e que essa pessoa pode nao estar mais no projeto. EasyPanel se aprende por
+material publico.
 
-Um painel web com acesso ao socket do Docker **e root na maquina**: uma sessao
-de navegador vazada desfaz a chave de SSH, o firewall e o fail2ban de uma vez.
-E painel que publica cria duas verdades — o que esta no git e o que alguem
-clicou — entao no dia do incidente ninguem sabe qual versao esta no ar.
+O preco esta pago com olhos abertos, e nao escondido:
 
-Alem disso, so o Postgres roda em container neste servidor; a aplicacao roda em
-systemd. Um painel de containers administraria dois containers que ja sobem
-sozinhos com `restart: unless-stopped`.
+- **O painel e root na maquina.** Uma sessao de navegador vazada desfaz a chave
+  de SSH, o UFW e o fail2ban de uma vez. E por isso que a Etapa 5 nao e opcional.
+- **Deploy deixa de ter uma verdade so.** Mitigado ao amarrar cada projeto a uma
+  branch e nao publicar por upload manual.
+- **Dependencia de produto.** Por isso o Anexo existe.
 
-Por isso `valmer` **nao publica e nao desfaz**: isso e `deploy.sh`, o mesmo
-comando que o CI chama. Dois caminhos para publicar e o mesmo que nenhum.
+**Portainer nao entra.** O EasyPanel ja mostra container, log e variavel; o
+Portainer nao acrescenta capacidade e soma mais uma porta com acesso ao Docker.
+
+Backup, restore e monitoramento seguem **fora** do painel, por timer do systemd.
+Se o painel cair, o backup continua.
 
 ### Rollback — o que ele devolve e o que nao devolve
 
-`deploy.sh rollback` troca o symlink de volta e reinicia: segundos, e sempre
-funciona, porque a release anterior continua inteira no disco.
+No painel: historico de deploy, redeploy do commit anterior. E rapido e a
+imagem antiga ainda esta la.
 
 **Ele devolve o codigo, nao o banco.** Se o deploy que voce esta desfazendo
 rodou migracao, o schema continua o novo e o codigo antigo pode nao entender
-mais as tabelas. Nesse caso o caminho e o dump que o proprio `deploy.sh` fez
-antes de migrar:
+mais as tabelas. Nesse caso e preciso o dump anterior ao deploy:
 
 ```bash
-bash /srv/valmer/bin/deploy.sh rollback prd
 CONFIRMA=RESTAURAR-PRD bash /srv/valmer/bin/restore.sh prd /srv/valmer/prd/backups/<arquivo>.sql
+```
+
+**Regressao que veio junto com o painel, e precisa de disciplina:** o
+`deploy.sh` fazia o dump de PRD sozinho, antes de migrar. O painel nao faz. Ate
+existir um hook de pre-deploy — **a verificar na instalacao** — a regra do
+`CLAUDE.md` ("SEMPRE backup ANTES de deploy em PRD") passa a depender de alguem
+lembrar:
+
+```bash
+bash /srv/valmer/bin/backup.sh prd      # ANTES de mergear em master
 ```
 
 Drizzle nao gera migracao reversivel automatica. Enquanto for assim, restore e o
@@ -374,24 +380,28 @@ Restringir acesso ao banco e o que segura essa ponta.
 
 **`SESSAO_DEV_USUARIO_ID` nao pode existir no servidor.** A funcao
 `sessaoDeDesenvolvimento` (`src/lib/auth/sessao.ts`) entra como qualquer usuario
-sem senha, e o unico freio e `NODE_ENV === "production"`. Os dois servicos
-declaram `Environment=NODE_ENV=production` explicitamente, e a variavel nao
-existe em nenhum `app.env`. Nunca a coloque la, nem em HML.
+sem senha, e o unico freio e `NODE_ENV === "production"`. Os dois ambientes
+declaram `NODE_ENV=production`, e a variavel nao existe em nenhum deles. Com o
+painel ela passou a ser dois cliques em vez de um arquivo `0600` por SSH — o
+risco de alguem a criar "so para testar" subiu, e nao desceu.
 
-**Segredos.** Vivem em `/srv/valmer/<amb>/env/*`, `0600`, dono `deploy`,
-gerados na maquina. Nao estao no git, nao passam pelo GitHub, nao vao em `ARG`
-de Dockerfile e nao aparecem em linha de comando — o `backup.sh` exporta
-`PGPASSWORD` em vez de passar a URL como argumento, porque argumento de processo
-aparece inteiro num `ps aux` para qualquer usuario da maquina.
+**Segredos.** As variaveis da aplicacao vivem no painel. A copia da
+`DATABASE_URL` em `/srv/valmer/<amb>/env/backup.env` e `0600`, dono `deploy`, e
+existe porque o backup roda fora do painel. Nada disso esta no git, passa pelo
+GitHub ou vai em `ARG` de Dockerfile — e nao aparece em linha de comando: o
+`backup.sh` exporta `PGPASSWORD` em vez de passar a URL como argumento, porque
+argumento de processo aparece inteiro num `ps aux` para qualquer usuario da
+maquina.
 
 **A string de conexao de producao nao e secret do GitHub.** O backup roda no
-proprio servidor, dentro do `deploy.sh`. Um dump de producao carrega nome,
-e-mail e resultado de assessment de gente real; ele nao passa pela
-infraestrutura de terceiro nem vira artifact do Actions.
+proprio servidor. Um dump de producao carrega nome, e-mail e resultado de
+assessment de gente real; ele nao passa pela infraestrutura de terceiro nem vira
+artifact do Actions.
 
-**Superficie minima.** So Nginx escuta em porta publica. Sem painel de
-administracao de servidor, sem FTP, sem banco exposto, sem `default_server` do
-Nginx respondendo por IP.
+**Superficie minima, com uma excecao assumida.** So o Traefik do painel escuta
+em porta publica: sem FTP, sem banco exposto. A excecao e o proprio painel, que
+e administracao de servidor exposta na internet — o ADR-0006 registra o porque,
+e a Etapa 5 e o que impede que ele seja a porta mais fraca da casa.
 
 ---
 
@@ -423,17 +433,16 @@ justifique.
 
 | # | O que falta | Trava o que |
 | --- | --- | --- |
-| 1 | Dominios de HML e PRD, e DNS apontando para o IP | Etapas 4 e 5 |
-| 2 | Confirmar vCPU, RAM e disco reais (`nproc && free -h && df -h /`) | tetos da Etapa 4 |
-| 3 | Chave da Anthropic no `app.env` de cada ambiente | geracao de narrativa |
-| 4 | Destino off-site do backup (`rclone config`) | Etapa 7, e o deploy de PRD |
-| 5 | Check no Healthchecks.io e `HEARTBEAT_URL` | Etapa 8 |
+| 1 | Dominios de HML, PRD **e do painel**, com DNS apontando para o IP | Etapas 4 a 6 |
+| 2 | Confirmar vCPU, RAM e disco reais (`nproc && free -h && df -h /`) | limites da Etapa 6 |
+| 3 | Chave da Anthropic nas variaveis de cada ambiente, no painel | geracao de narrativa |
+| 4 | Destino off-site do backup (`rclone config`) e a `DATABASE_URL` em `backup.env` | Etapa 7 |
+| 5 | Check no Healthchecks.io, `HEARTBEAT_URL` e os `CHECK_*` em `monitor.env` | Etapa 8 |
+| 9 | Segunda camada de autenticacao na frente do painel (Cloudflare Access ou IP) | Etapa 5 — **sem isso o painel e a porta mais fraca** |
+| 10 | Verificar no painel: 2FA, hook de pre-deploy e onde rodam as migracoes | Etapas 5 e 6, e o backup antes do PRD |
 | 6 | Renomear `main` para `master` no GitHub e enviar a `develop` (ver abaixo) | o CI, que dispara nelas |
 | 7 | Secrets de SSH no GitHub, por Environment `hml` e `prd` | deploy automatico |
 | 8 | Variavel `DEPLOY_HABILITADO=true` nos Environments, quando a VPS existir | o job de deploy, que fica parado ate la |
-
-Ate a pendencia 6 existir, o `deploy.sh` aceita ref explicita:
-`bash deploy.sh hml main`.
 
 ### Branches — o estado hoje e o que falta
 
@@ -442,10 +451,9 @@ ultimas no mesmo commit `8e8c98b`, o estado anterior ao app, com `main` ainda
 marcada como padrao.
 
 `master` nasceu de um `push origin main:master`, e nao do renomear do GitHub.
-Na pratica da no mesmo, com uma perda: o renomear cria redirecionamento
-automatico de links e PRs antigos, e o push nao. Como nao ha PR aberto e o
-repositorio e novo, o custo e zero — mas fica registrado para ninguem procurar
-um redirecionamento que nao existe.
+Da no mesmo, com uma perda: o renomear cria redirecionamento automatico de links
+e PRs antigos, e o push nao. Sem PR aberto, o custo e zero — mas fica registrado
+para ninguem procurar um redirecionamento que nao existe.
 
 `master` aponta para o estado anterior ao app de proposito: nada foi validado em
 HML ainda, e a primeira publicacao em PRD e o merge `develop -> master` depois
@@ -468,4 +476,24 @@ git remote set-head origin -a
 - **Conferir**: `git branch -r` mostra so `origin/develop`, `origin/master` e
   `origin/HEAD -> origin/master`.
 - **Desfazer**: `git push origin master:main` recria a branch, e o padrao volta
-  pela mesma tela.
+---
+
+## Anexo — o caminho manual, sem painel
+
+`04-ambiente.sh` e `deploy.sh` montam a estrutura anterior: systemd para a
+aplicacao, Nginx para proxy e TLS, Postgres em compose no localhost, deploy por
+release com symlink e rollback em segundos.
+
+Eles **nao sao apagados** de proposito. Se o EasyPanel quebrar numa atualizacao,
+mudar de licenca ou for descontinuado, esta e uma estrutura que ja funcionava, e
+o historico do git prova. Os dois caminhos nao convivem: o Nginx do manual e o
+Traefik do painel disputam 80 e 443.
+
+```bash
+sudo DOMINIO=hml.perfila.com.br bash 04-ambiente.sh hml   # instala Node/Nginx/Certbot
+sudo certbot --nginx -d hml.perfila.com.br --agree-tos -m <email> --redirect --hsts
+sudo -u deploy bash /srv/valmer/bin/deploy.sh hml develop
+```
+
+Nesse caminho o `monitor.env` pode ficar sem os `CHECK_*`: o `monitor.sh` cai
+sozinho no padrao de systemd nas portas 3000 e 3001.

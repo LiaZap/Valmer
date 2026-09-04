@@ -25,7 +25,17 @@ ARQUIVO="${2:-$(ls -1t "$BASE/backups"/backup_*.sql 2>/dev/null | head -1)}"
 [ -n "$ARQUIVO" ] && [ -f "$ARQUIVO" ] || { echo "erro: dump nao encontrado."; exit 1; }
 grep -q 'PostgreSQL database dump' "$ARQUIVO" || { echo "erro: nao parece um dump."; exit 1; }
 
-set -a; . "$BASE/env/app.env"; set +a
+# Com EasyPanel (ADR-0006) as variaveis vivem no painel e nao ha app.env no
+# disco: quem quiser backup precisa deixar a DATABASE_URL em backup.env. No
+# caminho manual o app.env ja tem tudo. Os dois servem, nesta ordem.
+set -a
+[ -f "$BASE/env/app.env" ]    && . "$BASE/env/app.env"
+[ -f "$BASE/env/backup.env" ] && . "$BASE/env/backup.env"
+set +a
+[ -n "${DATABASE_URL:-}" ] || {
+  echo "erro: DATABASE_URL nao encontrada em $BASE/env/{app,backup}.env" >&2
+  exit 1
+}
 . "$(dirname "$(readlink -f "$0")")/lib-pg.sh"
 pg_conexao "$DATABASE_URL"
 
