@@ -1,7 +1,7 @@
 import { areasMapa } from '@/data/respondente'
 import styles from './RodaAutoavaliacao.module.css'
 
-/** Cinco degraus da rampa sequencial verde, do mais claro ao mais escuro. */
+/** Cinco degraus da rampa sequencial, do mais claro ao mais escuro. */
 const RAMPA = [
   'var(--chart-seq-1)',
   'var(--chart-seq-2)',

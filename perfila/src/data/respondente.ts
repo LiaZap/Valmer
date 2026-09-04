@@ -193,7 +193,7 @@ export const textoVisao360 = {
 export const textoAgradecimento = {
   titulo: 'Nossos agradecimentos',
   corpo:
-    'A Perfila e {analista} agradecem a sua disponibilidade! O seu Relatório de Análise de Perfil Comportamental permite conhecer os seus talentos mais desenvolvidos, assim como os pontos que precisam de mais atenção.',
+    'A Impacto Academy e {analista} agradecem a sua disponibilidade! O seu Relatório de Análise de Perfil Comportamental permite conhecer os seus talentos mais desenvolvidos, assim como os pontos que precisam de mais atenção.',
   contato: 'Caso deseje mais informações, procure {analista} nos contatos a seguir:',
 }
 

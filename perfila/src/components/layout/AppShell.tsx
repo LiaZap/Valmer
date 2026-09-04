@@ -63,7 +63,7 @@ export function AppShell({
           <div className={styles.content}>{children}</div>
 
           <footer className={styles.footer}>
-            <span>© {new Date().getFullYear()} Perfila</span>
+            <span>© {new Date().getFullYear()} Impacto Academy</span>
             <span>{VERSAO}</span>
           </footer>
         </main>

@@ -1,46 +1,90 @@
 /* ============================================================
-   Perfila · Design Tokens
+   Impacto DISC · Design Tokens
    ------------------------------------------------------------
-   Fonte única de verdade do design system. Todos os valores
-   foram extraídos do protótipo aprovado (Perfila.dc.html).
+   Fonte única de verdade do design system.
+
+   A paleta é a do manual oficial da Impacto Academy (v1.0, entregue
+   pelo cliente em 04/09/2026). As quatro cores que mandam:
+
+     Azul Impacto   #0A1F44   base, 60% da peça
+     Preto Impacto  #0B0B0D   estrutura, texto forte
+     Laranja        #FF6B00   ação, no máximo 10% da peça
+     Areia          #F5F2EC   fundo claro, 25%
+
+   Apoio: Azul Profundo #061631, Azul Sinal #1B3A6B, Laranja Brasa
+   #D95100, Laranja Claro #FF8C33, Cinza Neutro #8A94A6.
+
+   Os hexadecimais anteriores (navy #0B1E3D, laranja #F47B20, creme
+   #F8F6F1) foram desenhados aqui por falta de manual. O manual
+   chegou e os revoga.
+
+   Os contrastes anotados abaixo são WCAG 2.1, medidos, não chutados.
    Nenhum componente deve escrever uma cor "crua" — sempre token.
    ============================================================ */
 
 :root {
   /* ---------------------------------------------------------
-     1. COR · Neutros quentes (base "stone")
-     A plataforma inteira se apoia nesta escala. O fundo é
-     levemente bege para tirar o aspecto frio de dashboard.
+     1. COR · Superfícies
+     A Areia do manual é o fundo da aplicação; o branco puro fica
+     para os cards, senão eles sumiriam no fundo. Bordas e hovers são
+     o Azul Impacto em opacidade baixa sobre a Areia — nenhum cinza
+     neutro entra aqui, para o produto inteiro parecer da mesma
+     família e não a marca colada sobre um layout cinza.
      --------------------------------------------------------- */
-  --color-bg: #f5f3ef; /* fundo da aplicação */
+  --color-bg: #f5f2ec; /* Areia · fundo da aplicação */
   --color-surface: #ffffff; /* cards, sidebar, topbar */
   --color-surface-muted: #faf9f6; /* hover de linha, rodapé de card */
-  --color-surface-sunken: #f5f3ef; /* blocos internos dentro de um card */
-  --color-hover: #f0ede7; /* hover de botões neutros e chips */
+  --color-surface-sunken: #f5f2ec; /* blocos internos dentro de um card */
+  --color-hover: #eceae5; /* azul 4% sobre areia */
 
-  --color-border: #e6e2da; /* borda padrão de card, input, tabela */
-  --color-border-soft: #efece6; /* divisórias internas (mais leves) */
-  --color-border-strong: #d6d0c6; /* dashed, scrollbar, separadores */
+  --color-border: #e2e1df; /* azul 8% · borda de card, input, tabela */
+  --color-border-soft: #e9e7e4; /* azul 5% · divisórias internas */
+  --color-border-strong: #cbccce; /* azul 18% · dashed, scrollbar, separador */
 
   /* Gradiente de espaço reservado para foto ainda não enviada. */
-  --color-photo-from: #e6e2da;
-  --color-photo-to: #cfc9be;
+  --color-photo-from: #e2e1df;
+  --color-photo-to: #c1c4c7;
 
   /* ---------------------------------------------------------
      2. COR · Texto
-     Quatro níveis de hierarquia + placeholder.
+     Quatro níveis de hierarquia + placeholder. O topo é o Preto
+     Impacto e o segundo degrau é o Azul Impacto, os dois direto do
+     manual; os três seguintes são o Azul Impacto em opacidade sobre
+     a Areia, e não cinzas inventados.
+
+     O Cinza Neutro #8A94A6 do manual NÃO entra nesta rampa: sobre a
+     Areia ele dá 2,74:1. Ele só vale sobre azul ou preto, e nesse
+     papel já está coberto pelos --color-on-ink-* mais abaixo.
+
+     Contraste medido sobre a Areia (entre parênteses, sobre o branco
+     do card):
+       text        17,60  (19,66)
+       secondary   14,54  (16,25)
+       muted        7,61   (8,50)
+       subtle       5,85   (6,54)
+       placeholder  4,54   (5,08)
+     Os cinco passam o piso de 4,5:1 para texto normal — inclusive o
+     placeholder, que na rampa antiga ficava em 1,98:1.
      --------------------------------------------------------- */
-  --color-text: #1c1a17; /* títulos e texto forte */
-  --color-text-secondary: #4b463f; /* itens de navegação inativos */
-  --color-text-muted: #6b655c; /* texto de apoio, labels */
-  --color-text-subtle: #9a938a; /* metadados, captions, ícones */
-  --color-text-placeholder: #b5aea4; /* placeholder de campos */
+  --color-text: #0b0b0d; /* Preto Impacto · títulos e texto forte */
+  --color-text-secondary: #0a1f44; /* Azul Impacto · navegação inativa */
+  --color-text-muted: #3e4d69; /* azul 78% · texto de apoio, labels */
+  --color-text-subtle: #515e76; /* azul 70% · metadados, captions, ícones */
+  --color-text-placeholder: #636f84; /* azul 62% · placeholder de campos */
 
   /* ---------------------------------------------------------
      3. COR · Superfície escura (cards de destaque, toast)
+     O escuro do sistema é o Azul Impacto, não um quase-preto: é a
+     cor base da marca, e é sobre ela que o manual aprova o branco
+     (16,25:1) e o laranja (5,69:1).
+
+     Os brancos em opacidade abaixo caem exatamente onde o manual
+     coloca o Cinza Neutro: 0,55 sobre o azul resolve #919AAB, a um
+     passo do #8A94A6 do manual, e mede 5,74:1 contra os 5,31:1 que
+     ele publica. A rampa já estava certa; faltava o fundo.
      --------------------------------------------------------- */
-  --color-ink: #1c1a17;
-  --color-on-ink: #ffffff;
+  --color-ink: #0a1f44; /* Azul Impacto */
+  --color-on-ink: #ffffff; /* 16,25:1 sobre o azul */
   /* Opacidades do branco sobre fundo escuro — o número é a opacidade. */
   --color-on-ink-75: rgba(255, 255, 255, 0.75); /* rótulo de progresso */
   --color-on-ink-70: rgba(255, 255, 255, 0.7); /* texto de apoio */
@@ -52,25 +96,64 @@
   --color-on-ink-12: rgba(255, 255, 255, 0.12); /* superfície sobre escuro */
 
   /* ---------------------------------------------------------
-     4. COR · Acento único (verde-floresta)
-     O sistema tem UM acento. Tudo que é ação primária,
-     sucesso ou estado ativo usa esta família.
+     4. COR · Acento único (Azul Impacto)
+     O sistema tem UM acento. Tudo que é ação primária, sucesso ou
+     estado ativo usa esta família — e ela é o azul, NÃO o laranja.
+
+     Isso não é preferência. O laranja sobre a Areia dá 2,56:1,
+     abaixo do piso de 3:1 até para elemento de interface, e branco
+     sobre laranja dá 2,86:1, que o próprio manual reprova. Como
+     texto, borda ou anel de foco o laranja sumiria no produto
+     inteiro.
+
+     O laranja entra nos dois lugares onde tem contraste de sobra:
+     sobre o azul escuro (--color-accent-on-dark, 5,69:1) e como
+     massa sólida decorativa (--color-realce).
+
+     Medido: acento sobre areia 14,54:1 · sobre branco 16,25:1 ·
+     branco sobre o acento, que é o botão primário, 16,25:1 · hover
+     sobre areia 10,08:1 · accent-strong sobre o tint 13,85:1.
      --------------------------------------------------------- */
-  --color-accent: #2f6b4f;
-  --color-accent-hover: #24543e;
-  --color-accent-strong: #24543e; /* texto sobre o tint claro */
-  --color-accent-tint: #e8f3ec; /* fundo de estado ativo / sucesso */
-  --color-accent-tint-border: #cfe5d8;
-  --color-accent-on-dark: #6fbf93; /* acento legível sobre --color-ink */
-  --color-accent-ring: rgba(47, 107, 79, 0.15); /* anel de foco */
-  --color-accent-glow: rgba(47, 107, 79, 0.55); /* halo decorativo no card escuro */
+  --color-accent: #0a1f44; /* Azul Impacto */
+  --color-accent-hover: #1b3a6b; /* Azul Sinal, o hover que o manual dá */
+  --color-accent-strong: #0a1f44; /* texto sobre o tint claro */
+  --color-accent-tint: #ebedf0; /* azul 8% sobre branco · estado ativo */
+  --color-accent-tint-border: #d3d7dd; /* azul 18% sobre branco */
+  --color-accent-on-dark: #ff6b00; /* Laranja Impacto · 5,69:1 sobre o ink */
+  /* Halo suave do campo em foco. Quem realmente carrega o foco de
+     teclado é o --color-accent em força total, no `outline: 2px solid`
+     e no `border-color` de globals.css; este anel é o brilho por trás
+     dele, e a 0,18 de alpha nunca cruzaria 3:1 sozinho. Ou seja, o
+     token que precisa de contraste é o acento — 14,54:1 sobre a areia
+     e 16,25:1 sobre o branco. Em laranja daria 2,56:1 e o foco de
+     teclado sumiria nos 89 usos do acento. */
+  --color-accent-ring: rgba(10, 31, 68, 0.18);
+  --color-accent-glow: rgba(255, 107, 0, 0.45); /* halo decorativo no card escuro */
 
   /* Realce de marca: formas decorativas sólidas (régua de fecho,
-     ponto ao lado do nome). Existe separado do acento porque uma
-     marca pode ter uma cor de destaque que não serve para texto —
-     é o caso do laranja da Impacto Academy no relatório. Aqui ele
-     acompanha o acento, então nada muda no produto. */
-  --color-realce: var(--color-accent);
+     ponto ao lado do nome). Existe separado do acento porque a cor
+     de destaque da marca não serve para texto. É o Laranja Impacto,
+     e o manual limita a presença dele a 10% da área da peça.
+     Se um dia o laranja precisar carregar texto, ele vira o Laranja
+     Brasa #D95100 — e mesmo assim só acima de 24px. */
+  --color-realce: #ff6b00;
+
+  /* ---------------------------------------------------------
+     4b. COR · Marca Impacto
+     As três cores do símbolo, fixas porque são a IDENTIDADE e não a
+     paleta da interface: o símbolo é o mesmo em qualquer tema, e no
+     favicon ele já é hex fixo. Continuam separadas do acento mesmo
+     agora que compartilham o azul, porque quem muda com o tema é o
+     acento e o símbolo não muda nunca.
+
+     Sobre o quadrado azul, a onda em Areia dá 14,54:1 e o disco em
+     laranja dá 5,69:1. Impresso em P&B o disco desbota, então o
+     @media print de globals.css passa o disco para o azul e o
+     símbolo sai de uma cor só.
+     --------------------------------------------------------- */
+  --color-marca-fundo: #0a1f44; /* Azul Impacto · quadrado da marca */
+  --color-marca-disco: #ff6b00; /* Laranja Impacto · o disco, massa sólida */
+  --color-marca-onda: #f5f2ec; /* Areia · a onda sobre o quadrado escuro */
 
   /* ---------------------------------------------------------
      5. COR · Status
@@ -117,25 +200,41 @@
   --chart-disc-s: #17845a;
   --chart-disc-c: #2f6fcc;
 
-  /* Rampa sequencial de matiz única (verde do sistema), clara →
-     escura. Usada onde a cor representa magnitude, como na roda
-     de autoavaliação. */
-  --chart-seq-1: #e8f3ec;
-  --chart-seq-2: #b9dcc7;
-  --chart-seq-3: #7fbf9c;
-  --chart-seq-4: #4e9a72;
-  --chart-seq-5: #2f6b4f;
+  /* Rampa sequencial de matiz única, reancorada no Azul Impacto,
+     clara → escura. Usada onde a cor representa magnitude, como na
+     roda de autoavaliação. São opacidades de #0A1F44 sobre branco:
+     8%, 30%, 55%, 78% e 100%. Contra o branco do card: 1,17 · 1,91 ·
+     3,78 · 8,12 · 16,25. Os dois passos escuros carregam texto por
+     cima; os claros são preenchimento com o valor escrito ao lado.
+
+     O laranja NÃO entra nesta rampa nem em nenhuma outra do gráfico:
+     ele e o âmbar do fator Influência têm ΔE 5,2 em visão normal,
+     contra um piso de 15. Lado a lado ninguém distingue os dois, e o
+     leitor passaria a ler o acento da marca como se fosse um fator. */
+  --chart-seq-1: #ebedf0;
+  --chart-seq-2: #b6bcc7;
+  --chart-seq-3: #788498;
+  --chart-seq-4: #40506d;
+  --chart-seq-5: #0a1f44;
 
   /* Trilho e grade — recessivos, nunca competem com o dado. */
-  --chart-track: #efece6;
-  --chart-grid: #e6e2da;
+  --chart-track: #e9e7e4;
+  --chart-grid: #e2e1df;
 
   /* ---------------------------------------------------------
      7. TIPOGRAFIA
-     Sora nos títulos (display), Figtree no texto corrido.
+     As duas famílias do manual. Sentient (Indian Type Foundry,
+     grátis na Fontshare) nos títulos, servida do próprio servidor
+     por next/font/local em layout.tsx — os .woff2 estão em
+     styles/fonts/. Nimbus Sans (URW) no texto corrido: ela não tem
+     distribuição web livre, e o próprio manual autoriza Helvetica
+     Neue ou Arial como substituta, que é o que o stack abaixo faz.
+     Quem tiver a Nimbus instalada vê a Nimbus.
+
+     Saíram Sora e Figtree, que eram escolha nossa e não da marca.
      --------------------------------------------------------- */
-  --font-display: var(--font-sora), 'Sora', system-ui, sans-serif;
-  --font-body: var(--font-figtree), 'Figtree', system-ui, sans-serif;
+  --font-display: var(--font-sentient), 'Sentient', 'Iowan Old Style', Georgia, serif;
+  --font-body: 'Nimbus Sans', 'Helvetica Neue', Helvetica, 'Liberation Sans', Arial, sans-serif;
 
   /* Escala em px — nomes numéricos para fidelidade absoluta.
      "105" = 10.5px, "135" = 13.5px, e assim por diante. */
@@ -162,14 +261,19 @@
   --fw-semibold: 600;
   --fw-bold: 700;
 
+  /* Caixa alta curta abre entre 0,20em e 0,30em e corpo de texto
+     fica em zero — regra do manual. Os dois valores abaixo são os
+     que o próprio manual usa nas peças dele: 0,18em em cabeçalho de
+     tabela e 0,22em em etiqueta. */
   --tracking-tight: -0.02em; /* títulos display */
-  --tracking-wide: 0.06em; /* cabeçalho de tabela */
-  --tracking-wider: 0.08em; /* eyebrow / rótulo de grupo */
+  --tracking-wide: 0.18em; /* cabeçalho de tabela */
+  --tracking-wider: 0.22em; /* eyebrow / rótulo de grupo */
 
-  --leading-tight: 1.15;
+  /* Entrelinha 1,1 em título e 1,6 em corpo, também do manual. */
+  --leading-tight: 1.1;
   --leading-snug: 1.35;
   --leading-normal: 1.45;
-  --leading-relaxed: 1.5;
+  --leading-relaxed: 1.6;
 
   /* ---------------------------------------------------------
      8. RAIO
@@ -209,6 +313,14 @@
   --content-padding: 28px;
   --content-max-width: 1360px;
   --content-gap: 20px;
+
+  /* Quebra padrão do produto: 560px. Abaixo daqui a tela vira uma
+     coluna. Não virou token porque @media não lê var(): fica aqui como
+     registro, para a próxima tela não inventar um terceiro valor. São
+     14 usos hoje, contra 2 de 820, 2 de 760 e 2 de 640.
+     O shell tem os dele, cada um com motivo próprio: 900 derruba o nome
+     do usuário e 700 derruba a busca (Topbar.module.css:137 e :143), 860
+     recolhe a sidebar (Sidebar.module.css:192). */
 
   /* ---------------------------------------------------------
      11. ALTURA DE CONTROLES

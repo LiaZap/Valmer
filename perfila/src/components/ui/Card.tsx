@@ -23,9 +23,9 @@ const PADDING_CLASS = {
 /**
  * Card
  * ----
- * A superfície branca sobre o fundo bege é a unidade de composição de
- * todas as telas. Três tons: padrão, escuro (destaque) e verde (aviso
- * positivo).
+ * A superfície branca sobre a areia do fundo é a unidade de composição
+ * de todas as telas. Três tons: padrão, escuro (destaque) e de acento
+ * (aviso positivo).
  */
 export function Card({
   children,

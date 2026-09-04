@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { LogoMark } from '@/components/layout/Logo'
+import { MarcaImpacto } from '@/components/layout/MarcaImpacto'
 import { Card } from '@/components/ui/Card'
 import { Icon, type IconName } from '@/components/ui/Icon'
 import { getSession } from '@/lib/auth'
@@ -18,7 +18,7 @@ import styles from './page.module.css'
 const AMBIENTES: { href: string; nome: string; desc: string; icone: IconName }[] = [
   {
     href: '/avaliacao/demo',
-    nome: 'Responder um assessment',
+    nome: 'Responder um mapa comportamental',
     desc: 'A experiência de quem recebe o link, sem login',
     icone: 'file',
   },
@@ -40,10 +40,10 @@ export default async function LoginPage({
       <Card padding="lg" className={styles.cartao}>
         <div className={styles.marca}>
           <span className={styles.marcaIcone}>
-            <LogoMark size={20} />
+            <MarcaImpacto size={14} onda="var(--color-marca-onda)" />
           </span>
           <span className={styles.marcaTexto}>
-            <span className={styles.marcaNome}>Perfila</span>
+            <span className={styles.marcaNome}>Impacto DISC</span>
             <span className={styles.marcaLinha}>Análise de perfil comportamental</span>
           </span>
         </div>

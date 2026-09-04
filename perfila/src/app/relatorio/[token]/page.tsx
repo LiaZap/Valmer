@@ -1,7 +1,7 @@
-import type { Metadata, Viewport } from 'next'
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { CapaResumo } from '@/components/relatorio/CapaResumo'
-import { MarcaImpacto, NOME_MARCA } from '@/components/relatorio/MarcaImpacto'
+import { MarcaImpacto, NOME_MARCA } from '@/components/layout/MarcaImpacto'
 import { Lideranca } from '@/components/relatorio/Lideranca'
 import { Motivadores } from '@/components/relatorio/Motivadores'
 import { PlanoFecho } from '@/components/relatorio/PlanoFecho'
@@ -13,7 +13,6 @@ import { resultadoDeContadores } from '@/lib/disc'
 import { secoesDoNivel, type DadosRelatorio } from '@/lib/relatorio/tipos'
 import { AcoesRelatorio } from './AcoesRelatorio'
 import styles from './page.module.css'
-import tema from './tema-impacto.module.css'
 
 const DATA_BR = new Intl.DateTimeFormat('pt-BR', {
   timeZone: 'America/Sao_Paulo',
@@ -21,24 +20,23 @@ const DATA_BR = new Intl.DateTimeFormat('pt-BR', {
 })
 
 /**
- * O relatório assina como Impacto Academy, e não como Perfila: é o
- * único artefato que sai da plataforma e chega ao cliente final do
- * facilitador.
+ * O relatório assina como Impacto Academy, a empresa, enquanto o
+ * software assina Impacto DISC, o produto: este é o único artefato que
+ * sai da plataforma e chega ao cliente final do facilitador, e é a
+ * empresa que responde por ele.
  *
- * `description` e `viewport` são declarados AQUI de propósito. Não
- * existe `app/relatorio/layout.tsx`, então esta página pendura direto
- * no layout raiz e herdaria dele a descrição institucional da Perfila e
- * o bege `#f5f3ef` na cor de tema do navegador. Um tema escopado por
- * classe de CSS não alcança meta tag: só declarando aqui.
+ * A `description` é declarada AQUI de propósito. Não existe
+ * `app/relatorio/layout.tsx`, então esta página pendura direto no layout
+ * raiz e herdaria dele a descrição institucional do produto.
+ *
+ * Não há `viewport` próprio. Ele existia para corrigir a cor de tema do
+ * navegador enquanto a paleta da Impacto valia só dentro do relatório;
+ * agora que ela está em `:root`, o layout raiz já manda a Areia oficial.
  */
 export const metadata: Metadata = {
   title: 'Impacto Academy · Relatório de perfil comportamental',
   description:
     'Relatório de perfil comportamental gerado pela Impacto Academy a partir de inventário de quatro fatores.',
-}
-
-export const viewport: Viewport = {
-  themeColor: '#f8f6f1',
 }
 
 export default async function RelatorioPage({ params }: { params: Promise<{ token: string }> }) {
@@ -70,11 +68,10 @@ export default async function RelatorioPage({ params }: { params: Promise<{ toke
   // da liderança, e o plano de desenvolvimento só existe a partir do S3.
   const visiveis = new Set(secoesDoNivel(dados.tipoRelatorio).map((secao) => secao.id))
 
-  // O relatório é o único artefato que chega ao cliente final do
-  // facilitador, então ele veste a marca da Impacto Academy. O tema
-  // redefine os tokens neste escopo; o resto do produto não muda.
+  // A marca da Impacto Academy vale no produto inteiro desde que a paleta
+  // oficial subiu para `:root`, então não há mais tema escopado aqui.
   return (
-    <div className={`${styles.pagina} ${tema.tema}`}>
+    <div className={styles.pagina}>
       <div className={styles.acoes}>
         <span className={styles.acoesMarca}>
           <MarcaImpacto size={14} />

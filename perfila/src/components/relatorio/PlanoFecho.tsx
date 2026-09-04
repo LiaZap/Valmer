@@ -1,7 +1,7 @@
 import { getTipoRelatorio } from '@/data/planos'
 import { Card, CardHeader } from '@/components/ui/Card'
 import { SECOES, type DadosRelatorio, type PerfilEstatico } from '@/lib/relatorio/tipos'
-import { CREDITO_MARCA, MarcaImpacto, NOME_MARCA } from './MarcaImpacto'
+import { CREDITO_MARCA, MarcaImpacto, NOME_MARCA } from '@/components/layout/MarcaImpacto'
 import common from '@/styles/common.module.css'
 import styles from './PlanoFecho.module.css'
 
@@ -25,7 +25,8 @@ import styles from './PlanoFecho.module.css'
  *    folio de dois dígitos para o que é seção.
  *
  * 3. A FRASE FECHA COM TIPOGRAFIA, NÃO COM MOLDURA. Nada de aspas
- *    gigantes, itálico ou card escuro: o peso vem do corpo em Sora, da
+ *    gigantes, itálico ou card escuro: o peso vem do corpo na fonte de
+ *    display (--font-display), da
  *    medida curta e do espaço em volta. Por isso o <h2> da seção 13
  *    aparece em tamanho de rótulo — ele continua sendo o título real
  *    para o sumário do PDF e para o leitor de tela, mas quem domina a
@@ -148,7 +149,7 @@ export function PlanoFecho({ dados, perfil, mostrarPlano }: PlanoFechoProps) {
         {/* `padding="none"`: o respiro da última página é maior que o de
             qualquer card do documento e é medido aqui, não herdado. */}
         <Card padding="none" className={styles.frase}>
-          {/* Régua curta: o último gesto verde do documento. */}
+          {/* Régua curta: o último gesto de realce do documento. */}
           <span className={styles.regua} aria-hidden />
 
           {/* O número fica fora do <h2>, como nas demais seções: no
@@ -187,7 +188,7 @@ export function PlanoFecho({ dados, perfil, mostrarPlano }: PlanoFechoProps) {
             {CREDITO_MARCA.site} · {CREDITO_MARCA.telefone}
           </p>
           <p className={styles.creditoLinha}>
-            Inventário comportamental · {tipo.codigo} {tipo.nome}
+            Impacto DISC · {tipo.codigo} {tipo.nome}
           </p>
           <p className={styles.creditoLinha}>
             {avaliado.nome} · emitido em {emitidoEm}

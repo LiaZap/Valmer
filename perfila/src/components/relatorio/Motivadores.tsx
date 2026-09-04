@@ -18,7 +18,7 @@ import styles from './Motivadores.module.css'
  *    progressão — é o que faz três parágrafos parecidos virarem um
  *    percurso em vez de repetição.
  *
- * 2. O ÍCONE MORA NA MARGEM. Um só gesto verde por seção, na coluna
+ * 2. O ÍCONE MORA NA MARGEM. Um só gesto de acento por seção, na coluna
  *    estreita à esquerda, com o título e o texto alinhados na mesma
  *    coluna de leitura. O ícone diferencia sem disputar com o texto,
  *    e a moldura continua idêntica nos três — coesão vem da forma

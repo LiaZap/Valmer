@@ -120,7 +120,7 @@
     font-size: var(--fs-14);
   }
 
-  /* O verde do ícone é a única cor do bloco: sem isso ele some na
+  /* O acento do ícone é a única cor do bloco: sem isso ele some na
      impressão, que descarta fundos por padrão. */
   .marca {
     -webkit-print-color-adjust: exact;

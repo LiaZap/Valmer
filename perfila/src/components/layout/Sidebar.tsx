@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { Icon } from '@/components/ui/Icon'
 import { useToast } from '@/components/ui/Toast'
 import { isNavItemActive, type NavGroup } from '@/lib/routes'
-import { LogoMark } from './Logo'
+import { MarcaImpacto } from './MarcaImpacto'
 import styles from './Sidebar.module.css'
 
 type SidebarProps = {
@@ -36,10 +36,10 @@ export function Sidebar({ collapsed, grupos, base, subtitulo }: SidebarProps) {
     >
       <Link href={base} className={styles.brand}>
         <span className={styles.brandMark}>
-          <LogoMark />
+          <MarcaImpacto size={13} onda="var(--color-marca-onda)" />
         </span>
         <span className={styles.brandText}>
-          <span className={styles.brandName}>Perfila</span>
+          <span className={styles.brandName}>Impacto DISC</span>
           <span className={styles.brandRole}>{subtitulo}</span>
         </span>
       </Link>

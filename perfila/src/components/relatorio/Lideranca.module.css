@@ -82,7 +82,7 @@
   break-inside: avoid;
 }
 
-/* O único verde da seção, e igual em todos os itens: a lista é
+/* O único acento da seção, e igual em todos os itens: a lista é
    de encaixe, não de classificação. */
 .cargoMarca {
   width: 5px;
@@ -224,8 +224,8 @@
   color: var(--color-text-muted);
 }
 
-/* O ícone de proibição fica em tinta neutra, e não no acento. Um
-   traço fino no laranja da marca dá 2,52:1 sobre o creme, abaixo do
+/* O ícone de proibição fica em tinta neutra, e não no realce. Um
+   traço fino no laranja da marca dá 2,56:1 sobre a areia, abaixo do
    piso de 3:1 para elemento de interface. */
 .evitarIcone {
   color: var(--color-text-subtle);

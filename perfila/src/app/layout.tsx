@@ -1,37 +1,47 @@
 import type { Metadata, Viewport } from 'next'
-import { Figtree, Sora } from 'next/font/google'
+import localFont from 'next/font/local'
 import './globals.css'
 
 /**
- * Tipografia do sistema.
- * Sora dá personalidade aos títulos; Figtree mantém o texto legível
- * em tamanhos pequenos (tabelas, labels). As variáveis CSS geradas
- * aqui são consumidas pelos tokens em `styles/tokens.css`.
+ * Tipografia da marca.
+ *
+ * O manual da Impacto Academy fixa duas famílias: Sentient nos títulos
+ * e Nimbus Sans no texto corrido. Saíram Sora e Figtree, que eram
+ * escolha nossa de quando não havia manual.
+ *
+ * Sentient é da Indian Type Foundry e a Fontshare distribui de graça,
+ * então ela vem do nosso próprio servidor, em `styles/fonts/`, e não de
+ * um CDN de terceiro: uma fonte pedida a outro domínio atrasa a
+ * primeira pintura e vaza o IP de quem abre o relatório.
+ *
+ * Nimbus Sans (URW) não tem distribuição web livre. O próprio manual
+ * autoriza Helvetica Neue ou Arial como substituta, então o corpo sai
+ * pelo stack de `--font-body` em `styles/tokens.css`, sem webfont.
+ * Quem tem a Nimbus instalada vê a Nimbus.
  */
-const figtree = Figtree({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-figtree',
+const sentient = localFont({
+  src: [
+    { path: '../styles/fonts/Sentient-Regular.woff2', weight: '400', style: 'normal' },
+    { path: '../styles/fonts/Sentient-Medium.woff2', weight: '500', style: 'normal' },
+    { path: '../styles/fonts/Sentient-Bold.woff2', weight: '700', style: 'normal' },
+  ],
+  variable: '--font-sentient',
   display: 'swap',
-})
-
-const sora = Sora({
-  subsets: ['latin'],
-  weight: ['500', '600', '700'],
-  variable: '--font-sora',
-  display: 'swap',
+  fallback: ['Iowan Old Style', 'Georgia', 'serif'],
 })
 
 export const metadata: Metadata = {
-  title: 'Perfila',
+  title: 'Impacto DISC',
   description:
-    'Plataforma de análise comportamental: campanhas, DNA organizacional, devolutivas e clientes.',
+    'Plataforma de análise comportamental: turmas, DNA organizacional, devolutivas e clientes.',
 }
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#f5f3ef',
+  /* Areia, o mesmo `--color-bg`: a barra do navegador continua a
+     página em vez de cortar. */
+  themeColor: '#f5f2ec',
 }
 
 /**
@@ -44,7 +54,7 @@ export const viewport: Viewport = {
  */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${figtree.variable} ${sora.variable}`}>
+    <html lang="pt-BR" className={sentient.variable}>
       <body>{children}</body>
     </html>
   )

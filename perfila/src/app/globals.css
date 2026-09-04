@@ -1,7 +1,7 @@
 @import '../styles/tokens.css';
 
 /* ============================================================
-   Perfila · Base global
+   Impacto DISC · Base global
    Só entra aqui o que é realmente transversal: reset, tipografia
    base, foco, scrollbar e checkbox personalizados. Todo o resto
    vive no CSS Module do próprio componente.
@@ -63,7 +63,10 @@ svg {
 
 /* ------------------------------------------------------------
    Campos de formulário
-   O anel de foco verde é a assinatura de interação do sistema.
+   O anel de foco é o Azul Impacto, e não o laranja da marca: o
+   laranja sobre a Areia dá 2,56:1, abaixo do piso de 3:1 para
+   elemento de interface, e o foco de teclado sumiria no produto
+   inteiro. O azul dá 14,54:1.
    ------------------------------------------------------------ */
 input::placeholder,
 textarea::placeholder {
@@ -176,6 +179,30 @@ input[type='checkbox']:checked::before {
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+/* ------------------------------------------------------------
+   Impressão · variante monocromática do símbolo
+   Em escala de cinza a onda azul fica em 16,57:1 contra o papel e o
+   disco laranja cai para 2,73:1: numa fotocópia a onda sai preta e o
+   disco desbota até sumir. Passando o disco para o azul, o símbolo
+   imprime de uma cor só, que é a variante monocromática que o manual
+   já prevê.
+
+   A régua de fecho do relatório (--color-realce) segue o mesmo
+   caminho: laranja claro sobre papel branco é um traço que não
+   aparece.
+
+   Onde o símbolo assenta sobre o quadrado azul (login, sidebar,
+   cabeçalho do assessment) o navegador não imprime o fundo — nenhuma
+   dessas telas pede print-color-adjust: exact — então o símbolo cai
+   sobre o papel branco e continua legível.
+   ------------------------------------------------------------ */
+@media print {
+  :root {
+    --color-marca-disco: var(--color-marca-fundo);
+    --color-realce: var(--color-accent);
   }
 }
 

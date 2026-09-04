@@ -4,7 +4,7 @@ import { Avatar } from '@/components/ui/Avatar'
 import { Card } from '@/components/ui/Card'
 import { Pill } from '@/components/ui/Pill'
 import { Meter, MeterGroup } from '@/components/respondente/Meter'
-import { MarcaImpacto, NOME_MARCA } from './MarcaImpacto'
+import { MarcaImpacto, NOME_MARCA } from '@/components/layout/MarcaImpacto'
 import type { DadosRelatorio, PerfilEstatico } from '@/lib/relatorio/tipos'
 import { initials } from '@/lib/text'
 import common from '@/styles/common.module.css'
@@ -34,8 +34,9 @@ type CapaResumoProps = {
  *   (predominante / apoio) é dito por escrito, não só por realce.
  * - Nada depende de hover: o relatório é lido impresso tanto quanto na
  *   tela.
- * - O verde entra uma vez por seção — na sigla sobre o card escuro da
- *   capa e no rótulo do fator predominante. O resto é neutro quente.
+ * - O acento entra uma vez por seção — na sigla sobre o card escuro da
+ *   capa, onde ele é o laranja, e no rótulo do fator predominante, onde
+ *   é o azul. O resto é a rampa neutra.
  * - A ordem das barras é a canônica (D, I, S, C) mesmo quando o perfil
  *   primário não é o D: quem compara relatórios diferentes precisa
  *   sempre da mesma sequência. O destaque marca quem lidera.
@@ -61,7 +62,7 @@ export function CapaResumo({ dados, perfilPrimario, perfilSecundario }: CapaResu
         </header>
 
         <div className={styles.capaMiolo}>
-          <p className={common.eyebrow}>Inventário comportamental</p>
+          <p className={common.eyebrow}>Impacto DISC</p>
           {/* O título do documento é h1: as 13 seções são h2 sob ele.
               Sem isso o PDF circula sem nível 1 e o sumário fica plano. */}
           <h1 id="capa-titulo" className={styles.capaTitulo}>

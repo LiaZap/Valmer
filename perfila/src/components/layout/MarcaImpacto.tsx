@@ -1,11 +1,16 @@
 /**
- * Marca Impacto Academy
- * ---------------------
- * Símbolo e assinatura do relatório. Vive em `components/relatorio/`
- * de propósito: o relatório é o único artefato que sai da plataforma e
- * chega ao cliente final do facilitador, então é o único lugar que
- * assina como Impacto Academy. Login, assessment, admin e portal do
- * parceiro continuam sendo Perfila, e continuam usando `LogoMark`.
+ * Marca Impacto
+ * -------------
+ * Símbolo único do produto. Vive em `components/layout/` porque vale
+ * para o produto inteiro: login, assessment, admin, portal do parceiro
+ * e relatório. Até 03/09/2026 era exclusiva do relatório e as telas
+ * usavam `LogoMark`, a marca da Perfila — o Paulo decidiu marca única
+ * e `LogoMark` foi aposentada.
+ *
+ * O nome escrito ao lado do símbolo muda conforme quem assina: o
+ * software assina "Impacto DISC" (o produto) e o relatório assina
+ * "Impacto Academy" (a empresa, que é quem responde perante o cliente
+ * final do parceiro). O símbolo é o mesmo nos dois.
  *
  * O desenho são duas massas cheias: um disco (o ponto de impacto) e
  * uma onda logo à direita dele, separados por um canal de largura
@@ -23,10 +28,14 @@
  *   quadrado ela ocupava só a faixa do meio: ao lado do nome em fonte
  *   display, o símbolo parecia pequeno demais. Aqui `size` é a ALTURA.
  * - O laranja fica no disco, que é a maior área sólida do desenho, e o
- *   navy fica na onda, que é a forma que afina. Isso não é gosto: o
- *   laranja da marca dá 2,52:1 sobre o creme, abaixo do piso de 3:1
- *   até para elemento de interface. Como área grande ele é decoração e
- *   o contraste não governa; como traço fino ele sumiria.
+ *   azul fica na onda, que é a forma que afina. Isso não é gosto: o
+ *   Laranja Impacto dá 2,56:1 sobre a Areia, abaixo do piso de 3:1 até
+ *   para elemento de interface. Como área grande ele é decoração e o
+ *   contraste não governa; como traço fino ele sumiria.
+ *   Impresso em preto e branco o disco cai para 2,73:1 contra o papel
+ *   enquanto a onda fica em 16,57:1: numa fotocópia a onda sai preta e
+ *   o disco desbota. O `@media print` de `globals.css` já passa
+ *   `--color-marca-disco` para o azul, e aí o símbolo sai de uma cor só.
  *
  * Nunca espelhe o símbolo nem o coloque à direita do nome: a onda
  * aponta para dentro do nome, e invertida ela joga a energia para fora
@@ -37,8 +46,9 @@ type MarcaImpactoProps = {
   /** Altura em px. A largura sai da proporção 24:16. */
   size?: number
   /**
-   * Cor da onda. O padrão vem do acento do tema (navy). Sobre o card
-   * escuro a onda precisa virar creme, senão ela some no fundo.
+   * Cor da onda. O padrão vem do acento do tema, que é o Azul Impacto.
+   * Sobre o quadrado azul da marca a onda precisa virar Areia
+   * (`--color-marca-onda`), senão ela some no fundo.
    */
   onda?: string
 }
@@ -53,7 +63,7 @@ export function MarcaImpacto({ size = 16, onda = 'var(--color-accent)' }: MarcaI
       aria-hidden
       style={{ flex: 'none' }}
     >
-      <circle cx="9" cy="8" r="6.6" fill="var(--color-realce)" />
+      <circle cx="9" cy="8" r="6.6" fill="var(--color-marca-disco)" />
       <path
         d="M16.59 2.8H19.19A6.81 6.81 0 0 1 19.19 13.2H16.59A9.2 9.2 0 0 0 16.59 2.8Z"
         fill={onda}

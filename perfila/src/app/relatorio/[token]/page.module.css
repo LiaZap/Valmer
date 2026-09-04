@@ -21,11 +21,11 @@
   justify-content: space-between;
   gap: var(--space-16);
   padding: var(--space-12) var(--space-20);
-  /* O único valor de cor do relatório que não sai de token, porque
-     precisa de transparência para o efeito de vidro. O creme é o mesmo
-     de --color-bg no tema Impacto: com o bege da Perfila aqui, a barra
-     ficava um tom fora do documento que ela encima. */
-  background: rgba(248, 246, 241, 0.9);
+  /* Precisa de transparência para o efeito de vidro, por isso não é
+     `background: var(--color-bg)`. Sai de --color-bg em vez de hexadecimal
+     cru: foi a cópia manual que deixou esta barra no creme antigo quando a
+     paleta oficial entrou. Mesma fórmula da Topbar. */
+  background: color-mix(in srgb, var(--color-bg) 90%, transparent);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--color-border);
 }

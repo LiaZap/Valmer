@@ -13,7 +13,7 @@ type PageHeaderProps = {
 /**
  * PageHeader
  * ----------
- * Abre toda tela: H1 em Sora, linha de contexto e as ações da tela.
+ * Abre toda tela: H1 na fonte display, linha de contexto e as ações da tela.
  */
 export function PageHeader({ title, subtitle, actions }: PageHeaderProps) {
   return (
