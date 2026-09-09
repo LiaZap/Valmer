@@ -1,73 +1,65 @@
 /**
  * Marca Impacto
  * -------------
- * Símbolo único do produto. Vive em `components/layout/` porque vale
- * para o produto inteiro: login, assessment, admin, portal do parceiro
- * e relatório. Até 03/09/2026 era exclusiva do relatório e as telas
- * usavam `LogoMark`, a marca da Perfila — o Paulo decidiu marca única
- * e `LogoMark` foi aposentada.
+ * Símbolo oficial da Impacto Academy. Vive em `components/layout/`
+ * porque vale para o produto inteiro: login, assessment, admin, portal
+ * do parceiro e relatório.
  *
  * O nome escrito ao lado do símbolo muda conforme quem assina: o
  * software assina "Impacto DISC" (o produto) e o relatório assina
  * "Impacto Academy" (a empresa, que é quem responde perante o cliente
  * final do parceiro). O símbolo é o mesmo nos dois.
  *
- * O desenho são duas massas cheias: um disco (o ponto de impacto) e
- * uma onda logo à direita dele, separados por um canal de largura
- * constante. O canal é paralelo à borda do disco, então o olho lê as
- * duas formas como uma peça só que se abriu.
+ * O desenho é o escudo com as duas espadas, entregue pelo cliente em
+ * 04/09/2026. O arquivo que ele mandou (`impacto academy.svg`) não era
+ * vetor: eram dois PNG de 2160×2160 embutidos em base64, 269 KB, que
+ * empastavam a 14px. Os `path` abaixo são a vetorização desse arquivo,
+ * medida linha a linha sobre o raster (IoU 0,9976 contra o original).
+ * Não os redesenhe "no olho": qualquer retoque tem que voltar a bater
+ * com o original.
  *
- * Três decisões que parecem detalhe e não são:
+ * A caixa é 505×655, ou seja RETRATO. `size` é a ALTURA, e a largura
+ * sai da proporção — quem envolve o símbolo num quadrado precisa
+ * dimensionar pela altura, senão sobra ar dos dois lados.
  *
- * - As pontas da onda são CORTADAS RETAS, e não afiladas até sumir.
- *   Afilando, duas coisas quebravam: a ponta descia abaixo do que a
- *   impressora resolve, e o conjunto virava lua crescente em vez de
- *   onda. Arco interrompido lê como propagação; lâmina inteiriça lê
- *   como corpo celeste.
- * - A caixa é 24×16, e não quadrada. A composição é horizontal, e num
- *   quadrado ela ocupava só a faixa do meio: ao lado do nome em fonte
- *   display, o símbolo parecia pequeno demais. Aqui `size` é a ALTURA.
- * - O laranja fica no disco, que é a maior área sólida do desenho, e o
- *   azul fica na onda, que é a forma que afina. Isso não é gosto: o
- *   Laranja Impacto dá 2,56:1 sobre a Areia, abaixo do piso de 3:1 até
- *   para elemento de interface. Como área grande ele é decoração e o
- *   contraste não governa; como traço fino ele sumiria.
- *   Impresso em preto e branco o disco cai para 2,73:1 contra o papel
- *   enquanto a onda fica em 16,57:1: numa fotocópia a onda sai preta e
- *   o disco desbota. O `@media print` de `globals.css` já passa
- *   `--color-marca-disco` para o azul, e aí o símbolo sai de uma cor só.
- *
- * Nunca espelhe o símbolo nem o coloque à direita do nome: a onda
- * aponta para dentro do nome, e invertida ela joga a energia para fora
- * da página.
+ * Cor: o manual (seção 02) fixa cinco versões, e duas delas vivem
+ * aqui. Sobre fundo escuro o símbolo é o ouro
+ * `--color-marca-sobre-escuro` (9,81:1 sobre o Azul Impacto, 11,87:1
+ * sobre o Preto Impacto). Sobre fundo claro o ouro dá 1,48:1 contra a
+ * Areia e some, então entra a monocromática em azul, `--color-marca`
+ * (14,54:1). Por isso o padrão é o azul: fundo claro é o caso comum, e
+ * quem põe o símbolo sobre o quadrado escuro passa `cor`
+ * explicitamente. Impresso, o `@media print` de `globals.css` devolve
+ * as duas ao azul e o símbolo sai de uma cor só.
  */
 
 type MarcaImpactoProps = {
-  /** Altura em px. A largura sai da proporção 24:16. */
+  /** Altura em px. A largura sai da proporção 505:655. */
   size?: number
   /**
-   * Cor da onda. O padrão vem do acento do tema, que é o Azul Impacto.
-   * Sobre o quadrado azul da marca a onda precisa virar Areia
-   * (`--color-marca-onda`), senão ela some no fundo.
+   * Cor do símbolo. O padrão é a monocromática em azul, que é a versão
+   * para fundo claro. Sobre o quadrado escuro da marca, passe
+   * `var(--color-marca-sobre-escuro)`.
    */
-  onda?: string
+  cor?: string
 }
 
-export function MarcaImpacto({ size = 16, onda = 'var(--color-accent)' }: MarcaImpactoProps) {
+export function MarcaImpacto({ size = 16, cor = 'var(--color-marca)' }: MarcaImpactoProps) {
   return (
     <svg
-      width={(size * 24) / 16}
+      width={(size * 505) / 655}
       height={size}
-      viewBox="0 0 24 16"
-      fill="none"
+      viewBox="0 0 505 655"
+      fill={cor}
       aria-hidden
       style={{ flex: 'none' }}
     >
-      <circle cx="9" cy="8" r="6.6" fill="var(--color-marca-disco)" />
-      <path
-        d="M16.59 2.8H19.19A6.81 6.81 0 0 1 19.19 13.2H16.59A9.2 9.2 0 0 0 16.59 2.8Z"
-        fill={onda}
-      />
+      <path d="M20,107L225,107 225,108 232,109 232,172 231,173 226,173 226,174 77,174 76,175 76,234 75,234 76,477 80,482 86,484 90,488 94,489 95,491 99,492 100,494 104,495 110,500 116,502 123,508 132,512 132,597 128,597 120,593 119,591 115,590 109,585 103,583 102,581 96,579 95,577 89,575 88,573 80,570 79,568 71,565 70,563 62,560 61,558 53,555 52,553 30,542 29,540 21,537 20,535 10,531 9,529 5,528 2,525 2,496 1,496 2,494 2,109 3,108 20,108Z" />
+      <path d="M352,106L498,106 498,107 504,108 504,524 499,530 475,541 474,543 456,552 450,557 442,560 441,562 433,565 432,567 424,570 423,572 415,575 414,577 406,580 405,582 399,584 398,586 390,589 389,591 383,593 382,595 378,597 373,597 373,512 381,508 382,506 390,503 391,501 397,499 398,497 404,495 405,493 409,492 415,487 423,484 430,477 430,174 428,173 274,173 273,172 273,108 276,108 276,107 352,107Z" />
+      <path d="M158,192L230,192 232,193 232,652 231,653 226,653 220,650 219,648 213,646 207,641 189,632 188,630 184,629 178,624 172,622 171,620 157,613 154,607 155,193 158,193Z" />
+      <path d="M305,192L349,193 350,194 351,345 352,345 352,607 351,607 351,610 345,615 328,623 327,625 321,627 320,629 314,631 313,633 302,638 301,640 287,647 286,649 279,652 278,654 274,654 273,652 273,194 274,193 305,193Z" />
+      <path d="M155,1L231,1 232,2 232,90 231,91 155,91Z" />
+      <path d="M274,1L350,1 351,2 351,90 338,91 338,92 278,92 278,91 274,91 274,87 273,87 273,2Z" />
     </svg>
   )
 }

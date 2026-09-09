@@ -181,7 +181,7 @@ export function PlanoFecho({ dados, perfil, mostrarPlano }: PlanoFechoProps) {
             emitiu: quem emitiu está nomeado no bloco ao lado. */}
         <div className={styles.credito}>
           <p className={styles.marca}>
-            <MarcaImpacto size={15} />
+            <MarcaImpacto size={20} />
             {NOME_MARCA}
           </p>
           <p className={styles.creditoLinha}>

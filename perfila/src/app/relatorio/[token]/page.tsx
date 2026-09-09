@@ -74,7 +74,7 @@ export default async function RelatorioPage({ params }: { params: Promise<{ toke
     <div className={styles.pagina}>
       <div className={styles.acoes}>
         <span className={styles.acoesMarca}>
-          <MarcaImpacto size={14} />
+          <MarcaImpacto size={18} />
           {NOME_MARCA}
         </span>
         <div className={styles.acoesBotoes}>

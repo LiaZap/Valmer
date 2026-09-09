@@ -19,7 +19,7 @@ export default function AvaliacaoLayout({ children }: { children: React.ReactNod
     <div className={styles.pagina}>
       <header className={styles.topo}>
         <span className={styles.marca}>
-          <MarcaImpacto size={11} onda="var(--color-marca-onda)" />
+          <MarcaImpacto size={16} cor="var(--color-marca-sobre-escuro)" />
         </span>
         <span className={styles.nome}>Impacto DISC</span>
       </header>

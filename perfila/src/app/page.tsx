@@ -40,7 +40,7 @@ export default async function LoginPage({
       <Card padding="lg" className={styles.cartao}>
         <div className={styles.marca}>
           <span className={styles.marcaIcone}>
-            <MarcaImpacto size={14} onda="var(--color-marca-onda)" />
+            <MarcaImpacto size={22} cor="var(--color-marca-sobre-escuro)" />
           </span>
           <span className={styles.marcaTexto}>
             <span className={styles.marcaNome}>Impacto DISC</span>

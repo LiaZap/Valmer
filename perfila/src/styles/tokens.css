@@ -139,21 +139,29 @@
   --color-realce: #ff6b00;
 
   /* ---------------------------------------------------------
-     4b. COR · Marca Impacto
-     As três cores do símbolo, fixas porque são a IDENTIDADE e não a
-     paleta da interface: o símbolo é o mesmo em qualquer tema, e no
-     favicon ele já é hex fixo. Continuam separadas do acento mesmo
-     agora que compartilham o azul, porque quem muda com o tema é o
-     acento e o símbolo não muda nunca.
+     4b. COR · Marca Impacto (o escudo com as duas espadas)
+     As cores do símbolo, fixas porque são a IDENTIDADE e não a paleta
+     da interface: o símbolo é o mesmo em qualquer tema, e no favicon
+     ele já é hex fixo. Continuam separadas do acento mesmo quando
+     compartilham o azul, porque quem muda com o tema é o acento e o
+     símbolo não muda nunca.
 
-     Sobre o quadrado azul, a onda em Areia dá 14,54:1 e o disco em
-     laranja dá 5,69:1. Impresso em P&B o disco desbota, então o
-     @media print de globals.css passa o disco para o azul e o
-     símbolo sai de uma cor só.
+     O manual (seção 02) fixa cinco versões do símbolo; o produto usa
+     duas. Sobre fundo escuro ele é o ouro #FFBD59 — 9,81:1 sobre o
+     Azul Impacto e 11,87:1 sobre o Preto Impacto. Sobre fundo claro o
+     ouro dá 1,48:1 contra a Areia e 1,66:1 contra o branco, ou seja
+     desaparece: aí entra a monocromática em Azul Impacto, 14,54:1
+     sobre a Areia. O ouro não é da paleta de interface e não vaza para
+     fora do símbolo.
+
+     Impresso, o ouro em escala de cinza cai para 1,62:1 contra o
+     papel, e o navegador não imprime o quadrado escuro de trás. O
+     @media print de globals.css devolve as duas versões ao azul e o
+     símbolo sai de uma cor só — a terceira versão que o manual prevê.
      --------------------------------------------------------- */
-  --color-marca-fundo: #0a1f44; /* Azul Impacto · quadrado da marca */
-  --color-marca-disco: #ff6b00; /* Laranja Impacto · o disco, massa sólida */
-  --color-marca-onda: #f5f2ec; /* Areia · a onda sobre o quadrado escuro */
+  --color-marca-fundo: #0a1f44; /* Azul Impacto · quadrado atrás do símbolo */
+  --color-marca: #0a1f44; /* monocromática em azul · símbolo sobre fundo claro */
+  --color-marca-sobre-escuro: #ffbd59; /* ouro do manual · símbolo sobre o escuro */
 
   /* ---------------------------------------------------------
      5. COR · Status

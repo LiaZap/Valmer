@@ -53,7 +53,7 @@ export function CapaResumo({ dados, perfilPrimario, perfilSecundario }: CapaResu
       <section id="capa" className={styles.capa} aria-labelledby="capa-titulo">
         <header className={styles.marca}>
           <span className={styles.marcaNome}>
-            <MarcaImpacto size={20} />
+            <MarcaImpacto size={26} />
             {NOME_MARCA}
           </span>
           <Pill size="sm">

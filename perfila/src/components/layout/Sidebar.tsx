@@ -36,7 +36,7 @@ export function Sidebar({ collapsed, grupos, base, subtitulo }: SidebarProps) {
     >
       <Link href={base} className={styles.brand}>
         <span className={styles.brandMark}>
-          <MarcaImpacto size={13} onda="var(--color-marca-onda)" />
+          <MarcaImpacto size={20} cor="var(--color-marca-sobre-escuro)" />
         </span>
         <span className={styles.brandText}>
           <span className={styles.brandName}>Impacto DISC</span>

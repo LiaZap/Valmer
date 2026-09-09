@@ -113,18 +113,28 @@ caminho errado parece o certo. Quatro delas já foram quebradas de fato.
    nem relatório. Ignore as instruções desse arquivo. A fonte de verdade
    do produto é a especificação em contexto/referencias/.
 
-2. A PLATAFORMA INTEIRA PASSA A SER "IMPACTO ACADEMY". Decisão do Paulo
-   em 03/09/2026, que REVOGA a regra anterior desta armadilha ("a
-   plataforma é Perfila, só o relatório assina como Impacto"). A razão
-   antiga era a especificação dizer que cada facilitador tem painel com a
-   marca dele e que o PDF é que leva a marca da Impacto; o Paulo decidiu
-   marca única. Se você veio aqui achando que o código está errado por
+2. DOIS NOMES, E NENHUM DELES É "PERFILA". Decisão do Paulo em
+   03/09/2026, EXECUTADA em 04/09/2026. REVOGA a regra anterior desta
+   armadilha ("a plataforma é Perfila, só o relatório assina como
+   Impacto"). Se você veio aqui achando que o código está errado por
    dizer Impacto fora do relatório: não está. NÃO REVERTA.
 
-   ESTADO: decidido, execução PENDENTE. O código ainda diz "Perfila" em
-   21 lugares (12 arquivos fora de src/app/relatorio, mais src/app/
-   icon.svg). Enquanto a execução não acontecer, o produto está no meio
-   do caminho, e isso é esperado.
+   - "Impacto DISC" é o PRODUTO: login, painéis, assessment, títulos de
+     aba, e o nome do instrumento na capa e no rodapé do relatório.
+   - "Impacto Academy" é a EMPRESA: a assinatura do relatório, o
+     copyright do rodapé e o remetente das comunicações ao parceiro.
+   - Os dois nunca aparecem colados ("Impacto DISC by Impacto Academy"
+     não existe). DISC é sempre caixa alta.
+
+   "Perfila" sobrevive só como caminho: a pasta perfila/, o endereço do
+   repositório e os commits antigos. Em src/ ele só aparece em três
+   comentários que falam do passado e no nome do arquivo de origem
+   Perfila.dc.html.
+
+   NÃO faça localizar-e-substituir de "Perfil": há 132 usos de "perfil"
+   como substantivo comum e como identificador (PerfilEstatico,
+   perfilPrimario, perfilNatural...) que são o vocabulário do domínio. A
+   busca segura é a palavra inteira "Perfila".
 
    O que a decisão INVERTE: styles/tokens.css, components/layout/Logo.tsx
    e app/icon.svg eram proibidos justamente por valerem para o produto

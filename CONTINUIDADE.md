@@ -193,15 +193,41 @@ A busca segura é a palavra inteira `Perfila`.
 
 **Um símbolo só.** `LogoMark` (quatro barras verdes, a marca da Perfila) foi
 aposentada e o arquivo `components/layout/Logo.tsx` saiu. `MarcaImpacto` mudou de
-`components/relatorio/` para `components/layout/` e vale para o produto inteiro. O
-favicon `app/icon.svg` recebeu o desenho que era do relatório, e `app/relatorio/
-icon.svg`, agora idêntico, saiu.
+`components/relatorio/` para `components/layout/` e vale para o produto inteiro;
+`app/relatorio/icon.svg` saiu e sobrou só `app/icon.svg`.
 
-As cores do símbolo são tokens próprios — `--color-marca-fundo` (`#0A1F44`),
-`--color-marca-disco` (`#FF6B00`) e `--color-marca-onda` (`#F5F2EC`) — e NÃO o
-acento da interface. Continuam separadas mesmo agora que compartilham o azul: o
-símbolo é identidade e não muda com o tema, enquanto o acento muda. Quem editar o
-símbolo mexe nestes três, nunca em `--color-accent`.
+**O símbolo deixou de ser desenhado aqui.** Em 04/09/2026 o Valmer entregou o
+arquivo oficial, e o disco com a onda — que tinha sido desenhado neste repositório
+por falta dele — foi apagado. O que está no produto agora é o escudo com as duas
+espadas da Impacto Academy.
+
+O arquivo que ele mandou (`impacto academy.svg`) tinha a extensão de vetor mas não
+era vetor: dentro dele havia ZERO `<path>` e dois PNG de 2160×2160 embutidos em
+base64 (um cinza servindo de máscara de luminância, outro RGB com a arte), 269 KB,
+que empastavam a 14px. Aqui ele virou path de verdade: seis contornos medidos
+linha a linha sobre o raster, em caixa `0 0 505 655`, com IoU de 0,9976 contra o
+original e 1,07% de erro de simetria no eixo vertical. Os mesmos seis path estão
+em `MarcaImpacto.tsx` e em `app/icon.svg`. Não os redesenhe no olho: qualquer
+retoque tem que voltar a bater com o original.
+
+A caixa é RETRATO, 505×655, e a antiga era paisagem, 24×16. `size` continua sendo
+a ALTURA, mas a largura caiu de 1,5× para 0,77× dela: com o mesmo número o símbolo
+perde metade da área, então os seis chamadores subiram. Dentro dos quadrados
+escuros o escudo é dimensionado pela altura da caixa menos o respiro (sidebar 32px
+→ 20, login 36px → 22, assessment 26px → 16); ao lado do nome ele fica em cerca de
+1,35× o corpo do texto (relatório 18, capa 26, fecho 20).
+
+As cores do símbolo são tokens próprios — `--color-marca-fundo` (`#0A1F44`, o
+quadrado atrás), `--color-marca` (`#0A1F44`, a monocromática em azul) e
+`--color-marca-sobre-escuro` (`#FFBD59`, o ouro) — e NÃO o acento da interface. O
+manual fixa cinco versões na seção 02 e o produto usa duas: sobre fundo escuro o
+ouro (9,81:1 sobre o Azul Impacto, 11,87:1 sobre o Preto Impacto) e sobre fundo
+claro a monocromática em azul (14,54:1 sobre a Areia). O ouro sobre a Areia dá
+1,48:1 e sobre o branco 1,66:1, então ele nunca sai do escuro. Quem escolhe é a
+prop `cor` do componente, e o padrão é o azul porque fundo claro é o caso comum.
+Quem editar o símbolo mexe nestes tokens, nunca em `--color-accent`.
+`--color-marca-disco` e `--color-marca-onda` não existem mais: os nomes descreviam
+um desenho que deixou de existir.
 
 **A paleta oficial está no produto inteiro.** Feita em 04/09/2026, quando o cliente
 entregou o manual da marca (`manual-marca-impacto-academy.html`, v1.0). O manual
@@ -242,12 +268,13 @@ pede o Laranja Impacto nesse filete. A ressalva: isso vale enquanto for decoraç
 Se a régua virar separador que organiza leitura, ou ganhar `aria`, o piso passa a
 valer e o Brasa entra.
 
-**A variante monocromática de impressão está feita.** Em escala de cinza a onda
-azul vira 16,57:1 contra o papel, mas o disco laranja vira só 2,73:1: numa
-fotocópia a onda sai preta e o disco desbota. O `@media print` de
-`app/globals.css` passa `--color-marca-disco` e `--color-realce` para o azul, e o
-símbolo imprime de uma cor só. (O disco nunca foi `var(--color-realce)`, como esta
-seção afirmava antes: ele é `var(--color-marca-disco)`.)
+**A variante monocromática de impressão está feita.** O navegador não imprime o
+quadrado azul de trás — nenhuma dessas telas pede `print-color-adjust: exact` —,
+então na folha o escudo cai sobre papel branco. Em ouro isso dá 1,62:1 em escala
+de cinza, um desenho que não aparece. O `@media print` de `app/globals.css` passa
+`--color-marca-sobre-escuro` e `--color-realce` para o azul: todo símbolo impresso
+sai do mesmo azul, 16,57:1 em cinza contra o papel, de uma cor só, que é a versão
+monocromática que o manual já prevê.
 
 **O corte por nível é por SEÇÃO, não por componente.** As três seções de
 `Lideranca.tsx` entram em níveis diferentes: encaixe é S1, liderança e como liderar
@@ -256,11 +283,11 @@ tabela de preços vende como parte do S1. Hoje S1 rende 10 seções, S2 rende 12
 rende as 13. O S4 não acrescenta seção nenhuma: o que ele agrega, segundo
 `planos.ts`, é dashboard online e histórico de evolução, que ainda não existem.
 
-**O símbolo tem as pontas cortadas retas.** Afilando até sumir, ele virava lua
-crescente acima de 60px e a ponta descia abaixo do que a impressora resolve. Arco
-interrompido lê como propagação; lâmina inteiriça lê como corpo celeste. A caixa é
-24×16 e não quadrada, porque num quadrado a composição ocupava só a faixa do meio
-e o símbolo parecia pequeno ao lado do nome.
+**O escudo a 16px de favicon foi o que decidiu o recuo do ícone.** Dentro do
+quadrado de 32 ele fica com 24px de altura e 4px de respiro em cima e embaixo. Com
+6px de respiro, a 16px as duas espadas empastavam contra o escudo; com 3px o
+desenho encostava no canto arredondado. Isso foi medido renderizando os três, e
+não escolhido no olho.
 
 **As tabelas de `perfis.ts` são as palavras do cliente.** `caracteristicas`,
 `cargos`, `comoLiderar` e `oQueEvitar` vêm literalmente da especificação e ele
@@ -300,14 +327,10 @@ e fixos. Mandá-los ao modelo seria pagar para ele repetir o que já sabemos.
 3. **Os textos dos 11 pilares** do mapa de autoavaliação são provisórios. Só o
    pilar Espiritual veio do sistema original, com as perguntas de apoio.
 4. **Fotos de cursos e mentores** seguem como espaço reservado.
-5. **O símbolo da Impacto Academy foi desenhado aqui**, por falta de arquivo
-   oficial. O manual da marca confirma a lacuna: o lockup exibido nele é
-   reconstrução tipográfica, e ele mesmo pede o SVG ou AI original. Em 04/09/2026
-   o Valmer mandou por WhatsApp uma logo própria, um escudo com duas espadas, mas
-   o vetor não chegou. Quando chegar, a troca é em
-   `perfila/src/components/layout/MarcaImpacto.tsx` mais `perfila/src/app/icon.svg`.
-   O arquivo novo precisa continuar legível a 14px e impresso em preto e branco, e
-   o laranja só pode entrar como área sólida grande ou sobre o azul.
+5. **O lockup completo (símbolo + nome desenhado) ainda não chegou.** O símbolo
+   já é o oficial, mas o manual da marca exibe o nome como reconstrução
+   tipográfica e ele mesmo pede o arquivo original. Hoje o produto compõe o
+   lockup com o escudo ao lado do nome em Sentient, que é a fonte do manual.
 
 ---
 

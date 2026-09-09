@@ -21,7 +21,6 @@
   flex: none;
   border-radius: var(--radius-md);
   background: var(--color-marca-fundo);
-  color: var(--color-on-ink);
   display: flex;
   align-items: center;
   justify-content: center;

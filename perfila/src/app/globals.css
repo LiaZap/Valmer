@@ -184,24 +184,21 @@ input[type='checkbox']:checked::before {
 
 /* ------------------------------------------------------------
    Impressão · variante monocromática do símbolo
-   Em escala de cinza a onda azul fica em 16,57:1 contra o papel e o
-   disco laranja cai para 2,73:1: numa fotocópia a onda sai preta e o
-   disco desbota até sumir. Passando o disco para o azul, o símbolo
-   imprime de uma cor só, que é a variante monocromática que o manual
-   já prevê.
+   Onde o símbolo assenta sobre o quadrado azul (login, sidebar,
+   cabeçalho do assessment) o navegador não imprime o fundo — nenhuma
+   dessas telas pede print-color-adjust: exact — então o escudo cai
+   sobre papel branco. Em ouro isso é 1,62:1 em escala de cinza, um
+   desenho que não existe na folha. Passando o ouro para o azul, todo
+   símbolo impresso é o mesmo azul (16,57:1 em cinza contra o papel):
+   uma cor só, que é a variante monocromática que o manual já prevê.
 
    A régua de fecho do relatório (--color-realce) segue o mesmo
    caminho: laranja claro sobre papel branco é um traço que não
    aparece.
-
-   Onde o símbolo assenta sobre o quadrado azul (login, sidebar,
-   cabeçalho do assessment) o navegador não imprime o fundo — nenhuma
-   dessas telas pede print-color-adjust: exact — então o símbolo cai
-   sobre o papel branco e continua legível.
    ------------------------------------------------------------ */
 @media print {
   :root {
-    --color-marca-disco: var(--color-marca-fundo);
+    --color-marca-sobre-escuro: var(--color-marca);
     --color-realce: var(--color-accent);
   }
 }
