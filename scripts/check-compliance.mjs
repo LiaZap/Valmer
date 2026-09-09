@@ -300,9 +300,25 @@ function main() {
     const target = resolve(args[fileFlag + 1]);
     if (existsSync(target) && statSync(target).isFile()) files = [target];
   } else {
+    // `src/` e o atalho para quando se roda de dentro de um app (perfila/),
+    // mas so vale se houver codigo la. Um `src/` vazio na raiz — criado por um
+    // mkdir distraido — desviava o escaneamento para o nada e o auditor
+    // respondia "nenhuma violacao" com exit 0, sem ter lido uma linha.
     const srcDir = join(ROOT, "src");
-    const scanRoot = existsSync(srcDir) ? srcDir : ROOT;
-    files = walk(scanRoot, []);
+    files = existsSync(srcDir) ? walk(srcDir, []) : [];
+    if (files.length === 0) files = walk(ROOT, []);
+  }
+
+  // Escanear zero arquivo nao e aprovacao, e falha de configuracao: cwd
+  // errado, diretorio vazio, regra de ignore engolindo tudo. Um guard que
+  // passa sem conferir nada e pior do que nao ter guard, porque a tela verde
+  // convence. Vale para qualquer caminho ate aqui, inclusive `--file` com
+  // caminho inexistente.
+  if (files.length === 0) {
+    const recado = "Nenhum arquivo escaneado. Rode na raiz do repositorio ou passe --file <caminho>.";
+    if (asJson) console.log(JSON.stringify({ ok: false, scanned: 0, erro: recado }, null, 2));
+    else console.error(`ERRO — ${recado}`);
+    process.exit(1);
   }
 
   /** @type {Finding[]} */
