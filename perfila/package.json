@@ -18,12 +18,13 @@
     "@anthropic-ai/sdk": "^0.123.0",
     "better-auth": "^1.7.2",
     "dotenv": "^17.4.2",
+    "drizzle-kit": "^0.31.10",
     "drizzle-orm": "^0.45.2",
     "next": "^16.3.4",
     "pg": "^8.23.0",
-    "puppeteer": "^25.10.0",
     "react": "19.1.1",
     "react-dom": "19.1.1",
+    "tsx": "^4.23.13",
     "zod": "^4.5.4"
   },
   "devDependencies": {
@@ -31,8 +32,10 @@
     "@types/pg": "^8.23.1",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
-    "drizzle-kit": "^0.31.10",
-    "tsx": "^4.23.13",
+    "puppeteer": "^25.10.0",
     "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

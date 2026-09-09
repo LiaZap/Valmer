@@ -18,9 +18,22 @@ import { COOKIE_SESSAO } from '@/lib/auth/cookie'
  */
 const AREAS_COM_LOGIN = ['/admin', '/facilitador']
 
+/**
+ * Dois nomes para o mesmo cookie, e isso nao e paranoia. Quando a `baseURL` da
+ * biblioteca comeca com `https`, ela renomeia o cookie de sessao para
+ * `__Secure-better-auth.session_token` — o prefixo `__Secure-` e uma regra do
+ * navegador, nao um enfeite: cookie com esse nome so e aceito sobre TLS.
+ *
+ * Conferir so o nome sem prefixo funciona em `localhost` e falha em producao
+ * do pior jeito possivel: a pessoa entra, a sessao existe, e este proxy nao
+ * enxerga o cookie e devolve ela para o login. Login, redirect, login, sem fim,
+ * com o servidor achando que esta tudo certo.
+ */
+const NOMES_DO_COOKIE = [COOKIE_SESSAO, `__Secure-${COOKIE_SESSAO}`]
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const temCookie = request.cookies.has(COOKIE_SESSAO)
+  const temCookie = NOMES_DO_COOKIE.some((nome) => request.cookies.has(nome))
   const areaProtegida = AREAS_COM_LOGIN.some(
     (area) => pathname === area || pathname.startsWith(`${area}/`),
   )

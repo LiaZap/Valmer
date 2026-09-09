@@ -62,6 +62,13 @@ async function sessaoDoBetterAuth() {
     return await auth.api.getSession({ headers: await headers() });
   } catch (erro) {
     unstable_rethrow(erro);
+    // Chegar aqui com uma requisicao viva quer dizer que a consulta de sessao
+    // falhou — banco fora do ar, migracao que nao rodou, tabela que nao
+    // existe. Quem chamou trata `null` como "nao logado" e manda para o login,
+    // entao sem esta linha um banco sem schema aparece como tela de login
+    // teimosa, sem uma palavra em log nenhum. O erro custa uma linha; o
+    // diagnostico sem ele custou uma tarde.
+    console.error("[sessao] getSession falhou", erro);
     return null;
   }
 }
