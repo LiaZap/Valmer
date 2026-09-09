@@ -19,8 +19,8 @@ set -euo pipefail
 info() { echo "[03-runtime] $*"; }
 export DEBIAN_FRONTEND=noninteractive
 
-apt-get update -qq
-apt-get install -y ca-certificates curl gnupg git jq unzip \
+apt-get -o DPkg::Lock::Timeout=300 update -qq
+apt-get -o DPkg::Lock::Timeout=300 install -y ca-certificates curl gnupg git jq unzip \
   postgresql-client-16 unattended-upgrades >/dev/null
 info "pacotes base instalados."
 
@@ -53,8 +53,8 @@ if ! command -v docker >/dev/null; then
   echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] \
 https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
     > /etc/apt/sources.list.d/docker.list
-  apt-get update -qq
-  apt-get install -y docker-ce docker-ce-cli containerd.io \
+  apt-get -o DPkg::Lock::Timeout=300 update -qq
+  apt-get -o DPkg::Lock::Timeout=300 install -y docker-ce docker-ce-cli containerd.io \
     docker-buildx-plugin docker-compose-plugin >/dev/null
 fi
 systemctl enable --now docker >/dev/null
@@ -78,5 +78,8 @@ fi
 info "swap: $(swapon --show=NAME,SIZE --noheadings | tr '\n' ' ')"
 
 echo
-info "Conferir:  docker ps ; free -h ; systemctl status unattended-upgrades"
+# `sudo docker`, e nao `docker`: o admin NAO entra no grupo docker de
+# proposito (grupo docker = root sem senha). `docker ps` cru devolve
+# "permission denied" e parece falha da etapa, quando e a decisao funcionando.
+info "Conferir:  sudo docker ps ; free -h ; systemctl status unattended-upgrades"
 info "Desfazer:  apt-get remove --purge docker-ce ; swapoff /swapfile"

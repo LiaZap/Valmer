@@ -9,7 +9,7 @@
 #
 # Configuracao em /srv/valmer/monitor.env (0600):
 #     HEARTBEAT_URL=https://hc-ping.com/<uuid>
-#     CHECK_URLS="https://hml.perfila.com.br https://app.perfila.com.br"
+#     CHECK_URLS="https://hml.impacto.institutotopcursos.site https://impacto.institutotopcursos.site"
 #     CHECK_PG="127.0.0.1:5432 127.0.0.1:5433"
 #     CHECK_UNITS="valmer-hml valmer-prd"      # vazio no caminho com painel
 #
@@ -45,6 +45,21 @@ fi
 # --- disco --------------------------------------------------------------------
 uso="$(df --output=pcent / | tail -1 | tr -dc '0-9')"
 [ "$uso" -ge 85 ] && avisar "disco em ${uso}% (limite 85%)"
+
+# --- memoria e OOM ------------------------------------------------------------
+# A maquina nao tem swap de proposito (ver docs/infra.md). Sem swap nao ha
+# lentidao antes da morte: o kernel mata e segue. Um container morto por OOM e
+# reiniciado pelo Docker responde ao healthcheck logo depois, entao a checagem
+# de "esta de pe" passa e ninguem fica sabendo. Estas duas checagens sao o que
+# torna esse caso visivel.
+livre_pct="$(awk '/^MemAvailable:/{a=$2} /^MemTotal:/{t=$2} END{if(t) print int(a*100/t)}'   /proc/meminfo)"
+[ -n "$livre_pct" ] && [ "$livre_pct" -le 10 ] &&   avisar "memoria disponivel em ${livre_pct}% (limite 10%, e a maquina nao tem swap)"
+
+# A janela cobre o intervalo do timer (10 min) com folga; OOM de cgroup tambem
+# vai parar no journal do kernel, entao isto pega container e host.
+if journalctl -k --since "-15 min" --no-pager 2>/dev/null    | grep -qiE 'out of memory|oom-kill'; then
+  avisar "houve morte por falta de memoria nos ultimos 15 min (journalctl -k | grep -i oom)"
+fi
 
 # --- servicos, banco e app ----------------------------------------------------
 for unidade in $CHECK_UNITS; do

@@ -38,8 +38,31 @@ for u in "$ADMIN_USER" "$DEPLOY_USER"; do
 done
 
 usermod -aG sudo "$ADMIN_USER"
-# O deploy NAO entra no grupo sudo. Ele recebe abaixo so o que precisa.
+# `adm` da leitura do journal sem sudo. Diagnostico nao devia exigir elevacao:
+# quem precisa de `sudo journalctl` para ver um log acaba usando `sudo` para
+# tudo, e o sudo com senha vira formalidade. Leitura de log e so leitura.
+usermod -aG adm "$ADMIN_USER"
+# O deploy NAO entra no grupo sudo. Ele recebe abaixo so o que precisa. E nao
+# entra em `docker` aqui: quem esta no grupo docker tem root na maquina sem
+# senha nenhuma. O 03-runtime coloca so o deploy, que precisa subir o Postgres.
 gpasswd -d "$DEPLOY_USER" sudo >/dev/null 2>&1 || true
+
+# --- senha local do administrador ---------------------------------------------
+# Sao duas coisas diferentes, e trata-las como uma quebra o usuario: o SSH entra
+# por chave (PasswordAuthentication no, mais abaixo), mas o `sudo` pede senha
+# LOCAL. Criado com --disabled-password e no grupo sudo, o administrador fica
+# com sudo inutilizavel: pergunta uma senha que nao existe e nega tres vezes.
+# Chave para entrar + senha para elevar e a configuracao certa, nao um descuido.
+if [ "$(passwd -S "$ADMIN_USER" | awk '{print $2}')" != "P" ]; then
+  if [ -t 0 ]; then
+    info "$ADMIN_USER ainda nao tem senha local, e sem ela o sudo nao funciona."
+    info "Defina uma agora (ela NAO serve para entrar por SSH):"
+    passwd "$ADMIN_USER"
+  else
+    info "AVISO: $ADMIN_USER sem senha local — o sudo dele nao vai funcionar."
+    info "       Rode como root:  passwd $ADMIN_USER"
+  fi
+fi
 
 # Herda a chave com que voce entrou como root, se o admin ainda nao tem nenhuma.
 # Sem isto o proximo passo trava (e e para travar mesmo).
@@ -79,13 +102,28 @@ info "sudo do $DEPLOY_USER limitado aos servicos valmer-*."
 # sshd_config nao tem efeito nenhum. Quem manda e o ssh.socket.
 if [ "$SSH_PORT" != "22" ]; then
   install -d -m 755 /etc/systemd/system/ssh.socket.d
+  # As duas familias, explicitas. `ListenStream=$SSH_PORT` sozinho cria um
+  # socket [::] e conta com o kernel aceitar IPv4 mapeado — o que depende de
+  # net.ipv6.bindv6only=0. Nesta imagem nao esta, e o resultado foi sshd
+  # escutando so em IPv6: de fora, connection refused em IPv4, com o `ss`
+  # mostrando LISTEN e parecendo tudo certo.
   cat > /etc/systemd/system/ssh.socket.d/porta.conf <<EOF
 [Socket]
 ListenStream=
-ListenStream=$SSH_PORT
+ListenStream=0.0.0.0:$SSH_PORT
+ListenStream=[::]:$SSH_PORT
 EOF
   systemctl daemon-reload
   info "porta do SSH definida em $SSH_PORT (ssh.socket)."
+elif [ -e /etc/systemd/system/ssh.socket.d/porta.conf ]; then
+  # Voltar para 22 tem que ser tao possivel quanto sair dele. Sem este ramo o
+  # script so sabia andar para um lado: rodar com SSH_PORT=22 deixava o
+  # override antigo no disco e a porta nao voltava, o que e o oposto de
+  # idempotente. Descoberto na pratica, quando a porta alta foi bloqueada
+  # fora da maquina e nao havia caminho de volta pelo proprio script.
+  rm -rf /etc/systemd/system/ssh.socket.d
+  systemctl daemon-reload
+  info "override de porta removido, SSH volta para 22."
 fi
 
 # --- endurecimento do sshd ----------------------------------------------------
@@ -95,7 +133,14 @@ if [ ! -s "$admin_keys" ]; then
   info "Instale a chave e rode este script de novo:"
   info "  ssh-copy-id -p $SSH_PORT $ADMIN_USER@<ip>"
 else
-  cat > /etc/ssh/sshd_config.d/99-valmer.conf <<EOF
+  # O PREFIXO IMPORTA, e custou um susto: o sshd usa o PRIMEIRO valor de cada
+  # palavra-chave, e o `Include` do sshd_config le sshd_config.d/*.conf em
+  # ordem alfabetica. A imagem vem com `50-cloud-init.conf` contendo
+  # `PasswordAuthentication yes`; um arquivo nosso chamado 99- e lido DEPOIS e
+  # perde. O resultado era o pior possivel: o script dizia "senha desligada" e
+  # a senha continuava aceitando login. Por isso 10-, que vem antes de tudo.
+  rm -f /etc/ssh/sshd_config.d/99-valmer.conf
+  cat > /etc/ssh/sshd_config.d/10-valmer.conf <<EOF
 # Gerado por scripts/infra/01-acesso.sh — nao editar a mao.
 PermitRootLogin no
 PasswordAuthentication no
@@ -111,13 +156,34 @@ EOF
   sshd -t
   systemctl restart ssh.socket 2>/dev/null || true
   systemctl restart ssh
+
+  # Escrever o arquivo nao e o mesmo que ele valer. `sshd -T` imprime a
+  # configuracao EFETIVA, ja resolvida entre todos os includes: e a unica
+  # leitura que prova qual valor ganhou. Falhar aqui, com a sessao de root
+  # ainda aberta, e melhor que descobrir de fora que a senha nunca desligou.
+  efetivo="$(sshd -T 2>/dev/null || true)"
+  faltou=""
+  echo "$efetivo" | grep -qx 'passwordauthentication no' || faltou="PasswordAuthentication"
+  echo "$efetivo" | grep -qx 'permitrootlogin no' || faltou="${faltou:+$faltou e }PermitRootLogin"
+  if [ -n "$faltou" ]; then
+    echo "erro: $faltou nao pegou na configuracao efetiva do sshd." >&2
+    echo "      Algum arquivo em /etc/ssh/sshd_config.d/ e lido antes do nosso." >&2
+    echo "      NAO feche esta sessao. Conferir:" >&2
+    echo "        ls /etc/ssh/sshd_config.d/ && sshd -T | grep -Ei 'passwordauth|permitroot'" >&2
+    exit 1
+  fi
   info "senha desligada, root sem login direto, acesso so por chave."
+  info "conferido em sshd -T, e nao so no arquivo escrito."
 fi
 
 # --- fail2ban -----------------------------------------------------------------
 export DEBIAN_FRONTEND=noninteractive
-apt-get update -qq
-apt-get install -y fail2ban >/dev/null
+# Maquina recem-instalada dispara unattended-upgrades sozinha no primeiro boot e
+# segura o lock do dpkg por minutos. Sem o Lock::Timeout o apt falha na hora, e
+# com `set -e` o script morre aqui — depois de ja ter mexido no sshd, que e o
+# pior lugar para parar no meio. O apt espera; nos nao reimplementamos espera.
+apt-get -o DPkg::Lock::Timeout=300 update -qq
+apt-get -o DPkg::Lock::Timeout=300 install -y fail2ban >/dev/null
 # A imagem 24.04 nao instala rsyslog: nao existe /var/log/auth.log e a jail
 # padrao morre calada. Ler do journal e o que funciona aqui.
 cat > /etc/fail2ban/jail.d/valmer-sshd.conf <<EOF
@@ -132,6 +198,20 @@ EOF
 systemctl enable --now fail2ban >/dev/null
 systemctl restart fail2ban
 info "fail2ban ativo na porta $SSH_PORT."
+
+# --- prova de que a porta atende nas duas familias -----------------------------
+# `LISTEN` no `ss` nao basta: um socket so-IPv6 aparece igualzinho e recusa
+# todo IPv4. Conferir as duas, e falhar aqui, e melhor que descobrir do lado
+# de fora com a sessao antiga ja fechada.
+faltou=""
+ss -tln | grep -q "0\.0\.0\.0:$SSH_PORT " || faltou="IPv4"
+ss -tln | grep -q "\[::\]:$SSH_PORT "      || faltou="${faltou:+$faltou e }IPv6"
+if [ -n "$faltou" ]; then
+  echo "erro: sshd nao esta escutando em $SSH_PORT sobre $faltou." >&2
+  echo "      NAO feche esta sessao. Conferir: ss -tlnp | grep $SSH_PORT" >&2
+  exit 1
+fi
+info "sshd escutando em $SSH_PORT, IPv4 e IPv6."
 
 echo
 info "PRONTO. NAO FECHE ESTA SESSAO ainda."

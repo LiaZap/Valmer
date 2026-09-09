@@ -20,7 +20,18 @@ SSH_PORT="$(awk -F= '/^ListenStream=[0-9]+$/{p=$2} END{print p}' \
 SSH_PORT="${SSH_PORT:-22}"
 info "porta de SSH detectada: $SSH_PORT"
 
-DEBIAN_FRONTEND=noninteractive apt-get install -y ufw >/dev/null
+DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=300 install -y ufw >/dev/null
+
+# A maquina tem IPv6 publico (2a02:4780:.../64 no eth0). Com IPV6=no o UFW
+# fecha so o IPv4 e deixa a politica v6 do kernel em ACCEPT: a maquina fica
+# aberta por uma porta que ninguem olha, e o `ufw status` nao denuncia.
+# O padrao do Ubuntu 24.04 e `yes`, mas isso e padrao, nao garantia.
+if grep -q '^IPV6=' /etc/default/ufw; then
+  sed -i 's/^IPV6=.*/IPV6=yes/' /etc/default/ufw
+else
+  echo 'IPV6=yes' >> /etc/default/ufw
+fi
+info "IPv6 habilitado no UFW."
 
 ufw --force reset >/dev/null
 ufw default deny incoming
@@ -33,6 +44,15 @@ ufw --force enable
 info "regras aplicadas:"
 ufw status verbose
 
+# Prova de que o v6 entrou mesmo. Sem isto, "IPV6=yes" e so uma linha de
+# arquivo: e o `status` que diz se virou regra.
+if ufw status | grep -q '(v6)'; then
+  info "regras v6 presentes."
+else
+  echo "[02-firewall] ERRO: nenhuma regra (v6). O IPv6 ficou aberto." >&2
+  exit 1
+fi
+
 cat <<'NOTA'
 
 [02-firewall] Ponto que costuma passar batido:
@@ -42,6 +62,7 @@ cat <<'NOTA'
   Se alguem trocar por "PORTA:5432", o Postgres vai para a internet mesmo
   com o firewall fechado. Conferir com:
       ss -ltnp | grep 5432      # tem que aparecer 127.0.0.1, nunca 0.0.0.0
+                                # nem [::] — IPv6 tambem e interface publica
 
 [02-firewall] Desfazer:  ufw disable
 NOTA

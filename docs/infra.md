@@ -10,24 +10,90 @@ na VPS — nenhum agente tem acesso a ela, e nao deve ter.
 
 ## O servidor
 
-Hostinger KVM 8, Ubuntu 24.04 LTS, **uma unica maquina**.
+**Uma unica maquina, comprada do zero em 2026-09-08.** A VPS anterior saiu
+deste documento inteiro. O que esta abaixo e a maquina nova, lida no hPanel em
+2026-09-09.
 
 | Item | Valor | Situacao |
 | --- | --- | --- |
-| vCPU | 8 | a confirmar |
-| RAM | 32 GB | a confirmar |
-| Disco | 400 GB NVMe | a confirmar |
-| IP / dominio | — | **pendente** |
+| Provedor e plano | Hostinger KVM 8 | confirmado no hPanel |
+| Hostname | `srv1965349.hstgr.cloud` | confirmado no hPanel |
+| IPv4 | `179.199.148.252` | confirmado no hPanel |
+| IPv6 | — | ativo (o UFW criou regra `(v6)`); o endereco em si nao foi anotado |
+| SO | Ubuntu 24.04 | **veio com o template do EasyPanel** — ver abaixo |
+| Disco | 400 GB | confirmado — 4 GB em uso |
+| Trafego | 0 TB de 32 TB | confirmado |
+| vCPU | — | **a confirmar** (`nproc`) |
+| RAM | — | **a confirmar** (`free -h`) |
+| Swap | — | a Etapa 3 cria 4 GB, `swappiness=10` |
+| Dominios | `impacto.institutotopcursos.site` e dois sob ele | **provisorios** — ver abaixo |
+| Vencimento do plano | — | **confirmar renovacao automatica** |
+| Conta do provedor | — | **a confirmar** — ver [Seguranca](#seguranca--decisoes-registradas) |
 
-As specs sao as da linha KVM 8 no catalogo; os tetos de memoria da Etapa 4
-foram dimensionados por elas. Antes de rodar a Etapa 4, confirme com:
+O IPv4 e o hostname sobrevivem a uma reinstalacao — sao da VM, nao da imagem.
+
+### Os tres dominios
+
+Decisao do Paulo em 2026-09-09, e ele avisou que e **por enquanto**: a base e
+`institutotopcursos.site`, que ja existe, e nao um dominio proprio da Impacto.
+
+| Papel | Nome | Registro |
+| --- | --- | --- |
+| Producao | `impacto.institutotopcursos.site` | A → `179.199.148.252` |
+| Homologacao | `hml.impacto.institutotopcursos.site` | A → `179.199.148.252` |
+| Painel | `painel.impacto.institutotopcursos.site` | A → `179.199.148.252` |
+
+Os tres sao registro A apontando para o mesmo IP; quem separa e o Traefik, pelo
+nome do host. Nivel a mais de subdominio nao atrapalha o certificado: o desafio
+HTTP-01 do Let's Encrypt nao liga para profundidade, e nenhum deles precisa de
+curinga.
+
+**Trocar de dominio depois nao e so mudar o DNS.** Cada ambiente reemite
+certificado, e a `BETTER_AUTH_URL` muda junto — o cookie de sessao e preso ao
+dominio, entao todo mundo que estiver logado cai. Enquanto for provisorio,
+nenhum link definitivo deve ser impresso em relatorio, e-mail ou material de
+venda.
+
+Os tetos de memoria da Etapa 6 assumem 8 vCPU e 32 GB, que e o catalogo da linha
+KVM 8. Antes de chegar nela, confirme por SSH e ajuste se vier diferente:
 
 ```bash
 nproc && free -h && df -h /
 ```
 
-Se vier diferente, ajuste `MEM_APP` e `MEM_PG` em `scripts/infra/04-ambiente.sh`
-e diga aqui qual e o numero real.
+**A imagem costuma vir sem swap.** Confirme com `free -h`; se vier assim,
+a Etapa 3 cria 4 GB de swapfile com `vm.swappiness=10`. O numero baixo e o que
+faz a diferenca — o swap fica de reserva para o pico de `next build`, que e
+curto e violento, sem virar destino do dia a dia do Postgres. Swap generoso com
+swappiness alto num host de banco troca uma morte rapida por lentidao que
+ninguem diagnostica; 4 GB com swappiness 10 e o contrario disso.
+
+Mesmo com swap, os tetos por container da Etapa 6 continuam sendo o mecanismo
+de isolamento, e nao higiene: com teto, quem estoura e o container e o resto da
+maquina sobrevive. E o monitor da Etapa 8 olha memoria disponivel e morte por
+OOM no journal do kernel, nao so "esta de pe" — um container morto por OOM e
+reiniciado pelo Docker responde ao healthcheck logo depois, e a checagem de
+disponibilidade passa sem ninguem ficar sabendo.
+
+### Template simples, de proposito
+
+Na instalacao do sistema, **template puro do Ubuntu, sem painel**. Template que
+ja traz painel sobe administracao de servidor exposta na internet antes de
+existir Etapa 1 e Etapa 2, e a janela entre uma coisa e outra e justamente a que
+este documento fecha. O painel entra na Etapa 4, na ordem.
+
+**A maquina nova nasceu com o template EasyPanel da Hostinger, e por isso e
+reinstalada antes da Etapa 1.** Nao e o painel que esta errado — ele e a Etapa
+4 e vai voltar. E a ordem: o painel subiu numa maquina sem UFW, com root
+aceitando senha por SSH, e a tela inicial do EasyPanel cria a conta de
+administrador sem pedir autenticacao nenhuma. Quem achasse o IP naquela janela
+virava dono do servidor. Nao da para provar que ninguem achou, e nao ha nada na
+maquina que valha a investigacao: 4 GB de disco em uso, nenhum dado. Reinstalar
+com Ubuntu 24.04 puro custa minutos e fecha as duas duvidas de uma vez.
+
+Se a maquina vier com qualquer coisa ja rodando, levante o que e antes de
+apagar. Na VPS anterior ninguem olhou, e isso fica registrado como o que nao
+repetir.
 
 ---
 
@@ -97,45 +163,120 @@ SSH. O painel tem conta propria, que **nao** e a do sistema.
 
 ## Ordem de instalacao
 
-Cada etapa tem objetivo, comando, como conferir e como desfazer. Etapa que nao
-da para conferir nem desfazer nao esta pronta.
+### Onde estamos — 2026-09-09
 
-Os scripts sao idempotentes: rodar de novo nao quebra o que ja esta certo.
-Copie a pasta `scripts/infra/` para o servidor (`scp -r scripts/infra
-root@<ip>:/root/`) ou clone o repositorio la.
+| Etapa | Estado |
+| --- | --- |
+| 0 — Reinstalar | **feita**. Ubuntu 24.04 puro no lugar do template EasyPanel; IP e hostname mantidos |
+| 1 — Acesso | **feita**. `paulo` (sudo, senha local) e `deploy`, fail2ban na 22, sshd em v4 e v6, e `sshd -T` devolvendo `passwordauthentication no` e `permitrootlogin no` — depois do conserto do prefixo, ver a nota do `10-valmer.conf` abaixo |
+| 2 — Firewall | **feita**. UFW `deny incoming`, so 22 (`limit`), 80 e 443, em v4 e v6 |
+| 3 — Runtime | **feita**. Docker 29.8.0, unattended-upgrades com reboot as 04:00, swap de 4 GB |
+| 4 a 8 | **nao feitas** |
 
-Antes de subir, `bash scripts/infra/testar-infra.sh` confere a sintaxe de todos
-eles e a leitura da `DATABASE_URL` — a parte que decide em qual banco o
-`pg_dump` bate. Uma porta lida errado faz o backup de producao dumpar
-homologacao sem reclamar.
+A Etapa 4 e a proxima, e ela depende de um subdominio apontado para o IP: o
+painel emite o proprio certificado e nunca deve ser acessado por IP.
+
+A porta fica em 22, nao em 2222 — ver a nota na Etapa 1.
+
+Dois grupos, e os dois sao decisao, nao descuido: `paulo` esta em `adm` para ler
+o journal sem elevar (diagnostico que exige `sudo` faz todo mundo usar `sudo`
+para tudo), e **nao** esta em `docker`, porque quem esta nesse grupo tem root na
+maquina sem senha e o `sudo` com senha viraria enfeite. Docker pelo `paulo` e
+com `sudo docker`. So o `deploy` entra no grupo, e so porque sobe o Postgres.
 
 ### Etapa 1 — Acesso  *(obrigatoria agora)*
 
 Trava tudo o mais: sem entrar na maquina com seguranca, o resto nao comeca.
 
 ```bash
-ADMIN_USER=paulo SSH_PORT=2222 bash 01-acesso.sh
+ADMIN_USER=paulo SSH_PORT=22 bash 01-acesso.sh
 ```
 
-Cria `paulo` (sudo) e `deploy` (sem sudo), muda a porta do SSH, desliga senha,
-tira o login direto de root, instala o fail2ban.
+Cria `paulo` (sudo) e `deploy` (sem sudo), desliga senha, tira o login direto de
+root, instala o fail2ban.
 
-O script **nao desliga a senha** enquanto `paulo` nao tiver uma chave publica —
+**Sobre a porta — e um caso que ficou sem causa confirmada.** A Etapa 1 rodou
+primeiro com `SSH_PORT=2222`, e de fora a conexao falhava. Voltando para 22
+funcionou de primeira. O que ficou provado:
+
+- de fora, IPv4 na 2222: `timed out`;
+- **de dentro da maquina para o proprio IP publico, IPv4 na 2222:
+  `Connection refused`**;
+- o `ss` mostrava `LISTEN ... [::]:2222`, com o socket na mao do systemd;
+- o UFW estava inativo no primeiro teste, entao nao era ele.
+
+`refused` e resposta, `timed out` e silencio. Refused prova que o pacote chegou
+na pilha TCP e ninguem aceitou — elimina firewall e joga a culpa para dentro.
+**Esse teste de dentro para o proprio IP publico custa um comando e separa as
+duas causas; e o primeiro a fazer da proxima vez.**
+
+O que **nao** ficou provado e o mecanismo. A hipotese principal e socket
+so-IPv6 (`ListenStream=2222` sozinho depende de `net.ipv6.bindv6only=0`), mas um
+socket dual-stack aparece no `ss` com a mesma cara — so a linha `[::]` — entao a
+ausencia de `0.0.0.0` nao prova nada. Suspeito secundario: o script dava
+`systemctl restart ssh.socket` e logo em seguida `systemctl restart ssh`,
+misturando ativacao por socket com daemon autonomo. Nenhum dos dois foi
+confirmado, e fica registrado como em aberto em vez de virar explicacao bonita.
+
+Duas mudancas no script, e a segunda vale mais que a primeira:
+
+1. o override declara `0.0.0.0:$SSH_PORT` e `[::]:$SSH_PORT` explicitamente,
+   sem depender de padrao de kernel;
+2. no fim, o script **falha** se o `ss` nao mostrar a porta nas duas familias.
+   Diagnostico incerto se resolve com verificacao, nao com teoria: qualquer que
+   fosse a causa, essa checagem teria parado o script com a sessao antiga ainda
+   aberta, em vez de deixar descobrir de fora.
+
+Ele tambem sabe voltar: rodar com `SSH_PORT=22` remove o override, coisa que
+antes nao fazia — nao havia caminho de volta pelo proprio script.
+
+O script pede uma **senha local** para `paulo` se ele ainda nao tiver. Ela nao
+serve para entrar por SSH e nunca vai servir: e para o `sudo`, que pede senha
+local. Sao coisas separadas, e trata-las como uma quebra o usuario — criado sem
+senha e no grupo `sudo`, o administrador fica com `sudo` inutilizavel, negando
+tres vezes uma senha que nao existe. Chave para entrar, senha para elevar.
+
+O script **nao desliga a senha do SSH** enquanto `paulo` nao tiver uma chave publica —
 ficar do lado de fora da propria maquina e o jeito mais comum de estragar este
 passo. Se ele avisar que falta chave, rode da sua maquina e repita a etapa:
 
 ```bash
-ssh-copy-id -p 22 paulo@<ip>
+type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh root@<ip> "mkdir -p ~/.ssh; chmod 700 ~/.ssh; cat >> ~/.ssh/authorized_keys; sort -u -o ~/.ssh/authorized_keys ~/.ssh/authorized_keys; chmod 600 ~/.ssh/authorized_keys"
 ```
+
+O `ssh-copy-id` nao existe no OpenSSH do Windows; a linha acima e o equivalente,
+e o `sort -u` no meio e o que a torna repetivel sem duplicar a chave.
 
 No Ubuntu 24.04 o sshd sobe por socket activation: mudar `Port` no
 `sshd_config` nao tem efeito nenhum. O script escreve um override em
 `ssh.socket`, que e o que funciona.
 
-- **Conferir**: de um terminal NOVO, `ssh -p 2222 paulo@<ip>` entra;
-  `ssh root@<ip>` e recusado; `sudo fail2ban-client status sshd` responde.
+**O arquivo do sshd chama `10-valmer.conf`, e o numero e a correcao de um bug
+real.** Ele era `99-valmer.conf`. O sshd usa o **primeiro** valor de cada
+palavra-chave, e o `Include` do `sshd_config` le `sshd_config.d/*.conf` em
+ordem alfabetica. A imagem vem com `50-cloud-init.conf`, que traz
+`PasswordAuthentication yes`. Com o nosso em 99 ele era lido depois e perdia:
+o script imprimia "senha desligada" e o SSH continuava aceitando senha. Foi
+assim em 2026-09-09, e so apareceu porque o teste de login foi feito de dentro
+da propria maquina, onde o cliente nao tinha chave e caiu na senha.
+
+Duas mudancas, e a segunda vale mais que a primeira:
+
+1. o arquivo passou a ser `10-valmer.conf`, lido antes de qualquer coisa que a
+   imagem traga, e o `99-valmer.conf` antigo e removido se existir. Nesta
+   maquina o conserto foi um `mv` do 99 para o 10, com o conteudo intacto: o
+   texto do arquivo sempre esteve certo, so era lido tarde demais;
+2. no fim, o script le `sshd -T` — a configuracao **efetiva**, ja resolvida
+   entre todos os includes — e **falha** se `passwordauthentication` ou
+   `permitrootlogin` nao estiverem em `no`. Arquivo escrito nao e arquivo
+   valendo, e a diferenca entre os dois foi exatamente o buraco.
+
+- **Conferir**: de um terminal NOVO **e de fora da maquina**, `ssh paulo@<ip>`
+  entra **sem pedir senha**; `ssh root@<ip>` e recusado;
+  `sudo fail2ban-client status sshd` responde. Se pedir senha, a etapa nao
+  terminou, por mais que o script diga que sim.
   **So feche a sessao antiga depois disso.**
-- **Desfazer**: `rm /etc/ssh/sshd_config.d/99-valmer.conf` e
+- **Desfazer**: `rm /etc/ssh/sshd_config.d/10-valmer.conf` e
   `rm -rf /etc/systemd/system/ssh.socket.d`, depois
   `systemctl daemon-reload && systemctl restart ssh.socket ssh`.
 
@@ -153,8 +294,33 @@ O Docker escreve direto no iptables: uma porta publicada como `-p 5432:5432`
 `127.0.0.1:PORTA:5432`. Se alguem trocar, o banco vai para a internet com o
 firewall fechado e nada avisa.
 
+**Isso deixou de ser teoria em 2026-09-09.** O EasyPanel publica a porta 3000
+como servico do Swarm, e ela ficou servindo a tela de login do painel, em texto
+claro, com o UFW dizendo `deny (incoming)` e so 22, 80 e 443 liberadas. Medido
+de fora: `http://<ip>:3000` respondeu 200.
+
+E **nao adianta consertar por iptables aqui**. Tentamos, e nesta maquina a
+cadeia `DOCKER-INGRESS` nao existe na tabela filter e o binario devolve
+`Incompatible with this kernel` — o Ubuntu 24.04 usa nftables por baixo, e as
+regras do Swarm nao estao onde a receita comum manda procurar. Alem disso, regra
+escrita a mao nao sobrevive ao reboot que o unattended-upgrades faz as 04:00.
+
+**Quem fecha porta publicada por Docker e o firewall da borda, no provedor.** Ele
+esta antes da maquina, entao o Docker nao tem como furar, e ele persiste sozinho.
+E a mesma regra da Etapa 2, so que do lado de fora: aceitar 22, 80 e 443, negar o
+resto. A alternativa, se a borda nao servir, e tirar a porta do servico com
+`sudo docker service update --publish-rm 3000 easypanel` — mas ai o painel perde
+o caminho de emergencia por IP, e quem sobra e o SSH.
+
+A maquina tem **IPv6 publico** — confirme o endereco no painel antes de rodar
+esta etapa. Um firewall que fecha
+so o IPv4 nao fecha nada: a porta v6 continua aberta e o `ufw status` nao
+denuncia. O script forca `IPV6=yes` e **falha** se nao aparecer regra `(v6)` no
+fim — melhor parar do que dar por fechado o que esta aberto.
+
 - **Conferir**: `sudo ufw status verbose` mostra `deny (incoming)` e so as tres
-  portas. De fora: `nmap <ip>` nao mostra 5432.
+  portas, cada uma duas vezes (v4 e v6). De fora: `nmap <ip>` nao mostra 5432,
+  e `nmap -6 <ipv6>` tambem nao.
 - **Desfazer**: `sudo ufw disable`.
 
 ### Etapa 3 — Runtime  *(obrigatoria agora)*
@@ -176,8 +342,10 @@ de banco precisaria de sudo, e a chave que o CI usa passaria a ter caminho para
 sudo. O risco fica contido pelo que o `deploy` **nao** tem: shell interativo
 comum, senha e acesso a `/etc/sudoers.d` alem da linha dos servicos.
 
-- **Conferir**: `docker ps`, `free -h` (swap 4G),
-  `systemctl status unattended-upgrades`.
+- **Conferir**: `sudo docker ps`, `free -h` (swap 4G),
+  `systemctl status unattended-upgrades`. E `sudo docker`, com sudo: o `paulo`
+  nao esta no grupo `docker` de proposito, entao `docker ps` cru responde
+  `permission denied` — isso e a decisao funcionando, nao a etapa falhando.
 - **Desfazer**: `sudo apt-get remove --purge docker-ce` e
   `sudo swapoff /swapfile`.
 ### Etapa 4 — EasyPanel  *(obrigatoria)*
@@ -185,18 +353,40 @@ comum, senha e acesso a `/etc/sudoers.d` alem da linha dos servicos.
 O painel instala o proprio Docker, sobe o Traefik e assume 80 e 443. Por isso o
 03 nao instala mais Nginx: os dois brigam pela mesma porta.
 
+O DNS ja tem que estar apontando antes de rodar: sem nome resolvendo, o painel
+nao emite certificado e a unica porta de entrada e o IP.
+
 ```bash
-curl -sSL https://get.easypanel.io | sh
+curl -sSL https://get.easypanel.io | sudo sh
 ```
 
-Depois: aponte um subdominio (ex.: `painel.perfila.com.br`) para o IP, abra o
-painel, crie a conta de administrador com senha longa e unica, e configure o
-dominio do painel dentro dele para que ele emita o proprio certificado.
+**A instalacao abre uma janela, e ela e a mesma que fez esta maquina ser
+reinstalada.** O primeiro acesso ao painel e por `http://<ip>:3000`, e essa tela
+cria a conta de administrador **sem pedir autenticacao nenhuma**: quem chegar
+nela primeiro vira dono do servidor. E o UFW nao protege essa porta — o painel
+publica a 3000 pelo Docker, que escreve direto no iptables e passa por cima do
+firewall, exatamente como a nota do Postgres na Etapa 2 avisa.
 
-- **Conferir**: `docker ps` mostra os containers do painel; `curl -I
+Entao a ordem importa e nao ha intervalo confortavel:
+
+1. rodar o instalador;
+2. conferir onde a 3000 esta escutando: `sudo ss -ltnp | grep 3000`. Se aparecer
+   `0.0.0.0:3000`, ela esta na internet **agora**;
+3. abrir `http://<ip>:3000` e criar a conta de administrador na hora, com senha
+   longa e unica. Isso fecha a tela aberta;
+4. dentro do painel, configurar o dominio
+   `painel.impacto.institutotopcursos.site` para ele emitir o proprio
+   certificado;
+5. confirmar que o HTTPS responde e que o IP nao serve mais o painel.
+
+Quem quiser fechar a janela por completo faz o passo 3 por tunel, sem expor a
+3000 a ninguem: `ssh -L 3000:localhost:3000 paulo@<ip>` e depois
+`http://localhost:3000` no navegador da propria maquina.
+
+- **Conferir**: `sudo docker ps` mostra os containers do painel; `curl -I
   https://painel...` responde 200; acessar pelo IP **nao** deve servir o painel.
-- **Desfazer**: `docker rm -f` nos containers do painel e apagar `/etc/easypanel`.
-  Feito isso, o caminho manual do Anexo volta a ser possivel.
+- **Desfazer**: `sudo docker rm -f` nos containers do painel e apagar
+  `/etc/easypanel`. Feito isso, o caminho manual do Anexo volta a ser possivel.
 
 ### Etapa 5 — Proteger o painel  *(obrigatoria, junto com a 4)*
 
@@ -223,7 +413,7 @@ Configuracao que nao e opcional:
 | Item | HML | PRD |
 | --- | --- | --- |
 | Branch de deploy | `develop` | `master` |
-| Dominio | `hml.perfila.com.br` | `app.perfila.com.br` |
+| Dominio | `hml.impacto.institutotopcursos.site` | `impacto.institutotopcursos.site` |
 | Limite de memoria | 4 GB | 8 GB |
 | Postgres | servico proprio, **sem porta publicada** | idem |
 
@@ -403,6 +593,35 @@ em porta publica: sem FTP, sem banco exposto. A excecao e o proprio painel, que
 e administracao de servidor exposta na internet — o ADR-0006 registra o porque,
 e a Etapa 5 e o que impede que ele seja a porta mais fraca da casa.
 
+**O painel do provedor e uma via de acesso privilegiada.** Em qual conta a VPS
+nova esta, e quem mais entra nela, e pendencia aberta e precisa ser respondida
+antes do PRD receber dado real. Quem tem esse painel reinstala a VM, troca a
+senha de root pelo console web e apaga snapshot — por cima da chave de SSH, do
+UFW e do fail2ban, que sao defesas de dentro da maquina e nao valem contra quem
+controla o hipervisor. Nao ha como fechar essa porta daqui, e por isso ela muda
+uma prioridade: o backup off-site (Etapa 7) deixa de ser protecao contra falha
+de disco e passa a ser a unica coisa que sobra se essa via for usada, por engano
+ou nao. Ele nao pode viver no mesmo provedor da VPS.
+
+**Snapshot do provedor nao e backup.** Snapshot mora no mesmo provedor, na mesma
+conta, e cai junto com ela; e uma imagem da maquina
+inteira, nao um dump restauravel por tabela. Ele e util para desfazer um erro de
+sistema no mesmo dia, e e isso. A Etapa 7 continua sendo o backup de verdade.
+
+**Estado de fabrica da maquina** — o que conferir no painel do provedor antes
+de comecar. Tudo abaixo e o que as Etapas 1 e 2 existem para corrigir:
+
+| O que | Como costuma vir | Etapa que corrige |
+| --- | --- | --- |
+| Regras de firewall na borda | nenhuma | 2 (UFW), e criar regra tambem na borda |
+| Usuario de SSH | `root`, com senha, e "Reset password" no painel | 1 |
+| Backup automatico | desligado | 7 |
+
+O firewall do provedor e uma segunda camada, na borda, antes do pacote chegar
+na maquina. Ele nao substitui o UFW da Etapa 2 e nao e substituido por ele: o
+UFW cai se alguem errar uma regra de dentro, a borda nao. Enquanto as duas
+estiverem em zero, a Etapa 2 e a mais urgente da lista depois da 1.
+
 ---
 
 ## O que ficou de fora, e quando entra
@@ -431,18 +650,27 @@ justifique.
 
 ## Pendencias — dependem do Paulo
 
+Em ordem de urgencia. A lista voltou ao inicio: a VPS e outra.
+
 | # | O que falta | Trava o que |
 | --- | --- | --- |
-| 1 | Dominios de HML, PRD **e do painel**, com DNS apontando para o IP | Etapas 4 a 6 |
-| 2 | Confirmar vCPU, RAM e disco reais (`nproc && free -h && df -h /`) | limites da Etapa 6 |
+| 0 | **Reinstalar com Ubuntu 24.04 puro**, sem o template EasyPanel | Etapa 1, e tudo depois dela |
+| 0a | **Confirmar renovacao automatica do plano** e a data de vencimento | tudo; a maquina some |
+| 0d | Em qual conta da Hostinger a VPS esta, e quem mais tem acesso | nada agora; muda a Etapa 7 |
+| 0b | Regra de firewall na borda do provedor, alem do UFW da Etapa 2 | nada agora; e a segunda camada |
+| 1 | Criar os tres registros A apontando para `179.199.148.252` | Etapas 4 a 6 |
+| 2 | Confirmar vCPU e RAM (`nproc && free -h`) e ajustar os tetos da Etapa 6 | Etapa 6 |
 | 3 | Chave da Anthropic nas variaveis de cada ambiente, no painel | geracao de narrativa |
 | 4 | Destino off-site do backup (`rclone config`) e a `DATABASE_URL` em `backup.env` | Etapa 7 |
 | 5 | Check no Healthchecks.io, `HEARTBEAT_URL` e os `CHECK_*` em `monitor.env` | Etapa 8 |
 | 9 | Segunda camada de autenticacao na frente do painel (Cloudflare Access ou IP) | Etapa 5 — **sem isso o painel e a porta mais fraca** |
+| 9a | **Fechar a 3000 no firewall da Hostinger** (so tres regras de aceitar: 22, 80, 443, e ativar o conjunto NA VPS) | Etapa 5. Adiado em 2026-09-09 por decisao do Paulo, com prazo: fecha **antes** da Etapa 5 e **antes** de dado real em PRD. Enquanto estiver aberta, a segunda camada e encenacao — ela protege o nome, e a 3000 passa por fora |
 | 10 | Verificar no painel: 2FA, hook de pre-deploy e onde rodam as migracoes | Etapas 5 e 6, e o backup antes do PRD |
 | 6 | Renomear `main` para `master` no GitHub e enviar a `develop` (ver abaixo) | o CI, que dispara nelas |
 | 7 | Secrets de SSH no GitHub, por Environment `hml` e `prd` | deploy automatico |
-| 8 | Variavel `DEPLOY_HABILITADO=true` nos Environments, quando a VPS existir | o job de deploy, que fica parado ate la |
+| 8 | Variavel `DEPLOY_HABILITADO=true` nos Environments, quando os ambientes subirem | o job de deploy, que fica parado ate la |
+| 11 | Decidir sobre o backup automatico pago do provedor, hoje desligado | nada — e complemento da Etapa 7, nao substituto |
+| 12 | **Devolver o Puppeteer ao container quando o PDF em lote tiver que rodar no servidor.** Ele desceu para devDependencies antes do primeiro deploy: nada que atende requisicao o importa (so o CLI `relatorio:gerar`), e em dependencies ele baixava ~350 MB de Chromium a cada build, num cache fora de `/app` que a imagem final descarta, numa imagem sem as libs do Chrome. Para trazer de volta: subir para `dependencies`, `PUPPETEER_CACHE_DIR=/app/.cache/puppeteer` no ambiente, e um `perfila/nixpacks.toml` com libnss3, libgbm1, libasound2, libatk-bridge2.0-0 e libxkbcommon0 | a remessa de 700 PDF, quando ela rodar de dentro da VPS |
 
 ### Branches — o estado hoje e o que falta
 
@@ -490,8 +718,8 @@ o historico do git prova. Os dois caminhos nao convivem: o Nginx do manual e o
 Traefik do painel disputam 80 e 443.
 
 ```bash
-sudo DOMINIO=hml.perfila.com.br bash 04-ambiente.sh hml   # instala Node/Nginx/Certbot
-sudo certbot --nginx -d hml.perfila.com.br --agree-tos -m <email> --redirect --hsts
+sudo DOMINIO=hml.impacto.institutotopcursos.site bash 04-ambiente.sh hml
+sudo certbot --nginx -d hml.impacto.institutotopcursos.site --agree-tos -m <email> --redirect --hsts
 sudo -u deploy bash /srv/valmer/bin/deploy.sh hml develop
 ```
 

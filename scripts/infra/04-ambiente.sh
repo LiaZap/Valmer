@@ -7,8 +7,8 @@
 # descontinuado, esta e a estrutura que ja funcionava, com systemd e Nginx.
 #
 #   Rodar COMO ROOT, depois do 03. Uma vez para cada ambiente:
-#     DOMINIO=hml.perfila.com.br bash 04-ambiente.sh hml
-#     DOMINIO=app.perfila.com.br bash 04-ambiente.sh prd
+#     DOMINIO=hml.impacto.institutotopcursos.site bash 04-ambiente.sh hml
+#     DOMINIO=impacto.institutotopcursos.site bash 04-ambiente.sh prd
 #
 # Cria: diretorios, arquivos de segredo (0600, gerados uma unica vez), Postgres
 # proprio em container ouvindo so no localhost, servico systemd com teto de
@@ -29,7 +29,7 @@ case "$AMB" in
 esac
 
 [ "$(id -u)" -eq 0 ] || { echo "erro: rode como root."; exit 1; }
-DOMINIO="${DOMINIO:?defina DOMINIO=... (ex.: hml.perfila.com.br)}"
+DOMINIO="${DOMINIO:?defina DOMINIO=... (ex.: hml.impacto.institutotopcursos.site)}"
 REPO="${REPO:-https://github.com/LiaZap/Valmer.git}"
 DEPLOY_USER="${DEPLOY_USER:-deploy}"
 BASE="/srv/valmer/$AMB"
@@ -40,9 +40,9 @@ info() { echo "[04-$AMB] $*"; }
 export DEBIAN_FRONTEND=noninteractive
 if ! command -v node >/dev/null || [ "$(node -v | cut -c2-3)" -lt 22 ]; then
   curl -fsSL https://deb.nodesource.com/setup_22.x | bash - >/dev/null
-  apt-get install -y nodejs >/dev/null
+  apt-get -o DPkg::Lock::Timeout=300 install -y nodejs >/dev/null
 fi
-apt-get install -y nginx certbot python3-certbot-nginx >/dev/null
+apt-get -o DPkg::Lock::Timeout=300 install -y nginx certbot python3-certbot-nginx >/dev/null
 if [ ! -f /etc/nginx/conf.d/valmer-limites.conf ]; then
   # Forca bruta em /api/auth e o ataque mais barato contra esta plataforma.
   # A zona precisa existir no contexto http, e nao dentro do vhost.
