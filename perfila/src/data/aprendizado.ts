@@ -67,10 +67,14 @@ export type Mentor = {
   role: string
 }
 
+/**
+ * Só o Valmer. Os três nomes anteriores — Iane Parente, Elyano Veras e Dani
+ * Pires — vieram da plataforma antiga e saíram a pedido dele em 10/09/2026:
+ * eram pessoas reais anunciadas como mentoras da Impacto Academy sem que isso
+ * tivesse sido combinado. Ninguém volta para esta lista sem o aval dele.
+ */
 export const mentores: Mentor[] = [
-  { name: 'Iane Parente', role: 'Especializada em Perfil Comportamental' },
-  { name: 'Elyano Veras', role: 'Especializado em treinamentos e conselheiro de negócios' },
-  { name: 'Dani Pires', role: 'Especializada em treinamentos e perfis comportamentais' },
+  { name: 'Valmer Albuquerque', role: 'Impacto Academy · Perfil Comportamental' },
 ]
 
 export type AulaEad = {
