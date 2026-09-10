@@ -2,7 +2,7 @@
  * Regra de negocio dos cursos, em um lugar so.
  *
  * O admin cria, edita e publica; ninguem mais escreve aqui. A plataforma do
- * aluno, quando existir, le por `listarPublicados()` e nunca ve rascunho.
+ * aluno, quando existir, le pelo mesmo recorte de `lib/ead.ts` e nunca ve rascunho.
  */
 "use server";
 
@@ -39,19 +39,11 @@ export async function listar() {
     .orderBy(desc(cursos.created_at));
 }
 
-/**
- * O que a plataforma do aluno enxerga.
- *
- * Sem sessao de proposito: quem chama e outro sistema, com login proprio. O
- * recorte e o mesmo filtro de sempre, e por isso ele mora aqui e nao na tela.
- */
-export async function listarPublicados() {
-  return db
-    .select()
-    .from(cursos)
-    .where(and(eq(cursos.is_deleted, false), eq(cursos.publicado, true)))
-    .orderBy(desc(cursos.publicado_em));
-}
+// `listarPublicados` saiu: nasceu para "a plataforma do aluno, quando existir"
+// e nunca teve um chamador. Quem le curso publicado hoje e `lib/ead.ts:
+// trilhaPublicada`, que ja traz os modulos e as aulas junto e ordena do mais
+// antigo para o mais novo, que e a ordem de uma trilha. Duas funcoes com o
+// mesmo WHERE e ordens diferentes so esperavam alguem escolher a errada.
 
 /** Cria o curso como rascunho. Publicar e um segundo passo, deliberado. */
 export async function criar(dados: unknown) {

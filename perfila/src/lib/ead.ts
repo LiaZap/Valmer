@@ -109,7 +109,7 @@ export async function programaDosCursos(listaDeCursos: Curso[]): Promise<CursoCo
 /**
  * A TRILHA que o parceiro ve: so curso publicado, com o programa dentro.
  *
- * O recorte e o mesmo de `actions/cursos.listarPublicados()` — vivo e
+ * O recorte e o de sempre — vivo e
  * publicado — e mora aqui, e nao na tela, pelo motivo que aquela funcao ja
  * escrevia: filtro de vitrine repetido em cada page e o que faz um rascunho
  * vazar pela terceira tela que alguem escreveu com pressa.

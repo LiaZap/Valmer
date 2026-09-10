@@ -280,15 +280,19 @@ export function FormEnvioRapido({
             </div>
 
             <div className={styles.acoes}>
+              {/* Envelope não: este botão gasta crédito e CRIA os links, não
+                  manda e-mail nenhum. O ícone é a primeira promessa que a tela
+                  faz, e era a única que continuava dizendo "vai por e-mail"
+                  depois de o texto e o toast já terem sido corrigidos. */}
               <Button
                 variant="primary"
-                icon={<Icon name="mail" />}
+                icon={<Icon name="link" />}
                 onClick={enviar}
                 disabled={lista.length === 0 || !turma || !cabeNoSaldo || enviando}
               >
                 {enviando
-                  ? 'Enviando…'
-                  : `Enviar ${lista.length} passaporte(s) · ${custoTotal} crédito(s)`}
+                  ? 'Gerando…'
+                  : `Gerar ${lista.length} passaporte(s) · ${custoTotal} crédito(s)`}
               </Button>
             </div>
           </div>

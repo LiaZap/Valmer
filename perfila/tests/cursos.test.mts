@@ -17,6 +17,9 @@ config({ path: [".env.local", ".env"] });
 const { db } = await import("@/lib/db");
 const { usuarios, cursos, auditoria } = await import("@/lib/db/schema");
 const acoes = await import("@/lib/actions/cursos");
+// O leitor que as telas usam de verdade. `listarPublicados` saiu: era um segundo
+// WHERE identico, com ordem diferente, e sem um unico chamador de producao.
+const { trilhaPublicada } = await import("@/lib/ead");
 const { eq } = await import("drizzle-orm");
 
 const marca = `teste-${Date.now()}`;
@@ -96,7 +99,7 @@ describe("cursos", () => {
     assert.equal(criado.publicado, false);
     assert.equal(criado.publicado_em, null);
 
-    const publicos = await acoes.listarPublicados();
+    const publicos = await trilhaPublicada();
     assert.ok(!publicos.some((curso) => curso.id === cursoId), "rascunho vazou para o aluno");
 
     const trilha = await db.select().from(auditoria).where(eq(auditoria.registro_id, cursoId));
@@ -111,7 +114,7 @@ describe("cursos", () => {
     assert.equal(depois.publicado, true);
     assert.ok(depois.publicado_em instanceof Date);
 
-    const publicos = await acoes.listarPublicados();
+    const publicos = await trilhaPublicada();
     assert.ok(publicos.some((curso) => curso.id === cursoId), "publicado nao chegou ao aluno");
   });
 

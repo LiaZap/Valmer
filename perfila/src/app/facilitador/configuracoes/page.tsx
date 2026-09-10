@@ -49,13 +49,18 @@ export default function ConfiguracoesPage() {
       />
 
       <div className={styles.coluna}>
+        {/* As DUAS colunas da tabela abaixo dependem de canal que não existe. O
+            aviso do WhatsApp já estava aqui; o de e-mail faltava, e sem ele a
+            coluna de e-mail parecia a que funciona — era a única das duas sem
+            ressalva na tela. Nenhum e-mail sai do sistema hoje. */}
         <div className={`${ui.callout} ${ui.calloutWarning}`}>
           <span className={ui.calloutIcon}>
             <Icon name="alert" />
           </span>
           <span className={styles.avisoTexto}>
-            Você ainda não possui uma integração com o WhatsApp. As notificações por WhatsApp
-            ficam desativadas até configurar.
+            Nenhum dos dois canais está ativo. O e-mail depende do provedor de envio, ainda não
+            contratado, e o WhatsApp de uma integração. Enquanto isso, os convites e os links são
+            copiados das telas de mapas e enviados por fora.
           </span>
           <Button
             variant="warning"

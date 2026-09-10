@@ -346,11 +346,15 @@ function AulaEditor({
     <Row gap={8} className={styles.aula} justify="space-between" wrap>
       <Row gap={8}>
         <span className={styles.numero}>{numero}</span>
+        {/* `enviando` no `gravando`: renomear move o `updated_at` da aula, e a
+            confirmação do vídeo — que chega minutos depois — compara com o
+            valor que tinha antes. Renomear no meio do envio faria o upload
+            terminar e a gravação da chave ser recusada por trava otimista. */}
         <TituloEditavel
           titulo={aula.titulo}
           rotulo={`aula ${aula.titulo}`}
           className={styles.aulaTitulo}
-          gravando={gravando}
+          gravando={gravando || enviando}
           onGravar={onRenomear}
         />
         {aula.video_chave ? (
@@ -389,9 +393,29 @@ function AulaEditor({
         >
           {enviando ? 'Enviando…' : aula.video_chave ? 'Trocar vídeo' : 'Enviar vídeo'}
         </Button>
-        <IconButton icon="chevU" label="Subir aula" disabled={gravando} onClick={() => onMover('cima')} />
-        <IconButton icon="chevD" label="Descer aula" disabled={gravando} onClick={() => onMover('baixo')} />
-        <IconButton icon="trash" label="Excluir aula" tone="danger" disabled={gravando} onClick={onExcluir} />
+        {/* `enviando` entra no disabled junto com `gravando`: o PUT do vídeo
+            não passa por `useTransition`, então durante os minutos de um envio
+            de 1 GB o `gravando` continua falso e estes botões seguiam clicáveis.
+            Excluir a aula no meio do envio jogava fora o upload inteiro. */}
+        <IconButton
+          icon="chevU"
+          label="Subir aula"
+          disabled={gravando || enviando}
+          onClick={() => onMover('cima')}
+        />
+        <IconButton
+          icon="chevD"
+          label="Descer aula"
+          disabled={gravando || enviando}
+          onClick={() => onMover('baixo')}
+        />
+        <IconButton
+          icon="trash"
+          label="Excluir aula"
+          tone="danger"
+          disabled={gravando || enviando}
+          onClick={onExcluir}
+        />
       </Row>
     </Row>
   )

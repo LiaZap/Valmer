@@ -157,7 +157,10 @@ export async function enviarImagem({
   }
 
   const declarado = arquivo.type as TipoDeImagem;
-  if (!(declarado in TIPOS_DE_IMAGEM)) {
+  // `Object.hasOwn`, e nao `in`: o `in` percorre a cadeia de prototipos, entao
+  // um cabecalho dizendo "constructor" ou "toString" PASSARIA na lista fechada
+  // e a extensao viria de uma funcao do Object. O tipo aqui vem do navegador.
+  if (!Object.hasOwn(TIPOS_DE_IMAGEM, declarado)) {
     throw new RecusaDeRegra("Formato nao aceito. Envie JPEG, PNG ou WebP.");
   }
 
@@ -345,7 +348,10 @@ export async function assinarEnvioDeVideo({
     throw new Error(`Prefixo de objeto invalido: ${prefixo}`);
   }
 
-  if (!(tipo in TIPOS_DE_VIDEO)) {
+  // Mesma armadilha do `in` de `tipoRealDaImagem`, e aqui ela e a UNICA guarda:
+  // no video os bytes nao passam pelo servidor, entao nao ha magic byte para
+  // conferir depois. Ver o comentario la em cima.
+  if (!Object.hasOwn(TIPOS_DE_VIDEO, tipo)) {
     throw new RecusaDeRegra("Formato nao aceito. Envie um MP4 ou um WebM.");
   }
 

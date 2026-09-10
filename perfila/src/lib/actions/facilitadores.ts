@@ -19,7 +19,7 @@
 
 import { and, eq, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { z, ZodError } from "zod";
+import { z } from "zod";
 
 import { db } from "@/lib/db";
 import { creditosTransacoes, usuarios } from "@/lib/db/schema";

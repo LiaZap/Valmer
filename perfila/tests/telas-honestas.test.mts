@@ -29,8 +29,36 @@ function arquivosDe(dir: string): string[] {
   });
 }
 
-/** Uma chamada `toast(...)` inteira, incluindo as que ocupam varias linhas. */
-const CHAMADAS_TOAST = /toast\((?:[^()]|\([^()]*\))*\)/gs;
+/**
+ * Toda chamada `toast(...)` do arquivo, inteira, com parenteses equilibrados.
+ *
+ * Contador, e nao expressao regular: uma regex de parenteses so cobre um nivel
+ * de aninhamento, entao `toast(erro ?? padrao(fallback(x)))` NAO casava — e
+ * chamada que nao casa nao e verificada, ou seja, o furo passava como aprovacao.
+ * Chamada sem fechamento (arquivo cortado) e ignorada de proposito: ela nao
+ * compila, e o typecheck pega antes.
+ */
+function chamadasDeToast(texto: string): string[] {
+  const encontradas: string[] = [];
+  const marca = /\btoast\(/g;
+  let inicio: RegExpExecArray | null;
+
+  while ((inicio = marca.exec(texto)) !== null) {
+    let profundidade = 0;
+    for (let i = inicio.index + inicio[0].length - 1; i < texto.length; i++) {
+      if (texto[i] === "(") profundidade++;
+      else if (texto[i] === ")") {
+        profundidade--;
+        if (profundidade === 0) {
+          encontradas.push(texto.slice(inicio.index, i + 1));
+          break;
+        }
+      }
+    }
+  }
+
+  return encontradas;
+}
 
 /** Vocabulario de recusa: nada disso pode sair com o selo de sucesso. */
 const RECUSA = /ainda n[ãa]o|N[ãa]o foi poss[íi]vel|resposta\.erro|n[ãa]o s[ãa]o salvas|n[ãa]o grava/;
@@ -53,7 +81,7 @@ describe("telas honestas", () => {
 
   it("toda recusa sai no tom de aviso", () => {
     const mentirosos = fontes.flatMap(({ caminho, texto }) =>
-      (texto.match(CHAMADAS_TOAST) ?? [])
+      chamadasDeToast(texto)
         .filter((chamada) => RECUSA.test(chamada) && !chamada.includes("'aviso'"))
         .map((chamada) => `${caminho}: ${chamada.replace(/\s+/g, " ").slice(0, 80)}`),
     );
@@ -61,11 +89,14 @@ describe("telas honestas", () => {
   });
 
   it("botao de e-mail manda a pessoa pelo caminho manual", () => {
-    const comEnvelope = fontes.filter(({ texto }) => /icon="mail"/.test(texto));
+    // As DUAS formas em que o envelope aparece no projeto: `icon="mail"` do
+    // IconButton e `icon={<Icon name="mail" />}` do Button. Procurar so a
+    // primeira deixava de fora justamente o botao do Envio rapido.
+    const comEnvelope = fontes.filter(({ texto }) => /icon="mail"|name="mail"/.test(texto));
     assert.ok(comEnvelope.length > 0, "nenhum botao de envelope encontrado — o teste perdeu o alvo");
 
     for (const { caminho, texto } of comEnvelope) {
-      const avisos = (texto.match(CHAMADAS_TOAST) ?? []).filter((chamada) =>
+      const avisos = chamadasDeToast(texto).filter((chamada) =>
         /provedor de e-mail/.test(chamada),
       );
       assert.ok(

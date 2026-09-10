@@ -169,9 +169,14 @@ export function FormDegustacao({
         <form onSubmit={enviar} className={styles.config}>
           <div>
             <div className={ui.cardTitle}>Enviar degustação</div>
+            {/* "Enviar" com um campo de e-mail obrigatório ao lado se lê como
+                "a plataforma manda o convite". Ela não manda: não há provedor
+                de e-mail. O que o botão faz é criar o link — e a frase precisa
+                dizer isso antes do clique, não depois. */}
             <p className={ui.note}>
               Cria o link do avaliado com o {escolhido?.codigo ?? '—'}. Consome 1 amostra e
-              nenhum crédito.
+              nenhum crédito. O e-mail fica registrado no mapa, mas a plataforma não envia nada:
+              copie o link em Mapas comportamentais e mande por fora.
             </p>
           </div>
 

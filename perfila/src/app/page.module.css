@@ -97,9 +97,14 @@
   gap: var(--space-14);
 }
 
+/* A linha que explica como recuperar a senha. Alinhada ao centro, e não à
+   direita como um link de "esqueci minha senha": ela é uma frase, e não uma
+   ação — não existe recuperação automática. Ver FormularioLogin.tsx. */
 .esqueci {
-  align-self: flex-end;
+  margin: 0;
+  text-align: center;
   font-size: var(--fs-125);
+  color: var(--color-text-subtle);
 }
 
 .rodape {

@@ -102,9 +102,13 @@ export const precosPacotes = pgTable(
   (t) => [
     /**
      * O NOME e a chave de negocio: e por ele que a venda escolhe o pacote
-     * (`validators/facilitador.ts`) e que a receita do painel casa a compra com
-     * o preco. Dois "Pro" ativos e o admin vendendo um dos dois sem saber qual.
-     * Parcial pelo mesmo motivo do indice acima.
+     * (`validators/facilitador.ts`). Dois "Pro" ativos e o admin vendendo um
+     * dos dois sem saber qual. Parcial pelo mesmo motivo do indice acima.
+     *
+     * A RECEITA DO PAINEL NAO PASSA MAIS POR AQUI. Ela casava cada compra com o
+     * pacote de mesmo tamanho, entao reprecificar reescrevia o passado. Hoje o
+     * valor cobrado fica gravado na propria linha do extrato — mesmo desenho de
+     * `assessments.creditos_usados`, e pelo mesmo motivo.
      */
     uniqueIndex("uq_precos_pacotes_nome")
       .on(t.nome)

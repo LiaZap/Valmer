@@ -16,8 +16,17 @@ export type AulaNaTela = {
   titulo: string
   /** `mm:ss` lido do próprio arquivo, ou nulo quando o navegador não soube dizer. */
   duracao: string | null
-  /** URL assinada, ou nulo quando a aula ainda não tem gravação no ar. */
+  /** URL assinada, ou nulo quando não há vídeo para tocar agora. */
   video: string | null
+  /**
+   * Por que não há vídeo — e é por isso que existe, em vez de só `video: null`.
+   *
+   * `pendente` é a aula que o admin criou e ainda não gravou. `indisponivel` é
+   * gravação que EXISTE e o armazenamento não entregou agora. Dizer "pendente"
+   * nos dois casos fazia o parceiro achar que a Impacto Academy não publicou o
+   * curso, quando o que houve foi o MinIO não responder.
+   */
+  estado: 'no-ar' | 'pendente' | 'indisponivel'
 }
 
 /**
@@ -39,7 +48,7 @@ export type AulaNaTela = {
 export function Trilha({ aulas }: { aulas: AulaNaTela[] }) {
   const [selecionada, setSelecionada] = useState(0)
   const atual = aulas[selecionada] ?? aulas[0]!
-  const disponiveis = aulas.filter((aula) => aula.video !== null).length
+  const disponiveis = aulas.filter((aula) => aula.estado === 'no-ar').length
 
   // O índice DENTRO do array plano é o que a seleção usa, então ele viaja junto
   // com a aula: numerar de novo dentro do grupo e usar esse número para
@@ -64,8 +73,12 @@ export function Trilha({ aulas }: { aulas: AulaNaTela[] }) {
             <video key={atual.id} className={styles.video} src={atual.video} controls playsInline />
           ) : (
             <div className={styles.pendente}>
-              <Icon name="play" size={32} />
-              <span>Gravação ainda não publicada.</span>
+              <Icon name={atual.estado === 'indisponivel' ? 'alert' : 'play'} size={32} />
+              <span>
+                {atual.estado === 'indisponivel'
+                  ? 'A gravação existe, mas não carregou agora. Recarregue a página em instantes.'
+                  : 'Gravação ainda não publicada.'}
+              </span>
             </div>
           )}
         </div>
@@ -106,7 +119,11 @@ export function Trilha({ aulas }: { aulas: AulaNaTela[] }) {
                   {dentroDoModulo + 1}
                 </span>
                 <span className={styles.aulaNome}>{aula.titulo}</span>
-                {aula.video === null ? (
+                {aula.estado === 'indisponivel' ? (
+                  <Pill tone="warning" size="sm">
+                    Indisponível
+                  </Pill>
+                ) : aula.estado === 'pendente' ? (
                   <Pill tone="neutral" size="sm">
                     Pendente
                   </Pill>

@@ -15,7 +15,7 @@ import { Trilha } from './Trilha'
  * build: o mesmo número para todo parceiro, para sempre. A duração "07:05 ·
  * Vimeo" estava escrita à mão, e cada linha era um botão que só mostrava um
  * toast. Agora tudo sai de `curso_modulos` e `curso_aulas`, e só de curso
- * publicado — o mesmo recorte de `actions/cursos.listarPublicados()`.
+ * publicado — o recorte vive em `lib/ead.ts:trilhaPublicada`.
  *
  * Server Component: a leitura e a assinatura das URLs acontecem aqui, depois da
  * guarda de sessão do layout de /facilitador. O banco guarda a CHAVE do objeto;
@@ -47,13 +47,18 @@ export default async function EadPage() {
 
   // Aula sem `video_chave` é aula ainda não gravada, e ela CONTINUA na lista,
   // marcada como pendente: sumir faria o parceiro não saber que ela existe.
-  // `urlAssinadaOuNula` cobre o outro caso — a chave existe mas o armazenamento
-  // não respondeu —, e as duas situações caem no mesmo estado de tela.
+  //
+  // "Sem gravação" e "gravação existe mas o armazenamento não respondeu" são
+  // ESTADOS DIFERENTES, e antes caíam os dois em "Pendente". Com o MinIO fora
+  // do ar a trilha inteira aparecia como não gravada — o parceiro concluía que
+  // a Impacto Academy não publicou nada, quando o problema era temporário e do
+  // nosso lado.
   const aulas = await Promise.all(
-    itens.map(async ({ chave, ...item }) => ({
-      ...item,
-      video: chave ? await urlAssinadaOuNula(chave, PRAZO_VIDEO_SEGUNDOS) : null,
-    })),
+    itens.map(async ({ chave, ...item }) => {
+      if (!chave) return { ...item, video: null, estado: 'pendente' as const }
+      const video = await urlAssinadaOuNula(chave, PRAZO_VIDEO_SEGUNDOS)
+      return { ...item, video, estado: video ? ('no-ar' as const) : ('indisponivel' as const) }
+    }),
   )
 
   return (

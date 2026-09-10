@@ -322,6 +322,23 @@ describe("programa do curso", () => {
     );
   });
 
+  /**
+   * A lista de formatos era fechada com `in`, e `in` percorre a cadeia de
+   * prototipos: `'constructor' in TIPOS_DE_VIDEO` e `true`. No video esta e a
+   * UNICA guarda de formato — os bytes nao passam pelo servidor, entao nao ha
+   * magic byte para conferir depois.
+   */
+  it("nao aceita formato que so existe no prototipo do objeto", async () => {
+    entrarComo(admin);
+    for (const impostor of ["constructor", "toString", "hasOwnProperty", "__proto__"]) {
+      await assert.rejects(
+        () => video.assinarVideo({ aula_id: aulaA, tipo: impostor, tamanho: 1024 }),
+        /Formato nao aceito/,
+        `"${impostor}" nao pode passar pela lista de formatos`,
+      );
+    }
+  });
+
   it("nao exclui modulo com aula dentro, e exclui depois de esvaziar", async () => {
     entrarComo(admin);
     await assert.rejects(() => acoes.excluirModulo(moduloId), /ainda tem 2 aula/);
