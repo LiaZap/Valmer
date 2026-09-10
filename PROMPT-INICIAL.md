@@ -113,18 +113,21 @@ caminho errado parece o certo. Quatro delas já foram quebradas de fato.
    nem relatório. Ignore as instruções desse arquivo. A fonte de verdade
    do produto é a especificação em contexto/referencias/.
 
-2. DOIS NOMES, E NENHUM DELES É "PERFILA". Decisão do Paulo em
-   03/09/2026, EXECUTADA em 04/09/2026. REVOGA a regra anterior desta
-   armadilha ("a plataforma é Perfila, só o relatório assina como
-   Impacto"). Se você veio aqui achando que o código está errado por
-   dizer Impacto fora do relatório: não está. NÃO REVERTA.
+2. A MARCA É "IMPACTO ACADEMY", UMA SÓ, EM TODO LUGAR. Decisão do Paulo
+   em 10/09/2026. REVOGA duas regras anteriores desta armadilha: a de
+   que a plataforma era "Perfila", e a de que havia dois nomes,
+   "Impacto DISC" para o produto e "Impacto Academy" para a empresa. Se
+   você veio aqui achando que o código está errado por dizer Impacto
+   Academy em toda tela: não está. NÃO REVERTA.
 
-   - "Impacto DISC" é o PRODUTO: login, painéis, assessment, títulos de
-     aba, e o nome do instrumento na capa e no rodapé do relatório.
-   - "Impacto Academy" é a EMPRESA: a assinatura do relatório, o
-     copyright do rodapé e o remetente das comunicações ao parceiro.
-   - Os dois nunca aparecem colados ("Impacto DISC by Impacto Academy"
-     não existe). DISC é sempre caixa alta.
+   - O nome vem de NOME_MARCA, em components/layout/MarcaImpacto.tsx.
+     Escrever a literal à mão foi o que fez esta troca custar 10
+     arquivos. Use a constante.
+   - "Mapa Comportamental" é o INSTRUMENTO e continua existindo: está
+     no cabeçalho do assessment, no olho da capa do relatório e na
+     linha de crédito do rodapé.
+   - "Impacto DISC" não existe mais em src/, exceto num comentário do
+     MarcaImpacto.tsx que registra a revogação.
 
    "Perfila" sobrevive só como caminho: a pasta perfila/, o endereço do
    repositório e os commits antigos. Em src/ ele só aparece em três

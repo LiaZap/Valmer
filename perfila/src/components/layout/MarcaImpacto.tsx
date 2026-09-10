@@ -5,10 +5,15 @@
  * porque vale para o produto inteiro: login, assessment, admin, portal
  * do parceiro e relatório.
  *
- * O nome escrito ao lado do símbolo muda conforme quem assina: o
- * software assina "Impacto DISC" (o produto) e o relatório assina
- * "Impacto Academy" (a empresa, que é quem responde perante o cliente
- * final do parceiro). O símbolo é o mesmo nos dois.
+ * O nome ao lado do símbolo é sempre "Impacto Academy", em todo lugar.
+ * Decisão do Paulo em 10/09/2026, que REVOGA a regra de dois nomes de
+ * 03/09: o software assinava "Impacto DISC" e só o relatório assinava
+ * "Impacto Academy". Agora é uma marca só, e `NOME_MARCA` é a fonte
+ * dela — se você for escrever o nome à mão em algum lugar novo, use a
+ * constante, foi a literal espalhada que fez esta troca custar 10
+ * arquivos. "Mapa Comportamental" segue sendo o nome do INSTRUMENTO, e
+ * não da empresa: ele aparece na capa e no rodapé do relatório e no
+ * cabeçalho do assessment.
  *
  * O desenho é o escudo com as duas espadas, entregue pelo cliente em
  * 04/09/2026. O arquivo que ele mandou (`impacto academy.svg`) não era

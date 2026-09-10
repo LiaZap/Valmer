@@ -20,10 +20,11 @@ const DATA_BR = new Intl.DateTimeFormat('pt-BR', {
 })
 
 /**
- * O relatório assina como Impacto Academy, a empresa, enquanto o
- * software assina Impacto DISC, o produto: este é o único artefato que
- * sai da plataforma e chega ao cliente final do facilitador, e é a
- * empresa que responde por ele.
+ * O relatório assina como Impacto Academy, e desde 10/09/2026 o produto
+ * inteiro também: a regra de dois nomes foi revogada. O que este arquivo
+ * ainda tem de particular é ser o único artefato que sai da plataforma e
+ * chega ao cliente final do facilitador, e é a empresa que responde por
+ * ele — por isso a `description` abaixo é própria.
  *
  * A `description` é declarada AQUI de propósito. Não existe
  * `app/relatorio/layout.tsx`, então esta página pendura direto no layout

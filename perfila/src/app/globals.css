@@ -1,7 +1,7 @@
 @import '../styles/tokens.css';
 
 /* ============================================================
-   Impacto DISC · Base global
+   Impacto Academy · Base global
    Só entra aqui o que é realmente transversal: reset, tipografia
    base, foco, scrollbar e checkbox personalizados. Todo o resto
    vive no CSS Module do próprio componente.

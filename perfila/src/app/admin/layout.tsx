@@ -6,7 +6,7 @@ import { exigirSessaoNaTela } from '@/lib/auth/tela'
 import { BASE_ADMIN, NAV_ADMIN } from '@/lib/routes'
 
 export const metadata: Metadata = {
-  title: 'Impacto DISC · Administração',
+  title: 'Impacto Academy · Administração',
 }
 
 /**

@@ -3,7 +3,7 @@ import { MarcaImpacto } from '@/components/layout/MarcaImpacto'
 import styles from './layout.module.css'
 
 export const metadata: Metadata = {
-  title: 'Impacto DISC · Mapa Comportamental',
+  title: 'Impacto Academy · Mapa Comportamental',
   description: 'Responda o mapa comportamental e receba o seu perfil.',
 }
 
@@ -21,7 +21,7 @@ export default function AvaliacaoLayout({ children }: { children: React.ReactNod
         <span className={styles.marca}>
           <MarcaImpacto size={16} cor="var(--color-marca-sobre-escuro)" />
         </span>
-        <span className={styles.nome}>Impacto DISC</span>
+        <span className={styles.nome}>Impacto Academy</span>
       </header>
 
       <main className={styles.conteudo}>{children}</main>

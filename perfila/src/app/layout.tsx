@@ -31,7 +31,7 @@ const sentient = localFont({
 })
 
 export const metadata: Metadata = {
-  title: 'Impacto DISC',
+  title: 'Impacto Academy',
   description:
     'Plataforma de análise comportamental: turmas, DNA organizacional, devolutivas e clientes.',
 }

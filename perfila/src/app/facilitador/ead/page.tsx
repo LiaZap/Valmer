@@ -16,7 +16,7 @@ export default function EadPage() {
     <>
       <PageHeader
         title="Treinamento"
-        subtitle="Capacitação oficial para analistas Impacto DISC."
+        subtitle="Capacitação oficial para analistas Impacto Academy."
       />
 
       <AutoGrid min={320} alignStart>
@@ -34,7 +34,7 @@ export default function EadPage() {
           </div>
           <div className={styles.aulaInfo}>
             <div className={ui.eyebrow}>Módulo 01 · Aula 1</div>
-            <div className={styles.aulaTitulo}>Apresentação da plataforma Impacto DISC</div>
+            <div className={styles.aulaTitulo}>Apresentação da plataforma Impacto Academy</div>
           </div>
         </Card>
 

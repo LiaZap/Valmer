@@ -6,7 +6,7 @@ import { exigirSessaoNaTela } from '@/lib/auth/tela'
 import { BASE_FACILITADOR, NAV_FACILITADOR } from '@/lib/routes'
 
 export const metadata: Metadata = {
-  title: 'Impacto DISC · Portal do Parceiro',
+  title: 'Impacto Academy · Portal do Parceiro',
 }
 
 /**

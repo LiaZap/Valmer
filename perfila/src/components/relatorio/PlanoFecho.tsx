@@ -188,7 +188,7 @@ export function PlanoFecho({ dados, perfil, mostrarPlano }: PlanoFechoProps) {
             {CREDITO_MARCA.site} · {CREDITO_MARCA.telefone}
           </p>
           <p className={styles.creditoLinha}>
-            Impacto DISC · {tipo.codigo} {tipo.nome}
+            Mapa Comportamental · {tipo.codigo} {tipo.nome}
           </p>
           <p className={styles.creditoLinha}>
             {avaliado.nome} · emitido em {emitidoEm}

@@ -62,7 +62,7 @@ export function CapaResumo({ dados, perfilPrimario, perfilSecundario }: CapaResu
         </header>
 
         <div className={styles.capaMiolo}>
-          <p className={common.eyebrow}>Impacto DISC</p>
+          <p className={common.eyebrow}>Mapa Comportamental</p>
           {/* O título do documento é h1: as 13 seções são h2 sob ele.
               Sem isso o PDF circula sem nível 1 e o sumário fica plano. */}
           <h1 id="capa-titulo" className={styles.capaTitulo}>

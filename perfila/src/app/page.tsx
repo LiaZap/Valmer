@@ -43,7 +43,7 @@ export default async function LoginPage({
             <MarcaImpacto size={22} cor="var(--color-marca-sobre-escuro)" />
           </span>
           <span className={styles.marcaTexto}>
-            <span className={styles.marcaNome}>Impacto DISC</span>
+            <span className={styles.marcaNome}>Impacto Academy</span>
             <span className={styles.marcaLinha}>Análise de perfil comportamental</span>
           </span>
         </div>

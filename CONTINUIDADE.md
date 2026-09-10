@@ -173,17 +173,25 @@ substituta, então o corpo sai pelo stack `"Nimbus Sans","Helvetica Neue",Helvet
 Nimbus. Entrelinha 1,1 em título e 1,6 em corpo, caixa alta curta com 0,18em a
 0,22em de espaçamento — tudo do manual.
 
-**Dois nomes: "Impacto DISC" é o produto, "Impacto Academy" é a empresa.** Decisão
-do Paulo em 03/09/2026, executada em 04/09/2026. REVOGA a regra anterior, que dizia
-"só o relatório assina como Impacto Academy; login, assessment, admin e portal do
-parceiro continuam Perfila". **Se o código disser Impacto fora do relatório, está
-certo. Não reverta.**
+**Uma marca só: "Impacto Academy", em todo lugar.** Decisão do Paulo em
+10/09/2026. REVOGA a regra de dois nomes de 03/09, que separava "Impacto DISC" (o
+produto) de "Impacto Academy" (a empresa). **Se o código disser Impacto Academy em
+qualquer tela, está certo. Não reverta para Impacto DISC.**
 
-O software assina **Impacto DISC**: títulos de aba, login, sidebar, cabeçalho do
-assessment, e o nome do instrumento na capa e no rodapé do relatório. A empresa
-assina **Impacto Academy**: a assinatura do relatório, o `© {ano}` do rodapé e as
-comunicações ao parceiro. Os dois nunca aparecem colados, e DISC é sempre caixa
-alta. "Perfila" sobrevive apenas como caminho — a pasta `perfila/`, o endereço do
+Títulos de aba, login, sidebar, cabeçalho do assessment, assinatura do relatório,
+`© {ano}` e comunicações ao parceiro: tudo Impacto Academy. A fonte do nome é
+`NOME_MARCA`, em `components/layout/MarcaImpacto.tsx`. Quem escrever o nome à mão
+num lugar novo repete o problema que fez esta troca custar 10 arquivos: use a
+constante.
+
+**"Mapa Comportamental" é o INSTRUMENTO, e continua existindo.** Ele aparece no
+cabeçalho do assessment, no olho da capa do relatório e na linha de crédito do
+rodapé. Nesses dois pontos do relatório ele entrou no lugar de "Impacto DISC" por
+um motivo concreto: a capa já mostra `NOME_MARCA` no cabeçalho, cinco linhas
+acima, e trocar a literal imprimiria a marca duas vezes na mesma dobra. Se o
+Valmer quiser outro nome para o instrumento, muda nesses dois lugares.
+
+"Perfila" sobrevive apenas como caminho — a pasta `perfila/`, o endereço do
 repositório e os commits antigos.
 
 Ao mexer em nome, NÃO faça localizar-e-substituir de "Perfil": há 132 usos de
