@@ -26,3 +26,9 @@ export const situacaoAssessment = pgEnum("situacao_assessment", [
 
 /** Movimentos do saldo de creditos do facilitador. */
 export const tipoTransacao = pgEnum("tipo_transacao", ["compra", "uso", "estorno", "bonus"]);
+
+/**
+ * Abrangencia da turma. Espelha as opcoes de `opcoes.area` em src/data, que
+ * sao estes mesmos tres valores com a inicial maiuscula.
+ */
+export const areaTurma = pgEnum("area_turma", ["global", "pessoal", "profissional"]);

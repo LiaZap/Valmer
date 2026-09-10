@@ -1,187 +1,37 @@
-'use client'
-
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
-import { Field, Input } from '@/components/ui/Field'
-import { Icon } from '@/components/ui/Icon'
-import { IconButton } from '@/components/ui/IconButton'
-import { PageHeader } from '@/components/ui/PageHeader'
-import { Pill } from '@/components/ui/Pill'
-import { Progress } from '@/components/ui/Progress'
-import { Select } from '@/components/ui/Select'
-import {
-  FilterBar,
-  RowActions,
-  Table,
-  TableFooter,
-  Td,
-  Th,
-  Tr,
-  tableStyles,
-} from '@/components/ui/Table'
-import { useToast } from '@/components/ui/Toast'
-import { campanhas, campanhasResumo } from '@/data/campanhas'
-import { opcoes } from '@/data/opcoes'
-import styles from './page.module.css'
+import { listar } from '@/lib/actions/turmas'
+import { ListaTurmas } from './ListaTurmas'
 
 /**
- * As turmas são lista fixa de `@/data`, sem tabela no banco: nada aqui grava,
- * exporta ou gera link. Os avisos nomeiam o que falta, em vez de confirmar um
- * efeito que não acontece.
+ * Turmas do parceiro, agora vindas do banco.
+ *
+ * Server Component: a consulta acontece aqui, com sessão e escopo do dono no
+ * WHERE, e a interatividade (filtros, ações da linha) fica no componente
+ * cliente ao lado. Mesmo desenho da lista de mapas comportamentais.
+ *
+ * As datas são formatadas aqui, e não no cliente: o servidor roda em UTC e o
+ * navegador no fuso de quem abre a tela, então formatar dos dois lados faria a
+ * mesma linha aparecer com horas diferentes antes e depois da hidratação.
  */
-export default function CampanhasPage() {
-  const { toast } = useToast()
+const DATA_HORA_BR = new Intl.DateTimeFormat('pt-BR', {
+  timeZone: 'America/Sao_Paulo',
+  dateStyle: 'short',
+  timeStyle: 'short',
+})
 
-  return (
-    <>
-      <PageHeader
-        title="Turmas"
-        subtitle={`${campanhasResumo.quantidade} turmas · ${campanhasResumo.passaportes} passaportes enviados`}
-        actions={
-          <>
-            <Button
-              icon={<Icon name="download" />}
-              onClick={() => toast('Exportação ainda não disponível')}
-            >
-              Exportar
-            </Button>
-            <Button
-              icon={<Icon name="link" />}
-              onClick={() => toast('Meus links ainda não disponíveis')}
-            >
-              Meus links
-            </Button>
-            <Button
-              variant="danger"
-              icon={<Icon name="trash" />}
-              onClick={() => toast('Remover pendentes ainda não disponível')}
-            >
-              Remover pendentes
-            </Button>
-            <Button href="/facilitador/campanhas/nova" variant="primary" icon={<Icon name="plus" />}>
-              Nova turma
-            </Button>
-          </>
-        }
-      />
+export default async function CampanhasPage() {
+  const turmas = await listar()
 
-      <Card padding="none" scrollX>
-        <FilterBar>
-          <Field label="Nome" className={tableStyles.filterGrow}>
-            {(id) => <Input id={id} placeholder="Buscar por nome" />}
-          </Field>
-          <Field label="Demonstração" className={tableStyles.filterLg}>
-            {(id) => <Select id={id} options={opcoes.degustacao} label="Demonstração" />}
-          </Field>
-          <Field label="Tipo de relatório" className={tableStyles.filterXl}>
-            {(id) => (
-              <Select id={id} options={opcoes.relatorioFiltro} label="Tipo de relatório" />
-            )}
-          </Field>
-          <Field label="Data inicial" className={tableStyles.filterDate}>
-            {(id) => <Input id={id} placeholder="dd/mm/aaaa" inputMode="numeric" />}
-          </Field>
-          <Field label="Data final" className={tableStyles.filterDate}>
-            {(id) => <Input id={id} placeholder="dd/mm/aaaa" inputMode="numeric" />}
-          </Field>
-          <Button
-            variant="dark"
-            size="lg"
-            onClick={() => toast('Busca de turmas ainda não disponível')}
-          >
-            Pesquisar
-          </Button>
-          <Button
-            variant="ghost"
-            size="lg"
-            onClick={() => toast('Limpar filtros ainda não disponível')}
-          >
-            Limpar
-          </Button>
-        </FilterBar>
+  const itens = turmas.map((turma) => ({
+    id: turma.id,
+    nome: turma.nome,
+    tipo: turma.tipo_relatorio,
+    area: turma.area,
+    criadaEm: DATA_HORA_BR.format(turma.created_at),
+    por: turma.criada_por,
+    total: turma.total,
+    respondidos: turma.respondidos,
+    permiteDownload: turma.permite_download,
+  }))
 
-        <Table>
-          <thead>
-            <tr>
-              <Th style={{ minWidth: 240 }}>Turma</Th>
-              <Th>Finalidade</Th>
-              <Th>Criada em</Th>
-              <Th style={{ width: 260 }}>Respostas</Th>
-              <Th align="center">Download</Th>
-              <Th align="right">Ações</Th>
-            </tr>
-          </thead>
-          <tbody>
-            {campanhas.map((campanha) => {
-              const completa = campanha.pendentes === 0
-              return (
-                <Tr key={campanha.id}>
-                  <Td>
-                    <div className={tableStyles.primary}>{campanha.name}</div>
-                    <div className={tableStyles.secondary}>{campanha.type}</div>
-                  </Td>
-                  <Td>
-                    <Pill>{campanha.scope}</Pill>
-                  </Td>
-                  <Td muted>
-                    <div>{campanha.date}</div>
-                    <div className={tableStyles.secondary}>por {campanha.by}</div>
-                  </Td>
-                  <Td>
-                    <div className={styles.respostasLabel}>
-                      <span className={styles.respostasTotal}>
-                        {campanha.respondidos} de {campanha.total} respondidos
-                      </span>
-                      <span className={completa ? styles.completa : styles.pendentes}>
-                        {completa ? 'Completa' : `${campanha.pendentes} pendentes`}
-                      </span>
-                    </div>
-                    <Progress
-                      value={(campanha.respondidos / campanha.total) * 100}
-                      label={`Respostas de ${campanha.name}`}
-                    />
-                  </Td>
-                  <Td align="center">
-                    <span className={styles.download} title="Relatório disponível">
-                      <Icon name="check" />
-                    </span>
-                  </Td>
-                  <Td align="right">
-                    <RowActions>
-                      <IconButton
-                        icon="eye"
-                        label="Visualizar"
-                        onClick={() => toast('Visualização da turma ainda não disponível')}
-                      />
-                      <IconButton
-                        icon="link"
-                        label="Gerar link"
-                        onClick={() => toast('Link da turma ainda não disponível')}
-                      />
-                      <IconButton
-                        icon="download"
-                        label="Exportar"
-                        onClick={() => toast('Exportação ainda não disponível')}
-                      />
-                    </RowActions>
-                  </Td>
-                </Tr>
-              )
-            })}
-          </tbody>
-        </Table>
-
-        <TableFooter
-          actions={
-            <>
-              <IconButton icon="chevL" label="Página anterior" variant="pager" disabled />
-              <IconButton icon="chevR" label="Próxima página" variant="pager" disabled />
-            </>
-          }
-        >
-          Mostrando {campanhas.length} de {campanhas.length}
-        </TableFooter>
-      </Card>
-    </>
-  )
+  return <ListaTurmas itens={itens} />
 }

@@ -8,6 +8,7 @@ import {
   pgTable, uuid, text, integer, boolean, timestamp, jsonb, index, uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { usuarios } from "./usuarios";
+import { turmas } from "./turmas";
 import { fatorDisc, situacaoAssessment, tipoRelatorio } from "./enums";
 import { TEMPO } from "./tempo";
 
@@ -22,6 +23,18 @@ export const assessments = pgTable(
     facilitador_id: uuid("facilitador_id")
       .notNull()
       .references(() => usuarios.id, { onDelete: "restrict" }),
+    /**
+     * A turma que originou este assessment. Nulo para o que foi criado avulso,
+     * pela tela de novo mapa, que e como todos os assessments existentes
+     * nasceram — por isso opcional, e nao NOT NULL.
+     *
+     * Existe desde ja porque sem ele a exclusao de turma nao tem como recusar:
+     * o soft delete deixaria assessment vivo apontando para turma invisivel.
+     * A FK COMPOSTA (turma_id, facilitador_id) -> uq_turmas_id_facilitador,
+     * que e o que impede um assessment de cruzar de dono, entra com o Envio
+     * Rapido, junto do fluxo que passa a gravar esta coluna.
+     */
+    turma_id: uuid("turma_id").references(() => turmas.id, { onDelete: "restrict" }),
     avaliado_nome: text("avaliado_nome").notNull(),
     avaliado_email: text("avaliado_email").notNull(),
     tipo_relatorio: tipoRelatorio("tipo_relatorio").notNull(),

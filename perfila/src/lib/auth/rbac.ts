@@ -14,6 +14,10 @@ const permissoes: Record<string, Papel[]> = {
   "assessments:ler": ["admin", "facilitador"],
   "assessments:atualizar": ["admin", "facilitador"],
   "assessments:deletar": ["admin", "facilitador"],
+  "turmas:criar": ["admin", "facilitador"],
+  "turmas:ler": ["admin", "facilitador"],
+  "turmas:atualizar": ["admin", "facilitador"],
+  "turmas:deletar": ["admin", "facilitador"],
   "auditoria:ler": ["admin"],
   // O curso e escrito e publicado pelo dono da plataforma. O facilitador ve a
   // vitrine em /facilitador/cursos, que nao passa por estas permissoes, e o

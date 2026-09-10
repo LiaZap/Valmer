@@ -7,3 +7,4 @@ export * from "./assessments";
 export * from "./creditos";
 export * from "./auditoria";
 export * from "./cursos";
+export * from "./turmas";
