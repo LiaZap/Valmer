@@ -43,6 +43,13 @@ export default async function TurmaPage({ params }: { params: Promise<{ id: stri
   // precisa prometer o mesmo número que ela vai devolver.
   const creditosAVoltar = pendentes.reduce((soma, mapa) => soma + mapa.creditosUsados, 0)
 
+  // Quem COMECOU a responder entra na conta de "pendente", porque nao concluiu.
+  // Mas remover um mapa com 27 das 28 questoes respondidas joga fora trabalho
+  // de uma pessoa real, e ela nao tem como refazer: o link some junto. A
+  // confirmacao separa os dois numeros para o operador decidir sabendo — o
+  // pedido normal e limpar quem nunca abriu, e nao quem parou no fim.
+  const emAndamento = mapas.filter((mapa) => mapa.situacao === 'em_andamento').length
+
   return (
     <>
       <BackLink href="/facilitador/campanhas">Voltar para turmas</BackLink>
@@ -63,6 +70,7 @@ export default async function TurmaPage({ params }: { params: Promise<{ id: stri
               turmaId={turma.id}
               nome={turma.nome}
               pendentes={pendentes.length}
+              emAndamento={emAndamento}
               creditos={creditosAVoltar}
             />
             <Button

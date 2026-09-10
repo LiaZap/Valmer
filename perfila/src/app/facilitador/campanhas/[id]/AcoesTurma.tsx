@@ -29,20 +29,36 @@ export function AcoesTurma({
   turmaId,
   nome,
   pendentes,
+  emAndamento,
   creditos,
 }: {
   turmaId: string
   nome: string
   pendentes: number
+  /** Quantos desses ja comecaram a responder. Ver o aviso em `confirmar`. */
+  emAndamento: number
   creditos: number
 }) {
   const { toast } = useToast()
   const [removendo, remover] = useTransition()
 
   function confirmar() {
+    // O aviso so aparece quando existe: linha a mais numa pergunta que ja e
+    // longa, para um caso que na maioria das turmas e zero. Remover um mapa
+    // com 27 das 28 questoes respondidas joga fora trabalho de uma pessoa
+    // real, e ela nao tem como refazer — o link some junto.
+    const aviso =
+      emAndamento > 0
+        ? `
+
+ATENCAO: ${emAndamento} desses ja comecaram a responder, e as ` +
+          `respostas parciais vao junto. Elas nao tem como ser refeitas.`
+        : ''
+
     const pergunta =
       `Remover ${pendentes} passaporte(s) ainda não respondido(s) da turma "${nome}"?\n\n` +
-      `Voltam ${creditos} crédito(s) para o seu saldo. Quem já respondeu não é tocado.`
+      `Voltam ${creditos} crédito(s) para o seu saldo. Quem já respondeu não é tocado.` +
+      aviso
 
     if (!window.confirm(pergunta)) return
 
