@@ -171,7 +171,10 @@ SSH. O painel tem conta propria, que **nao** e a do sistema.
 | 1 — Acesso | **feita**. `paulo` (sudo, senha local) e `deploy`, fail2ban na 22, sshd em v4 e v6, e `sshd -T` devolvendo `passwordauthentication no` e `permitrootlogin no` — depois do conserto do prefixo, ver a nota do `10-valmer.conf` abaixo |
 | 2 — Firewall | **feita**. UFW `deny incoming`, so 22 (`limit`), 80 e 443, em v4 e v6 |
 | 3 — Runtime | **feita**. Docker 29.8.0, unattended-upgrades com reboot as 04:00, swap de 4 GB |
-| 4 a 8 | **nao feitas** |
+| 4 — EasyPanel | **feita**. Painel em `painel.impacto.institutotopcursos.site` com certificado valido. Duas pontas em aberto: o "Servir no endereco IP" continua ligado, e a 3000 segue publica (pendencia 9a) |
+| 5 — Proteger o painel | **nao feita** |
+| 6 — Ambientes | **HML feita**, em `hml.impacto.institutotopcursos.site`: app do `/perfila` na `develop`, Postgres interno sem porta publica, migracoes aplicadas e seed rodado. Falta validar o login, e falta o PRD, que espera o merge |
+| 7 e 8 | **nao feitas** |
 
 A Etapa 4 e a proxima, e ela depende de um subdominio apontado para o IP: o
 painel emite o proprio certificado e nunca deve ser acessado por IP.
@@ -383,6 +386,15 @@ Quem quiser fechar a janela por completo faz o passo 3 por tunel, sem expor a
 3000 a ninguem: `ssh -L 3000:localhost:3000 paulo@<ip>` e depois
 `http://localhost:3000` no navegador da propria maquina.
 
+**O webhook de deploy vai no dominio, nunca no IP.** O painel oferece a URL de
+implantacao na forma `http://<ip>:3000/api/deploy/<token>`, e ela tem dois
+defeitos no mesmo endereco: o token trafega em texto claro, e o dia em que a
+3000 fechar (pendencia 9a) o webhook morre calado — a publicacao simplesmente
+para de disparar e ninguem percebe ate procurar. Use
+`https://painel.impacto.institutotopcursos.site/api/deploy/<token>`. O token e
+segredo de verdade: nao entra no git, nao entra em chat, e se sair de casa,
+gera-se outro no painel.
+
 - **Conferir**: `sudo docker ps` mostra os containers do painel; `curl -I
   https://painel...` responde 200; acessar pelo IP **nao** deve servir o painel.
 - **Desfazer**: `sudo docker rm -f` nos containers do painel e apagar
@@ -425,9 +437,15 @@ Variaveis, por ambiente: `DATABASE_URL`, `BETTER_AUTH_SECRET` (um por ambiente,
 o unico freio e `NODE_ENV=production`. No painel ela entra com dois cliques —
 antes exigia editar um arquivo `0600` por SSH. Nao a crie em ambiente nenhum.
 
-As migracoes (`npm run db:migrate`) precisam rodar no deploy. Onde isso se
-configura no EasyPanel — comando de build, de start ou hook — **fica a verificar
-na instalacao**; nao vale inventar a tela que ninguem viu.
+As migracoes (`npm run db:migrate`) precisam rodar no deploy, e o lugar delas e
+o **start command**, nunca o build: no build o Postgres nao esta alcancavel. O
+comando do servico e `npm run db:migrate && npm run start`. Migracao e
+idempotente pelo journal do Drizzle, entao rodar a cada boot e seguro.
+
+Isso deixou de ser teoria em 2026-09-10: o primeiro deploy do HML subiu verde,
+com a raiz respondendo 200, e as duas rotas que consultam o banco devolvendo
+500. **Deploy verde nao prova banco migrado** — valide sempre por uma rota que
+consulta, e nao pela raiz.
 
 - **Conferir**: `https://hml...` responde 200 e o login funciona (o cookie
   `secure` exige TLS valido); `ss -ltnp | grep 5432` **nao** mostra `0.0.0.0`;
