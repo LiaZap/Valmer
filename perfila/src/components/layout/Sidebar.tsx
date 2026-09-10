@@ -1,9 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Icon } from '@/components/ui/Icon'
-import { useToast } from '@/components/ui/Toast'
+import { logout } from '@/lib/actions/auth'
 import { isNavItemActive, type NavGroup } from '@/lib/routes'
 import { MarcaImpacto } from './MarcaImpacto'
 import styles from './Sidebar.module.css'
@@ -28,7 +28,13 @@ type SidebarProps = {
  */
 export function Sidebar({ collapsed, grupos, base, subtitulo }: SidebarProps) {
   const pathname = usePathname()
-  const { toast } = useToast()
+  const router = useRouter()
+
+  async function sair() {
+    await logout()
+    router.replace('/')
+    router.refresh()
+  }
 
   return (
     <aside
@@ -72,12 +78,22 @@ export function Sidebar({ collapsed, grupos, base, subtitulo }: SidebarProps) {
       </nav>
 
       <div className={styles.footer}>
-        <Link href="/" title="Sair" className={styles.logout} onClick={() => toast('Sessão encerrada')}>
+        {/* Era um <Link href="/"> com um toast dizendo "Sessão encerrada".
+            Ele não encerrava nada: o cookie continuava vivo, e como a tela de
+            login manda quem tem sessão de volta para o painel, o clique dava
+            a volta e caía no lugar de onde saiu — com a mensagem afirmando o
+            contrário. Em máquina compartilhada isso é a próxima pessoa
+            entrando na conta da anterior.
+
+            Agora chama a mesma action do botão da topbar, com o
+            `router.refresh()` que descarta o cache de rotas do Next: sem ele
+            as telas já visitadas voltam do cache mesmo sem sessão. */}
+        <button type="button" title="Sair" className={styles.logout} onClick={sair}>
           <span className={styles.itemIcon}>
             <Icon name="logout" size={16} />
           </span>
           <span className={styles.label}>Sair</span>
-        </Link>
+        </button>
       </div>
     </aside>
   )
