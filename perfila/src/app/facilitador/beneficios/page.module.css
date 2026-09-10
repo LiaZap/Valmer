@@ -28,26 +28,36 @@
    elemento decorativo extra. Ela para no ultimo. */
 .passo {
   position: relative;
-  padding-top: var(--space-18);
+  /* 22 e nao 18: com 18 a linha passava rente ao topo das letras, e em
+     "Multiplicador" e "Embaixador", que sao as mais altas, ela encostava. */
+  padding-top: 22px;
   min-width: 0;
 }
 
+/* Cada passo desenha o trecho que vai do PROPRIO marco ate o proximo.
+   Antes ele ia de borda a borda da coluna e os cortes de primeiro e ultimo
+   usavam 50%, o que so faz sentido com o marco centralizado — e ele fica em
+   `left: 0`. O resultado era a linha nascendo solta a direita do primeiro
+   ponto e morrendo no vazio antes do ultimo.
+
+   O 6px e o centro do marco, que tem 12 de diametro. O `right` negativo de um
+   `gap` atravessa o vao do grid e encosta na coluna seguinte, onde o proximo
+   marco comeca — e como o marco vem depois no DOM, ele pinta por cima da
+   emenda. */
 .passo::before {
   content: '';
   position: absolute;
   top: 5px;
-  left: 0;
-  right: 0;
+  left: 6px;
+  right: calc(var(--space-8) * -1);
   height: 2px;
   background: var(--color-on-ink-14);
 }
 
+/* O ultimo nao liga a nada: linha depois dele seria promessa de um nivel que
+   nao existe. */
 .passo:last-child::before {
-  right: 50%;
-}
-
-.passo:first-child::before {
-  left: 50%;
+  display: none;
 }
 
 .marco {
