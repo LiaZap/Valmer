@@ -15,6 +15,7 @@ import {
 } from '@/lib/painel'
 import ui from '@/styles/common.module.css'
 import styles from './page.module.css'
+import { VenderPacote } from './VenderPacote'
 
 /**
  * Créditos vendidos e o extrato de todos os parceiros.
@@ -42,6 +43,13 @@ export default async function CreditosAdminPage() {
   // parceiros fazia a coluna cair no id cru daquelas linhas.
   const nomes = await empresasPorId([...new Set(transacoes.map((t) => t.facilitadorId))])
 
+  // O e-mail entra no rótulo porque é ele que é único: dois parceiros com o
+  // mesmo nome deixariam a escolha ambígua na tela que move crédito.
+  const parceiros = facilitadores.map((facilitador) => ({
+    id: facilitador.id,
+    rotulo: `${facilitador.nome} — ${facilitador.email}`,
+  }))
+
   return (
     <>
       <PageHeader
@@ -51,23 +59,21 @@ export default async function CreditosAdminPage() {
           <BotaoAviso
             variant="primary"
             icon={<Icon name="plus" />}
-            aviso="Venda de créditos ainda não disponível"
+            aviso="Escolha o pacote nos cartões abaixo e o parceiro que recebe"
           >
             Vender créditos
           </BotaoAviso>
         }
       />
 
-      <AutoGrid min={200}>
+      <AutoGrid min={240}>
         {pacotesCreditos.map((pacote) => (
           <Card key={pacote.nome} className={styles.pacote}>
             <div className={ui.eyebrow}>{pacote.nome}</div>
             <div className={styles.creditos}>{pacote.creditos}</div>
             <div className={styles.preco}>{moeda(pacote.preco)}</div>
             <div className={ui.note}>{moeda(custoPorCredito(pacote))} por crédito</div>
-            <BotaoAviso className={styles.acao} aviso={`Venda do pacote ${pacote.nome} ainda não disponível`}>
-              Vender
-            </BotaoAviso>
+            <VenderPacote pacote={pacote.nome} parceiros={parceiros} />
           </Card>
         ))}
       </AutoGrid>

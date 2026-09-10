@@ -18,8 +18,11 @@
   color: var(--color-accent);
 }
 
-.acao {
+/* Escolha do parceiro e o botao de venda, dentro do card do pacote. */
+.venda {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
   margin-top: var(--space-12);
-  align-self: flex-start;
 }
 

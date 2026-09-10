@@ -7,18 +7,23 @@ import { questoes } from "@/data/assessment";
  * O nome e o e-mail do avaliado vao impressos na capa do relatorio e no
  * convite por e-mail. Errar aqui manda o link para o vazio e queima credito
  * do facilitador, entao os dois passam por regex antes de qualquer gravacao.
+ *
+ * Exportados porque o formato e da PESSOA, e nao do papel dela: o cadastro do
+ * parceiro (validators/facilitador.ts) grava nome e e-mail na mesma tabela e
+ * no mesmo indice unico, e duas regras de e-mail no projeto viram duas
+ * respostas diferentes para o mesmo endereco.
  */
 const NOME_RE = /^\p{L}[\p{L}\s.'-]{2,}$/u;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
 
-const nome = z
+export const nomePessoa = z
   .string()
   .trim()
   .min(3, "Nome muito curto")
   .max(120, "Nome muito longo")
   .regex(NOME_RE, "Nome deve conter apenas letras, espacos, ponto, hifen e apostrofo");
 
-const email = z
+export const emailPessoa = z
   .string()
   .trim()
   .toLowerCase()
@@ -27,8 +32,8 @@ const email = z
 
 /** Criacao: o tipo de relatorio define quantos creditos a conta consome. */
 export const criarAssessmentSchema = z.object({
-  avaliado_nome: nome,
-  avaliado_email: email,
+  avaliado_nome: nomePessoa,
+  avaliado_email: emailPessoa,
   tipo_relatorio: z.enum(["S1", "S2", "S3", "S4"]),
   /** Opcional: o admin aplica em nome de um facilitador. */
   facilitador_id: z.string().uuid().optional(),
@@ -42,8 +47,8 @@ export const criarAssessmentSchema = z.object({
  * o assessment e crie outro.
  */
 export const atualizarAssessmentSchema = z.object({
-  avaliado_nome: nome,
-  avaliado_email: email,
+  avaliado_nome: nomePessoa,
+  avaliado_email: emailPessoa,
 });
 
 /**

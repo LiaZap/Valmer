@@ -88,6 +88,11 @@ export const pacotesCreditos: PacoteCreditos[] = [
   },
 ]
 
+/** O pacote pelo nome. O nome vem validado contra esta mesma lista. */
+export function getPacote(nome: string): PacoteCreditos {
+  return pacotesCreditos.find((pacote) => pacote.nome === nome)!
+}
+
 /** Custo por crédito, derivado do pacote — nunca digitado à mão. */
 export function custoPorCredito(pacote: PacoteCreditos): number {
   return pacote.preco / pacote.creditos
