@@ -38,9 +38,12 @@
   text-decoration: none;
 }
 
+/* 40 com a sidebar aberta, 32 quando recolhida. O cabeçalho tem 56px de
+   altura, então 40 ainda deixa 8px de respiro em cima e embaixo; no trilho
+   recolhido de 68px de largura, 40 encostaria nas bordas. */
 .brandMark {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   flex: none;
   border-radius: var(--radius-lg);
   background: var(--color-marca-fundo);
@@ -212,11 +215,21 @@
   padding: 0;
 }
 
+.collapsed .brandMark {
+  width: 32px;
+  height: 32px;
+}
+
 /* Em telas estreitas a sidebar recolhe sozinha para sobrar espaço
    ao conteúdo, independentemente do botão de menu. */
 @media (max-width: 860px) {
   .sidebar {
     width: var(--sidebar-width-collapsed);
+  }
+
+  .sidebar .brandMark {
+    width: 32px;
+    height: 32px;
   }
 
   .sidebar .brandText,

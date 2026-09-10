@@ -42,7 +42,11 @@ export function Sidebar({ collapsed, grupos, base, subtitulo }: SidebarProps) {
     >
       <Link href={base} className={styles.brand}>
         <span className={styles.brandMark}>
-          <MarcaImpacto size={20} cor="var(--color-marca-sobre-escuro)" />
+          {/* O escudo é dimensionado pela ALTURA da caixa menos o respiro,
+              que é a regra registrada no CONTINUIDADE.md. A caixa aberta tem
+              40 e a recolhida 32; 26 e 20 mantêm a mesma proporção de 0,625
+              que já tinha sido medida para o quadrado de 32. */}
+          <MarcaImpacto size={collapsed ? 20 : 26} cor="var(--color-marca-sobre-escuro)" />
         </span>
         <span className={styles.brandText}>
           <span className={styles.brandName}>Impacto Academy</span>

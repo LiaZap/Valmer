@@ -99,7 +99,7 @@ export default async function LoginPage({
           seria repetição. */}
       <aside className={styles.painel} aria-hidden="true">
         <div className={styles.painelMiolo}>
-          <MarcaImpacto size={64} cor="var(--color-marca-sobre-escuro)" />
+          <MarcaImpacto size={88} cor="var(--color-marca-sobre-escuro)" />
           <p className={styles.painelOlho}>Mapa Comportamental</p>
           <p className={styles.painelFrase}>
             Conheça seus talentos mais desenvolvidos, e os pontos que pedem
