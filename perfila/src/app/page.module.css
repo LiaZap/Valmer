@@ -30,8 +30,11 @@
   margin: 0 auto;
 }
 
+/* Só no celular. No desktop o nome já aparece duas vezes na mesma tela, no
+   painel e no subtítulo do formulário, e uma terceira vez em cima era
+   repetição. Aqui embaixo o painel não existe, então ela volta. */
 .marca {
-  display: flex;
+  display: none;
   align-items: center;
   gap: var(--space-10);
 }
@@ -201,7 +204,13 @@
 
 /* Os dois traços laranja. São massa sólida decorativa, que é o único papel
    que o Laranja Impacto tem no produto: ele não carrega texto nem dado.
-   Feitos em pseudo-elemento para não existirem no HTML. */
+   Feitos em pseudo-elemento para não existirem no HTML.
+
+   Eles deslizam ao longo do próprio eixo, devagar e sem fim. A duração é
+   longa e o movimento é linear de propósito: nesta tela a pessoa está
+   digitando senha, e animação com aceleração perto de campo de formulário
+   puxa o olho para fora da tarefa. O que se quer é a tela respirar, não
+   chamar atenção. */
 .painel::before,
 .painel::after {
   content: '';
@@ -216,12 +225,25 @@
   top: -50%;
   left: 18%;
   transform: rotate(24deg);
+  animation: deslizar 22s linear infinite;
 }
 
 .painel::after {
   top: -50%;
   right: 14%;
   transform: rotate(-24deg);
+  animation: deslizar 28s linear infinite reverse;
+}
+
+/* Os traços têm 200% de altura e a caixa corta o resto, então deslocar meia
+   altura devolve o mesmo desenho: o laço fecha sem salto visível. */
+@keyframes deslizar {
+  from {
+    translate: 0 -25%;
+  }
+  to {
+    translate: 0 25%;
+  }
 }
 
 .painelMiolo {
@@ -231,6 +253,37 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-16);
+}
+
+/* Entrada escalonada: símbolo, olho, frase e a linha de baixo sobem em
+   sequência. Roda UMA vez, na abertura. Laço infinito em texto é o que
+   transforma decoração em distração, e aqui o texto está ao lado de um
+   campo de senha. */
+.painelMiolo > * {
+  animation: surgir 620ms ease-out both;
+}
+
+.painelMiolo > *:nth-child(2) {
+  animation-delay: 110ms;
+}
+
+.painelMiolo > *:nth-child(3) {
+  animation-delay: 220ms;
+}
+
+.painelMiolo > *:nth-child(4) {
+  animation-delay: 330ms;
+}
+
+@keyframes surgir {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
 }
 
 .painelOlho {
@@ -267,7 +320,24 @@
     display: none;
   }
 
+  /* Sem o painel, esta vira a única marca da tela. */
+  .marca {
+    display: flex;
+  }
+
   .coluna {
     padding: var(--space-24) var(--space-20);
+  }
+}
+
+/* Quem pede menos movimento no sistema recebe a mesma tela, parada. Não é
+   preferência estética: movimento contínuo dispara enxaqueca e náusea em
+   quem tem sensibilidade vestibular, e a pessoa está aqui para digitar uma
+   senha. O desenho não muda, só o movimento sai. */
+@media (prefers-reduced-motion: reduce) {
+  .painel::before,
+  .painel::after,
+  .painelMiolo > * {
+    animation: none;
   }
 }

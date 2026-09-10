@@ -17,7 +17,13 @@ import styles from './page.module.css'
  * A tela é dividida: formulário à esquerda sobre a Areia, painel escuro à
  * direita. O painel é DECORAÇÃO e não carrega informação que só exista ali —
  * abaixo de 900px ele sai da página inteiro, e quem entra pelo celular não
- * perde nada. Por isso a marca aparece também na coluna do formulário.
+ * perde nada.
+ *
+ * A marca da coluna esquerda existe SÓ no celular. No desktop ela era a
+ * terceira aparição do nome na mesma tela (painel, título do formulário e
+ * ela), e some. Mas apagá-la de vez deixaria o celular sem marca nenhuma,
+ * já que o painel também não está lá: ela é escondida por media query, não
+ * removida.
  */
 const AMBIENTES: { href: string; nome: string; desc: string; icone: IconName }[] = [
   {
