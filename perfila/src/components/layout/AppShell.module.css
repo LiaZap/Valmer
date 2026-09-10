@@ -20,10 +20,22 @@
   gap: var(--content-gap);
   max-width: var(--content-max-width);
   width: 100%;
+  /* Centralizado, e não colado à esquerda. Alinhado ao início, toda a
+     largura que sobra do teto vira uma faixa morta de um lado só — e ela
+     CRESCE quando a sidebar recolhe, porque os 180px que ela devolve vão
+     inteiros para a direita. Centralizar divide a sobra em duas e o recolher
+     passa a alargar o conteúdo em vez de empurrar o vazio. */
+  margin-inline: auto;
 }
 
+/* O rodapé usa o MESMO teto e a MESMA centralização do conteúdo. Sem isso
+   ele atravessaria a largura toda e a linha do copyright ficaria deslocada
+   da borda esquerda dos cards logo acima dela. */
 .footer {
   margin-top: auto;
+  max-width: var(--content-max-width);
+  width: 100%;
+  margin-inline: auto;
   padding: var(--space-16) var(--content-padding);
   font-size: var(--fs-12);
   color: var(--color-text-subtle);

@@ -45,19 +45,11 @@
   gap: var(--space-16);
 }
 
-/* Halo de realce no canto: dá profundidade ao card escuro. */
-.programaGlow {
-  position: absolute;
-  right: -40px;
-  top: -40px;
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--color-accent-glow), transparent 70%);
-  pointer-events: none;
-}
-
-/* Todo conteúdo fica acima do halo. */
+/* O halo laranja no canto saiu em 10/09/2026, a pedido do Paulo. Ele dava
+   profundidade ao card, e cobrava por isso: laranja difuso sobre o azul é a
+   única mancha do produto que não tem forma nem função, e ao lado de duas
+   barras de progresso laranja ele competia com o dado. `position: relative`
+   fica abaixo porque a ordem de empilhamento ainda importa para o card. */
 .programaTopo,
 .programaBarras,
 .programaNota {

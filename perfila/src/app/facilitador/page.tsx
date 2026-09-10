@@ -168,7 +168,6 @@ export default async function DashboardPage() {
         </Card>
 
         <Card tone="ink" className={styles.programa}>
-          <div className={styles.programaGlow} aria-hidden />
 
           <div className={styles.programaTopo}>
             <div>
