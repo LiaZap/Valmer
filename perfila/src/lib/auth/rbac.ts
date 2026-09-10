@@ -45,6 +45,11 @@ const permissoes: Record<string, Papel[]> = {
   "cursos:criar": ["admin"],
   "cursos:ler": ["admin"],
   "cursos:atualizar": ["admin"],
+  // O banco de questoes vem do codigo (`data/assessment.ts`), entao nao ha
+  // action que o escreva — so a exportacao em CSV o le. A linha existe para
+  // essa leitura ter dono declarado aqui, e nao um `papel === "admin"` solto
+  // dentro da rota, que seria a segunda tabela de permissoes do projeto.
+  "questoes:ler": ["admin"],
   "usuarios:criar": ["admin"],
   "usuarios:ler": ["admin"],
   "usuarios:atualizar": ["admin"],

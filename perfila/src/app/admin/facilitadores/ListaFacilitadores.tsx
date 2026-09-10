@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useTransition } from 'react'
 import { Avatar } from '@/components/ui/Avatar'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -20,6 +20,7 @@ import {
   tableStyles,
 } from '@/components/ui/Table'
 import { useToast } from '@/components/ui/Toast'
+import { definirSituacaoPelaTela } from '@/lib/actions/facilitadores'
 import type { Facilitador } from '@/data/facilitadores'
 import ui from '@/styles/common.module.css'
 
@@ -41,6 +42,32 @@ export function ListaFacilitadores({
   const { toast } = useToast()
   const [busca, setBusca] = useState('')
   const [email, setEmail] = useState('')
+  const [alterando, alterarSituacao] = useTransition()
+
+  /**
+   * Ativar e desativar da própria lista.
+   *
+   * Manda a situação DESEJADA, e não "inverta": dois cliques vindos de abas que
+   * leram a mesma lista se cancelariam. Sem `router.refresh()` — a action
+   * invalida o layout de /admin e esta lista é renderizada no servidor, então
+   * ela volta atualizada na resposta da própria Server Action.
+   */
+  function alternar(facilitador: Facilitador) {
+    alterarSituacao(async () => {
+      const resposta = await definirSituacaoPelaTela(facilitador.id, !facilitador.ativo)
+
+      if (!resposta.ok) {
+        toast(resposta.erro)
+        return
+      }
+
+      toast(
+        facilitador.ativo
+          ? `${facilitador.nome} desativado. O acesso dele está bloqueado.`
+          : `${facilitador.nome} reativado.`,
+      )
+    })
+  }
 
   function limpar() {
     setBusca('')
@@ -140,10 +167,12 @@ export function ListaFacilitadores({
                   </Pill>
                 </Td>
                 <Td dense align="right">
-                  {/* A lista é real — vem da tabela `usuarios` —, mas nenhuma
-                      destas quatro ações existe no servidor: o projeto não grava
-                      usuário nem envia e-mail. Por isso o aviso diz o que falta
-                      em vez de anunciar um efeito que ninguém executa. */}
+                  {/* Editar e ativar/desativar gravam de verdade, pela mesma
+                      action — `definirSituacaoPelaTela` chama a edição com a
+                      linha que acabou de ler. As duas primeiras continuam sem
+                      servidor: a plataforma ainda não envia e-mail, e a venda
+                      mora em /admin/creditos. O aviso diz o que falta em vez de
+                      anunciar um efeito que ninguém executa. */}
                   <RowActions>
                     <IconButton
                       icon="card"
@@ -160,7 +189,7 @@ export function ListaFacilitadores({
                     <IconButton
                       icon="edit"
                       label={`Editar ${facilitador.nome}`}
-                      onClick={() => toast('Edição de facilitador ainda não disponível')}
+                      href={`/admin/facilitadores/${facilitador.id}`}
                     />
                     <IconButton
                       icon={facilitador.ativo ? 'trash' : 'check'}
@@ -170,13 +199,8 @@ export function ListaFacilitadores({
                           : `Ativar ${facilitador.nome}`
                       }
                       tone={facilitador.ativo ? 'danger' : 'default'}
-                      onClick={() =>
-                        toast(
-                          facilitador.ativo
-                            ? 'Desativar ainda não disponível'
-                            : 'Ativar ainda não disponível',
-                        )
-                      }
+                      disabled={alterando}
+                      onClick={() => alternar(facilitador)}
                     />
                   </RowActions>
                 </Td>

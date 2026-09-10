@@ -29,6 +29,8 @@ type ButtonProps = CommonProps &
   Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className' | 'children'> & {
     /** Quando informado, o botão vira um link de navegação. */
     href?: string
+    /** Com `href`, baixa o arquivo em vez de navegar até ele. */
+    download?: boolean
   }
 
 /**
@@ -36,6 +38,10 @@ type ButtonProps = CommonProps &
  * ------
  * Único componente de ação do sistema. Com `href` ele navega
  * (renderiza um <Link>), sem `href` ele executa (<button>).
+ *
+ * Com `download` ele sai como <a> puro, e não como <Link>: o prefetch do Link
+ * chamaria a rota assim que o botão aparecesse na tela, e a rota de exportação
+ * geraria o CSV — consulta ao banco inclusa — sem ninguém ter clicado.
  */
 export function Button({
   variant = 'secondary',
@@ -46,6 +52,7 @@ export function Button({
   className,
   children,
   href,
+  download,
   type = 'button',
   ...rest
 }: ButtonProps) {
@@ -68,6 +75,14 @@ export function Button({
   )
 
   if (href) {
+    if (download) {
+      return (
+        <a href={href} download className={classes}>
+          {content}
+        </a>
+      )
+    }
+
     return (
       <Link href={href} className={classes}>
         {content}

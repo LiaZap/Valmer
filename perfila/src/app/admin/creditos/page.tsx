@@ -1,4 +1,5 @@
 import { BotaoAviso } from '@/components/ui/BotaoAviso'
+import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Icon } from '@/components/ui/Icon'
@@ -81,9 +82,9 @@ export default async function CreditosAdminPage() {
       <Card padding="none" clip scrollX>
         <div className={ui.sectionHead} style={{ padding: 'var(--space-16) var(--space-20)' }}>
           <div className={ui.cardTitle}>Extrato de créditos</div>
-          <BotaoAviso variant="link" aviso="Exportação do extrato ainda não disponível">
+          <Button href="/api/exportar/creditos" download variant="link">
             Exportar
-          </BotaoAviso>
+          </Button>
         </div>
         {/* Extrato sem linha nenhuma é um cabeçalho solto: não diz se ainda
             não houve movimento ou se a leitura falhou. */}

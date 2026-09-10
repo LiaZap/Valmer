@@ -30,7 +30,7 @@ export default function QuestoesPage() {
         subtitle={`${questoes.length} questões situacionais em ${blocosAssessment.length} blocos. Cada opção pontua um fator.`}
         actions={
           <>
-            <Button icon={<Icon name="download" />} onClick={() => toast('Exportação de questões ainda não disponível')}>
+            <Button href="/api/exportar/questoes" download icon={<Icon name="download" />}>
               Exportar
             </Button>
             <Button

@@ -1,14 +1,7 @@
 import { Pill } from '@/components/ui/Pill'
 import { Table, Td, Th, Tr, tableStyles } from '@/components/ui/Table'
-import type { TipoTransacao, Transacao } from '@/data/facilitadores'
+import { ROTULO_TIPO, type TipoTransacao, type Transacao } from '@/data/facilitadores'
 import styles from './TabelaExtrato.module.css'
-
-const ROTULO_TIPO: Record<TipoTransacao, string> = {
-  compra: 'Compra',
-  uso: 'Uso',
-  estorno: 'Estorno',
-  bonus: 'Bônus',
-}
 
 const TOM_TIPO: Record<TipoTransacao, 'success' | 'neutral' | 'warning'> = {
   compra: 'success',
@@ -21,9 +14,10 @@ const TOM_TIPO: Record<TipoTransacao, 'success' | 'neutral' | 'warning'> = {
  * Extrato de créditos, compartilhado pelos dois ambientes.
  *
  * O admin vê de quem é cada movimento; o parceiro vê só os dele, então a
- * coluna some. Os rótulos de tipo moram aqui e em nenhum outro lugar: com uma
- * cópia por tela, um tipo novo de movimento apareceria nomeado numa e cru na
- * outra.
+ * coluna some. Os rótulos de tipo vêm de `data/facilitadores.ts`, ao lado do
+ * tipo que nomeiam, e são os mesmos que a exportação em CSV usa: com uma cópia
+ * por consumidor, um tipo novo de movimento apareceria nomeado num e cru no
+ * outro.
  *
  * Não é client component: não há estado nenhum aqui, e as duas telas que a
  * usam são renderizadas no servidor.

@@ -38,8 +38,10 @@ const FORMULARIO_VAZIO = { nome: '', email: '', celular: '' }
  * Quem decide o que pode ser gravado é a action, não esta tela: ela é a
  * conveniência, e o POST direto na Server Action passa pelas mesmas guardas.
  *
- * Os filtros continuam avisando que ainda não filtram, e Importar e Exportar
- * também: aviso honesto vale mais que um campo que esconde linha por engano.
+ * Os filtros continuam avisando que ainda não filtram, e Importar também:
+ * aviso honesto vale mais que um campo que esconde linha por engano. Exportar
+ * baixa de verdade, pela rota /api/exportar/clientes, com a mesma lista que
+ * está na tela.
  * O e-mail não tem como sair daqui — não existe provedor de envio no projeto.
  */
 export function ListaClientes({ itens }: { itens: ItemCliente[] }) {
@@ -113,10 +115,7 @@ export function ListaClientes({ itens }: { itens: ItemCliente[] }) {
             >
               Importar
             </Button>
-            <Button
-              icon={<Icon name="download" />}
-              onClick={() => toast('Exportação ainda não disponível')}
-            >
+            <Button href="/api/exportar/clientes" download icon={<Icon name="download" />}>
               Exportar
             </Button>
             <Button

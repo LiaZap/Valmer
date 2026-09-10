@@ -9,15 +9,23 @@
  * 0005 cobra no COMMIT (saldo = soma do extrato), o recorte por papel, a
  * recusa legivel de e-mail repetido e a senha que o parceiro recebe de fato
  * funcionando no login.
+ *
+ * A edicao (/admin/facilitadores/[id]) acrescenta quatro que so aparecem em
+ * producao: `creditos` mandado na chamada NAO movendo o saldo — o caso que tem
+ * de falhar se alguem tirar o guard, porque um UPDATE direto no saldo aborta a
+ * transacao inteira pela trigger da 0005 —, a senha nova valendo e a antiga
+ * parando de valer, o parceiro desativado deixando de entrar, e o facilitador
+ * nao alcancando esta action nem para editar a si mesmo.
  */
 import { after, before, describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { config } from "dotenv";
+import { ZodError } from "zod";
 
 config({ path: [".env.local", ".env"] });
 
 const { db } = await import("@/lib/db");
-const { usuarios, creditosTransacoes } = await import("@/lib/db/schema");
+const { auditoria, usuarios, creditosTransacoes } = await import("@/lib/db/schema");
 const acoes = await import("@/lib/actions/facilitadores");
 const { auth } = await import("@/lib/auth/config");
 const { eq, sql } = await import("drizzle-orm");
@@ -26,6 +34,7 @@ const { eq, sql } = await import("drizzle-orm");
 const marca = `teste-${Date.now()}`;
 const SISTEMA = "00000000-0000-0000-0000-000000000000";
 const SENHA = "senha-inicial-longa";
+const SENHA_REDEFINIDA = "senha-redefinida-987";
 
 let adminId = "";
 let facilitadorId = "";
@@ -49,6 +58,52 @@ async function somaDoExtrato(usuarioId: string): Promise<number> {
 async function saldoDe(usuarioId: string): Promise<number> {
   const [linha] = await db.select().from(usuarios).where(eq(usuarios.id, usuarioId));
   return linha!.creditos;
+}
+
+async function linhaDe(usuarioId: string) {
+  const [linha] = await db.select().from(usuarios).where(eq(usuarios.id, usuarioId));
+  return linha!;
+}
+
+/**
+ * O cadastro completo que `atualizar` exige, partindo da linha atual.
+ *
+ * O schema e `strictObject`, entao mandar menos que os cinco campos e recusado
+ * do mesmo jeito que mandar um a mais. Isto evita que cada teste repita quatro
+ * campos que ele nao esta testando — e que um deles copie errado e passe a
+ * medir outra coisa.
+ */
+function cadastro(
+  linha: {
+    nome: string;
+    email: string;
+    empresa: string | null;
+    telefone: string | null;
+    ativo: boolean;
+  },
+  mudanca: Record<string, unknown> = {},
+) {
+  return {
+    nome: linha.nome,
+    email: linha.email,
+    empresa: linha.empresa ?? "",
+    telefone: linha.telefone ?? "",
+    ativo: linha.ativo,
+    ...mudanca,
+  };
+}
+
+/** Tenta entrar. Devolve o id de quem entrou, ou null quando o login recusa. */
+async function entrarNoLogin(email: string, senha: string): Promise<string | null> {
+  try {
+    const resposta = await auth.api.signInEmail({
+      body: { email, password: senha },
+      headers: new Headers(),
+    });
+    return (resposta.user as { id: string }).id;
+  } catch {
+    return null;
+  }
 }
 
 before(async () => {
@@ -217,5 +272,147 @@ describe("facilitadores", () => {
     // Recusar com excecao nao basta: o que nao pode e o saldo ter se mexido.
     assert.equal(await saldoDe(facilitadorId), 0);
     assert.equal(await somaDoExtrato(facilitadorId), 0);
+  });
+
+  // --- edicao do parceiro: /admin/facilitadores/[id] ---
+
+  it("facilitador nao edita ninguem por esta action, nem a si mesmo", async () => {
+    entrarComo(facilitadorId);
+
+    const alvo = await linhaDe(parceiroId);
+    const proprio = await linhaDe(facilitadorId);
+
+    await assert.rejects(
+      () => acoes.atualizar(parceiroId, cadastro(alvo, { nome: "Nome Roubado" }), alvo.updated_at),
+      /Sem permissao/,
+    );
+
+    // O proprio cadastro tambem nao: `usuarios` e o parceiro visto pelo admin.
+    // O que o facilitador muda em si mesmo passa por actions/perfil.ts, que nao
+    // alcanca e-mail nem situacao.
+    await assert.rejects(
+      () =>
+        acoes.atualizar(
+          facilitadorId,
+          cadastro(proprio, { nome: "Facilitador Promovido" }),
+          proprio.updated_at,
+        ),
+      /Sem permissao/,
+    );
+
+    await assert.rejects(
+      () => acoes.definirSenhaDoParceiro(parceiroId, "senha-de-invasor-123"),
+      /Sem permissao/,
+    );
+
+    const depois = await linhaDe(parceiroId);
+    assert.equal(depois.nome, alvo.nome, "a linha do outro nao pode ter mudado");
+    assert.equal(await entrarNoLogin(emailParceiro, "senha-de-invasor-123"), null);
+  });
+
+  it("admin edita nome e empresa, e a auditoria registra", async () => {
+    entrarComo(adminId);
+
+    const antes = await linhaDe(parceiroId);
+    const salvo = await acoes.atualizar(
+      parceiroId,
+      cadastro(antes, { nome: "Parceiro Renomeado", empresa: "Consultoria Renomeada" }),
+      antes.updated_at,
+    );
+
+    assert.equal(salvo.nome, "Parceiro Renomeado");
+    assert.equal(salvo.empresa, "Consultoria Renomeada");
+    assert.equal(salvo.creditos, antes.creditos, "editar cadastro nao mexe em saldo");
+
+    const trilha = await db
+      .select()
+      .from(auditoria)
+      .where(eq(auditoria.registro_id, parceiroId));
+
+    assert.ok(
+      trilha.some((linha) => linha.detalhes.includes("Atualizou o parceiro")),
+      "a edicao precisa aparecer na trilha",
+    );
+  });
+
+  it("recusa e-mail ja usado por outro usuario com mensagem, e nao com excecao de banco", async () => {
+    entrarComo(adminId);
+
+    const antes = await linhaDe(parceiroId);
+    const resposta = await acoes.atualizarPelaTela(
+      parceiroId,
+      cadastro(antes, { email: `admin.${marca}@exemplo.com` }),
+      antes.updated_at,
+    );
+
+    assert.equal(resposta.ok, false);
+    assert.match(resposta.ok ? "" : resposta.erro, /Ja existe um usuario com o e-mail/);
+    assert.equal((await linhaDe(parceiroId)).email, emailParceiro, "o e-mail nao mudou");
+  });
+
+  /**
+   * O caso que tem de falhar se alguem tirar o guard.
+   *
+   * `creditos` chega pela chamada como qualquer Server Action — que e um POST
+   * publico. Nao basta a action recusar: o que importa e o SALDO nao ter se
+   * mexido, e continuar batendo com o extrato. Um UPDATE direto em
+   * `usuarios.creditos` nao "quase funciona": a trigger da 0005 aborta o COMMIT
+   * inteiro, e a edicao de nome que veio junto se perde tambem.
+   */
+  it("mandar `creditos` na action nao muda o saldo", async () => {
+    entrarComo(adminId);
+
+    const antes = await linhaDe(parceiroId);
+
+    await assert.rejects(
+      () =>
+        acoes.atualizar(
+          parceiroId,
+          cadastro(antes, { nome: "Parceiro Rico", creditos: 9999 }),
+          antes.updated_at,
+        ),
+      (erro: unknown) => {
+        // A recusa tem de vir da FRONTEIRA — do schema —, e nao do COMMIT. Se
+        // `creditos` chegar ao UPDATE quem recusa e a trigger da 0005: a linha
+        // ate fica certa, porque a transacao inteira volta atras, mas o admin ve
+        // um erro de banco no meio de um formulario de cadastro, e a edicao de
+        // nome que veio junto se perde sem explicacao. Por isso o teste exige o
+        // ZodError, e nao so a rejeicao — sem isto, a versao que deixa o campo
+        // chegar ao banco passaria igual (MEDIDO: o erro do drizzle nem carrega
+        // a mensagem da trigger no topo, ela fica no `cause`).
+        assert.ok(erro instanceof ZodError, `recusa deveria vir do schema; veio: ${erro}`);
+        assert.match(erro.message, /creditos/, "a recusa precisa nomear o campo");
+        return true;
+      },
+    );
+
+    assert.equal(await saldoDe(parceiroId), antes.creditos, "saldo so se move lancando extrato");
+    assert.equal(await somaDoExtrato(parceiroId), antes.creditos);
+    assert.equal((await linhaDe(parceiroId)).nome, antes.nome, "nada da chamada foi gravado");
+  });
+
+  it("a senha nova passa a valer e a antiga para de valer", async () => {
+    entrarComo(adminId);
+
+    await acoes.definirSenhaDoParceiro(parceiroId, SENHA_REDEFINIDA);
+
+    assert.equal(await entrarNoLogin(emailParceiro, SENHA), null, "a antiga nao vale mais");
+    assert.equal(await entrarNoLogin(emailParceiro, SENHA_REDEFINIDA), parceiroId);
+  });
+
+  it("parceiro desativado nao entra mais", async () => {
+    entrarComo(adminId);
+
+    const antes = await linhaDe(parceiroId);
+    const salvo = await acoes.atualizar(
+      parceiroId,
+      cadastro(antes, { ativo: false }),
+      antes.updated_at,
+    );
+
+    assert.equal(salvo.ativo, false);
+    // A senha continua certa: o que barra e a situacao da conta, conferida em
+    // lib/auth/config.ts antes de a sessao nascer.
+    assert.equal(await entrarNoLogin(emailParceiro, SENHA_REDEFINIDA), null);
   });
 });

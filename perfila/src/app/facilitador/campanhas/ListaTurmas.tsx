@@ -64,10 +64,7 @@ export function ListaTurmas({ itens }: { itens: ItemTurma[] }) {
         subtitle={`${itens.length} turmas · ${passaportes} passaportes enviados`}
         actions={
           <>
-            <Button
-              icon={<Icon name="download" />}
-              onClick={() => toast('Exportação ainda não disponível')}
-            >
+            <Button href="/api/exportar/turmas" download icon={<Icon name="download" />}>
               Exportar
             </Button>
             <Button
@@ -204,10 +201,19 @@ export function ListaTurmas({ itens }: { itens: ItemTurma[] }) {
                           label="Gerar link"
                           onClick={() => toast('Link da turma ainda não disponível')}
                         />
+                        {/* Rotulo diferente do "Exportar" do cabecalho DE
+                            PROPOSITO. Aquele baixa a lista de turmas e funciona;
+                            este baixaria as respostas DESTA turma, que ainda nao
+                            existem porque nada liga mapa a turma. Dois botoes com
+                            o mesmo icone e o mesmo nome, um funcionando e o outro
+                            nao, fazem a pessoa concluir que a exportacao e
+                            intermitente. */}
                         <IconButton
                           icon="download"
-                          label="Exportar"
-                          onClick={() => toast('Exportação ainda não disponível')}
+                          label="Baixar respostas da turma"
+                          onClick={() =>
+                            toast('Respostas da turma ainda nao disponiveis: nenhum mapa e ligado a turma')
+                          }
                         />
                       </RowActions>
                     </Td>

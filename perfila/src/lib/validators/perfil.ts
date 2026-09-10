@@ -38,16 +38,28 @@ const vazioVirandoNulo = z
   .trim()
   .transform((valor) => (valor === "" ? null : valor));
 
+/**
+ * Exportados porque o formato e da COLUNA, e nao do papel de quem edita: o
+ * admin muda empresa e telefone do parceiro por
+ * `validators/facilitador.ts:atualizarFacilitadorSchema`, na mesma tabela e nas
+ * mesmas duas colunas. Mesma razao de `nomePessoa` morar em `./assessment` —
+ * duas regras para o mesmo campo viram duas respostas para a mesma pergunta, e
+ * a que estiver errada e a que ninguem olha.
+ */
+export const empresaOpcional = vazioVirandoNulo.refine(
+  (valor) => valor === null || (valor.length >= 2 && valor.length <= 160),
+  "Empresa: informe de 2 a 160 caracteres, ou deixe em branco",
+);
+
+export const telefoneOpcional = vazioVirandoNulo.refine(
+  (valor) => valor === null || TELEFONE_RE.test(valor),
+  "Telefone invalido: use DDD e numero, de 8 a 20 caracteres",
+);
+
 export const atualizarPerfilSchema = z.strictObject({
   nome: nomePessoa,
-  empresa: vazioVirandoNulo.refine(
-    (valor) => valor === null || (valor.length >= 2 && valor.length <= 160),
-    "Empresa: informe de 2 a 160 caracteres, ou deixe em branco",
-  ),
-  telefone: vazioVirandoNulo.refine(
-    (valor) => valor === null || TELEFONE_RE.test(valor),
-    "Telefone invalido: use DDD e numero, de 8 a 20 caracteres",
-  ),
+  empresa: empresaOpcional,
+  telefone: telefoneOpcional,
 });
 
 export const trocarSenhaSchema = z.strictObject({

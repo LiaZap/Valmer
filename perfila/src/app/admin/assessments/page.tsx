@@ -1,4 +1,4 @@
-import { BotaoAviso } from '@/components/ui/BotaoAviso'
+import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { assessmentsVisiveis, empresasPorId } from '@/lib/painel'
@@ -33,9 +33,9 @@ export default async function AssessmentsAdminPage({
         title="Mapas Comportamentais"
         subtitle={`${itens.length} enviados · ${concluidos} concluídos`}
         actions={
-          <BotaoAviso icon={<Icon name="download" />} aviso="Exportação de mapas ainda não disponível">
+          <Button href="/api/exportar/assessments" download icon={<Icon name="download" />}>
             Exportar
-          </BotaoAviso>
+          </Button>
         }
       />
 

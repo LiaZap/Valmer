@@ -179,6 +179,21 @@ export const ROTULO_SITUACAO: Record<SituacaoAssessment, string> = {
 
 export type TipoTransacao = 'compra' | 'uso' | 'estorno' | 'bonus'
 
+/**
+ * Nome de cada movimento do extrato, ao lado do tipo que ele nomeia.
+ *
+ * Morava dentro de `components/creditos/TabelaExtrato.tsx` e subiu para cá
+ * quando a exportação em CSV passou a precisar dos mesmos rótulos: a tabela e
+ * o arquivo lêem daqui, então um tipo novo de movimento não aparece nomeado
+ * numa e cru no outro. Mesmo lugar de `ROTULO_SITUACAO`, logo acima.
+ */
+export const ROTULO_TIPO: Record<TipoTransacao, string> = {
+  compra: 'Compra',
+  uso: 'Uso',
+  estorno: 'Estorno',
+  bonus: 'Bônus',
+}
+
 export type Transacao = {
   id: string
   facilitadorId: string

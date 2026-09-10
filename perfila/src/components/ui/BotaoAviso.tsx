@@ -11,7 +11,8 @@ import { useToast } from './Toast'
  * Server Components — é lá que a consulta acontece —, e um Server Component
  * não consegue passar `onClick` adiante, porque função não atravessa a
  * serialização. Sem este invólucro, cada tela precisaria virar cliente inteira
- * só para manter um botão de "Exportar" que hoje só emite um toast.
+ * só para manter um botão que hoje só emite um toast — como o "Vender
+ * créditos" de /admin/creditos.
  *
  * Quando a ação existir de verdade, troque a chamada pelo componente próprio
  * dela; este some sozinho quando o último uso sair.

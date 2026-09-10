@@ -1,4 +1,3 @@
-import { BotaoAviso } from '@/components/ui/BotaoAviso'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -31,9 +30,9 @@ export default async function FacilitadoresPage() {
         subtitle="Parceiros e empresas que compram créditos e aplicam mapas comportamentais."
         actions={
           <>
-            <BotaoAviso icon={<Icon name="download" />} aviso="Exportação de facilitadores ainda não disponível">
+            <Button href="/api/exportar/facilitadores" download icon={<Icon name="download" />}>
               Exportar
-            </BotaoAviso>
+            </Button>
             <Button href="/admin/facilitadores/novo" variant="primary" icon={<Icon name="plus" />}>
               Novo facilitador
             </Button>
