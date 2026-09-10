@@ -20,6 +20,13 @@ export type ContaDaSessao = {
   telefone: string | null;
   creditos: number;
   email: string;
+  /**
+   * Sempre `true` por construcao — `getSession` ja devolve null para conta
+   * desativada. Vem junto assim mesmo porque a tela de perfil MOSTRA a
+   * situacao, e mostrar um valor deduzido em vez do gravado e como a tela
+   * comeca a divergir do banco.
+   */
+  ativo: boolean;
 };
 
 export async function exigirSessaoNaTela(
@@ -36,6 +43,7 @@ export async function exigirSessaoNaTela(
       telefone: usuarios.telefone,
       creditos: usuarios.creditos,
       email: usuarios.email,
+      ativo: usuarios.ativo,
     })
     .from(usuarios)
     .where(and(eq(usuarios.id, sessao.userId), eq(usuarios.is_deleted, false)))

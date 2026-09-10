@@ -21,6 +21,8 @@ type AppShellProps = {
   raiz: string
   usuario: UsuarioTopbar
   buscaPlaceholder: string
+  /** Destino do menu do nome na barra superior. */
+  perfilHref?: string
 }
 
 /**
@@ -42,6 +44,7 @@ export function AppShell({
   raiz,
   usuario,
   buscaPlaceholder,
+  perfilHref,
 }: AppShellProps) {
   const [collapsed, setCollapsed] = useState(false)
 
@@ -63,6 +66,7 @@ export function AppShell({
             raiz={raiz}
             usuario={usuario}
             buscaPlaceholder={buscaPlaceholder}
+            perfilHref={perfilHref}
           />
 
           <div className={styles.content}>{children}</div>

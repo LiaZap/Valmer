@@ -1,12 +1,12 @@
 'use client'
 
+import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Avatar } from '@/components/ui/Avatar'
-import { SearchInput } from '@/components/ui/Field'
 import { Icon } from '@/components/ui/Icon'
-import { IconButton } from '@/components/ui/IconButton'
 import { resolveBreadcrumb, type NavGroup } from '@/lib/routes'
 import { BotaoSair } from './BotaoSair'
+import { BuscaTopbar } from './BuscaTopbar'
 import styles from './Topbar.module.css'
 
 export type UsuarioTopbar = {
@@ -23,6 +23,13 @@ type TopbarProps = {
   raiz: string
   usuario: UsuarioTopbar
   buscaPlaceholder: string
+  /**
+   * Tela de perfil deste ambiente, para onde o menu do nome leva.
+   *
+   * Opcional porque só o portal do parceiro tem uma: no admin o menu continua
+   * sendo o bloco de identificação que sempre foi, sem destino inventado.
+   */
+  perfilHref?: string
 }
 
 /**
@@ -38,6 +45,7 @@ export function Topbar({
   raiz,
   usuario,
   buscaPlaceholder,
+  perfilHref,
 }: TopbarProps) {
   const pathname = usePathname()
   const { title, sub } = resolveBreadcrumb(pathname, grupos, base)
@@ -62,28 +70,38 @@ export function Topbar({
 
       <div className={styles.spacer} />
 
-      <SearchInput
-        placeholder={buscaPlaceholder}
-        rounded
-        className={styles.search}
-        aria-label={buscaPlaceholder}
-      />
+      <BuscaTopbar placeholder={buscaPlaceholder} />
 
       <div className={styles.user}>
-        <button type="button" className={styles.userButton}>
-          <Avatar size="md" tone="ink">
-            {usuario.iniciais}
-          </Avatar>
-          <span className={styles.userText}>
-            <span className={styles.userName}>{usuario.nome}</span>
-            <span className={styles.userMeta}>{usuario.resumo}</span>
-          </span>
-          <span className={styles.chevron}>
-            <Icon name="chevD" size={16} />
-          </span>
-        </button>
+        {/* O menu do nome não abria nada: era um botão que não fazia o que
+            prometia. Agora ele é o caminho para o perfil, que é o que a
+            chevron sempre sugeriu. */}
+        {perfilHref ? (
+          <Link href={perfilHref} className={styles.userButton}>
+            {conteudoDoUsuario(usuario)}
+          </Link>
+        ) : (
+          <span className={styles.userButton}>{conteudoDoUsuario(usuario)}</span>
+        )}
         <BotaoSair />
       </div>
     </header>
+  )
+}
+
+function conteudoDoUsuario(usuario: UsuarioTopbar) {
+  return (
+    <>
+      <Avatar size="md" tone="ink">
+        {usuario.iniciais}
+      </Avatar>
+      <span className={styles.userText}>
+        <span className={styles.userName}>{usuario.nome}</span>
+        <span className={styles.userMeta}>{usuario.resumo}</span>
+      </span>
+      <span className={styles.chevron}>
+        <Icon name="chevD" size={16} />
+      </span>
+    </>
   )
 }

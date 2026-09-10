@@ -1,0 +1,41 @@
+.coluna {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  max-width: 760px;
+}
+
+.corpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  padding: var(--space-20);
+}
+
+/* Dois campos lado a lado; empilham quando não cabem. */
+.dupla {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-16);
+}
+
+.dados {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-16);
+  margin: var(--space-16) 0 0;
+}
+
+.dado {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.valor {
+  margin: 0;
+  font-size: var(--fs-135);
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}

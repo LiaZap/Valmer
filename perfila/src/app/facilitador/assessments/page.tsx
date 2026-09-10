@@ -10,9 +10,20 @@ import { ListaAssessments } from './ListaAssessments'
  * Server Component: a consulta acontece aqui e a interatividade (filtros,
  * ações da linha) fica no componente cliente abaixo. Assim a lista não
  * precisa de rota de API nem de estado de carregamento.
+ *
+ * `q` chega da busca da barra superior, que manda o e-mail do avaliado
+ * escolhido. A página só repassa: quem filtra é a lista, que já tinha o campo.
  */
-export default async function AssessmentsFacilitadorPage() {
-  const [meus, conta] = await Promise.all([assessmentsVisiveis(), contaAtual()])
+export default async function AssessmentsFacilitadorPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>
+}) {
+  const [{ q }, meus, conta] = await Promise.all([
+    searchParams,
+    assessmentsVisiveis(),
+    contaAtual(),
+  ])
   const aguardando = meus.filter((item) => item.situacao !== 'concluido').length
 
   return (
@@ -31,7 +42,10 @@ export default async function AssessmentsFacilitadorPage() {
         }
       />
 
-      <ListaAssessments itens={meus} />
+      {/* A `key` remonta a lista quando o termo muda: sem ela, buscar duas
+          vezes seguidas a partir desta mesma tela trocava a URL e mantinha o
+          filtro da busca anterior, porque o campo e estado do cliente. */}
+      <ListaAssessments key={q ?? ''} itens={meus} buscaInicial={q ?? ''} />
     </>
   )
 }

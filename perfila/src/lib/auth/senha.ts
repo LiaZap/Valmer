@@ -7,10 +7,10 @@
  * importa — e basta um Server Component para isso, nao precisa de client
  * component. Uma troca de senha por id, aberta na internet, e tomada de conta.
  *
- * Quem chama daqui e o seed e os testes, que ja rodam com acesso direto ao
- * banco. No dia em que a tela do admin tiver o botao, o lugar dele e uma
- * action fina por cima disto, com sessao, `usuarios:atualizar`,
- * `senhaNovaSchema` e auditoria — como em actions/assessments.ts.
+ * Quem chama daqui e o seed, os testes e `actions/perfil.ts` — a action fina
+ * por cima disto, com sessao, `senhaNovaSchema`, a conferencia da senha atual
+ * e auditoria, no desenho de actions/assessments.ts. Nada aqui decide se PODE
+ * trocar; isto so troca.
  *
  * O caminho normal do Better Auth (`signUpEmail`) cria o usuario junto, e aqui
  * ele ja veio do admin ou do seed, com papel, empresa e saldo definidos. Isto
@@ -52,4 +52,28 @@ export async function definirSenha(usuarioId: string, senha: string): Promise<vo
     accountId: usuarioId,
     password: hash,
   });
+}
+
+/**
+ * Confere se `senha` e a senha atual do usuario.
+ *
+ * A comparacao e do Better Auth (`password.verify`), como o hash: uma segunda
+ * implementacao aqui seria uma segunda resposta para "esta senha vale?", e a
+ * que estivesse errada seria a que ninguem olha.
+ *
+ * NAO passa por `auth.api.changePassword`, embora ele exista nesta versao e
+ * faca exatamente verify + updateAccount. Aquele endpoint identifica quem esta
+ * trocando pelo COOKIE (`sensitiveSessionMiddleware`), e quem identifica no
+ * resto do projeto e `getSession()` — que tambem cobre o atalho de
+ * desenvolvimento usado por script e teste. Com o endpoint no meio, a regra
+ * que impede a tomada de conta (exigir a senha atual) so poderia ser
+ * exercitada com um login de verdade, e regra de seguranca sem teste dura ate
+ * o primeiro refactor. Ver `actions/perfil.ts`.
+ */
+export async function conferirSenha(usuarioId: string, senha: string): Promise<boolean> {
+  const contexto = await auth.$context;
+  const credencial = await contexto.internalAdapter.findCredentialAccount(usuarioId);
+  if (!credencial?.password) return false;
+
+  return contexto.password.verify({ hash: credencial.password, password: senha });
 }

@@ -26,12 +26,15 @@ const RELATORIOS = ['Todos', 'S1', 'S2', 'S3', 'S4']
 export function ListaAssessments({
   itens,
   empresas,
+  buscaInicial = '',
 }: {
   itens: Assessment[]
   /** Nome de exibição por id de facilitador, pronto do servidor. */
   empresas: Record<string, string>
+  /** Termo vindo da busca da barra superior, pela query `q`. */
+  buscaInicial?: string
 }) {
-  const [busca, setBusca] = useState('')
+  const [busca, setBusca] = useState(buscaInicial)
   const [situacao, setSituacao] = useState(SITUACOES[0]!)
   const [relatorio, setRelatorio] = useState(RELATORIOS[0]!)
 

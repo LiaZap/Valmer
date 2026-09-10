@@ -22,8 +22,15 @@ const SITUACOES = ['Todas', ...Object.values(ROTULO_SITUACAO)]
  * a cada tecla renderia uma consulta por caractere digitado, sem melhorar nada
  * numa lista deste tamanho.
  */
-export function ListaAssessments({ itens }: { itens: Assessment[] }) {
-  const [busca, setBusca] = useState('')
+export function ListaAssessments({
+  itens,
+  buscaInicial = '',
+}: {
+  itens: Assessment[]
+  /** Termo vindo da busca da barra superior, pela query `q`. */
+  buscaInicial?: string
+}) {
+  const [busca, setBusca] = useState(buscaInicial)
   const [situacao, setSituacao] = useState(SITUACOES[0]!)
 
   function limpar() {

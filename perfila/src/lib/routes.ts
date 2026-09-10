@@ -130,11 +130,25 @@ const STATIC_SUBS: Record<string, string> = {
   '/admin/facilitadores/novo': 'Novo facilitador',
 }
 
+/**
+ * Telas que existem sem item de menu.
+ *
+ * Sem esta consulta, `resolveBreadcrumb` cai no primeiro item do menu e a
+ * trilha do perfil dizia "Parceiro / Visão Geral" — o caminho errado, que é
+ * pior que caminho nenhum.
+ */
+const TITULOS_FORA_DO_MENU: Record<string, string> = {
+  '/facilitador/perfil': 'Perfil',
+}
+
 export function resolveBreadcrumb(
   pathname: string,
   grupos: NavGroup[],
   base: string,
 ): Breadcrumb {
+  const foraDoMenu = TITULOS_FORA_DO_MENU[pathname]
+  if (foraDoMenu) return { title: foraDoMenu }
+
   const itens = grupos.flatMap((grupo) => grupo.items)
   const secao = itens.find((item) => isNavItemActive(item.href, pathname, base))
   const title = secao?.label ?? itens[0]?.label ?? ''

@@ -49,11 +49,6 @@
   flex: 1;
 }
 
-.search {
-  flex: 1 1 120px;
-  max-width: 260px;
-}
-
 /* ---------- Menu do usuário ---------- */
 .user {
   display: flex;
@@ -80,9 +75,19 @@
     border-color var(--transition-fast);
 }
 
-.userButton:hover {
+/* Só a versão que navega reage ao ponteiro. No admin o bloco é identificação,
+   não controle: destacá-lo ao passar o mouse prometia um clique que não há. */
+a.userButton:hover {
   background: var(--color-surface);
   border-color: var(--color-border);
+}
+
+a.userButton {
+  text-decoration: none;
+}
+
+span.userButton {
+  cursor: default;
 }
 
 .userText {
@@ -133,15 +138,10 @@
 }
 
 /* ---------- Adaptação a telas estreitas ----------
-   A ordem de sacrifício é: nome do usuário → busca → breadcrumb. */
+   A ordem de sacrifício é: nome do usuário → busca → breadcrumb.
+   A busca esconde-se pelo módulo dela (BuscaTopbar.module.css). */
 @media (max-width: 900px) {
   .userText {
-    display: none;
-  }
-}
-
-@media (max-width: 700px) {
-  .search {
     display: none;
   }
 }

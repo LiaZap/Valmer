@@ -30,6 +30,7 @@ export default async function FacilitadorLayout({ children }: { children: React.
       subtitulo="Portal do Parceiro"
       raiz="Parceiro"
       buscaPlaceholder="Buscar avaliado, turma…"
+      perfilHref="/facilitador/perfil"
       usuario={{
         nome: sessao.nome.split(' ').slice(0, 2).join(' '),
         iniciais: initials(sessao.nome),
