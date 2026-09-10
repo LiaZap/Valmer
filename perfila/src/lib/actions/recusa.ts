@@ -55,3 +55,54 @@ export async function paraTela<T>(
     throw erro;
   }
 }
+
+/**
+ * Violacao de unicidade do Postgres, se houver, em qualquer nivel da cadeia.
+ *
+ * O erro do driver vem embrulhado pelo Drizzle, entao o codigo nao esta no
+ * topo: e preciso descer pelo `cause` ate achar. Sem isso a checagem acerta em
+ * teste, onde o erro chega cru, e erra em producao.
+ */
+function violacaoDeUnicidade(erro: unknown): string | null {
+  let atual: unknown = erro;
+  for (let salto = 0; atual && salto < 5; salto += 1) {
+    const alvo = atual as { code?: unknown; constraint?: unknown; cause?: unknown };
+    if (alvo.code === "23505") {
+      return typeof alvo.constraint === "string" ? alvo.constraint : "";
+    }
+    atual = alvo.cause;
+  }
+  return null;
+}
+
+/**
+ * A mensagem legivel de uma recusa, ou null quando e falha de verdade.
+ *
+ * Fica ao lado de `paraTela` sem ser usada por ela, de proposito: esta versao
+ * traduz TAMBEM a corrida do indice unico, e ligar isso em `paraTela` mudaria
+ * calada o que clientes, cargos, devolutivas, precos e relatorio devolvem para
+ * uma colisao de indice — hoje aquilo sobe como falha, que e o combinado.
+ * Quem precisar da traducao pede por ela, como `facilitadores.ts` faz.
+ */
+export function comoRecusa(erro: unknown): string | null {
+  if (erro instanceof RecusaDeRegra) return erro.message;
+  // Zod ja explica o campo errado; a primeira mensagem basta, porque o usuario
+  // corrige um campo por vez.
+  if (erro instanceof ZodError) return erro.issues[0]?.message ?? "Dados invalidos";
+
+  // A consulta antes do INSERT da nome a recusa no caminho normal, mas ela NAO
+  // fecha a corrida: dois cadastros do mesmo e-mail no mesmo instante passam os
+  // dois pelo SELECT e o indice recusa o segundo. Sem esta traducao, esse
+  // segundo admin recebia "duplicate key value violates unique constraint" —
+  // ou, em producao, um digest opaco — para a mesma decisao de negocio banal
+  // que o outro caminho explica em portugues. Quem garante a unicidade e o
+  // indice; isto so faz a recusa dele ter as mesmas palavras.
+  const restricao = violacaoDeUnicidade(erro);
+  if (restricao !== null) {
+    return restricao === "uq_usuarios_email"
+      ? "Ja existe um usuario com este e-mail."
+      : "Este registro ja existe.";
+  }
+
+  return null;
+}

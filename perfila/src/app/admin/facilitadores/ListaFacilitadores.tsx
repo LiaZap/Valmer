@@ -57,7 +57,7 @@ export function ListaFacilitadores({
       const resposta = await definirSituacaoPelaTela(facilitador.id, !facilitador.ativo)
 
       if (!resposta.ok) {
-        toast(resposta.erro)
+        toast(resposta.erro, 'aviso')
         return
       }
 
@@ -169,21 +169,26 @@ export function ListaFacilitadores({
                 <Td dense align="right">
                   {/* Editar e ativar/desativar gravam de verdade, pela mesma
                       action — `definirSituacaoPelaTela` chama a edição com a
-                      linha que acabou de ler. As duas primeiras continuam sem
-                      servidor: a plataforma ainda não envia e-mail, e a venda
-                      mora em /admin/creditos. O aviso diz o que falta em vez de
-                      anunciar um efeito que ninguém executa. */}
+                      linha que acabou de ler. O cartão LEVA para /admin/creditos:
+                      a venda existe e grava lá, e o aviso antigo dizendo que
+                      "ainda não está disponível" era falso. O envelope é o
+                      único que continua sem servidor, porque depende de um
+                      provedor de e-mail que o cliente ainda vai contratar — e
+                      diz o caminho manual em vez de fingir que enviou. */}
                   <RowActions>
                     <IconButton
                       icon="card"
                       label={`Vender créditos para ${facilitador.nome}`}
-                      onClick={() => toast('Venda de créditos ainda não disponível')}
+                      href="/admin/creditos"
                     />
                     <IconButton
                       icon="mail"
                       label={`Reenviar acesso para ${facilitador.nome}`}
                       onClick={() =>
-                        toast('Reenvio de acesso ainda não disponível: a plataforma ainda não envia e-mail')
+                        toast(
+                          'O envio automático depende do provedor de e-mail, ainda não contratado. Abra Editar, defina a senha e repasse ao parceiro por fora.',
+                          'aviso',
+                        )
                       }
                     />
                     <IconButton

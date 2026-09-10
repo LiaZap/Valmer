@@ -43,7 +43,7 @@ export default async function CreditosAdminPage() {
     listarPacotes(),
   ])
 
-  const m = metricasPlataforma({ facilitadores, assessments, transacoes, pacotes })
+  const m = metricasPlataforma({ facilitadores, assessments, transacoes })
 
   // Os nomes saem dos ids que aparecem NO EXTRATO, e não da lista de
   // parceiros: quem movimenta crédito nem sempre tem papel de facilitador — o

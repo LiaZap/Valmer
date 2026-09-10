@@ -7,6 +7,8 @@ export * from "./assessments";
 export * from "./creditos";
 export * from "./auditoria";
 export * from "./cursos";
+/** O programa do curso: modulo e aula. Da plataforma, sem dono — ver o arquivo. */
+export * from "./ead";
 export * from "./turmas";
 export * from "./clientes";
 export * from "./cargos";

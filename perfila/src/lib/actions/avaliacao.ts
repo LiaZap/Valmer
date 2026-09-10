@@ -9,11 +9,13 @@
  */
 "use server";
 
+import { after } from "next/server";
 import { and, count, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { assessments, assessmentsRespostas, usuarios } from "@/lib/db/schema";
 import { registrarAuditoria } from "@/lib/audit/logger";
 import { respostaSchema } from "@/lib/validators/assessment";
+import { gerarESalvar } from "@/lib/relatorio/persistir";
 import { questoes } from "@/data/assessment";
 import type { Respostas } from "@/lib/disc";
 import type { FatorDisc } from "@/data/dna";
@@ -178,6 +180,50 @@ export async function salvarResposta(
 }
 
 /**
+ * Agenda a escrita da narrativa deste assessment para depois da resposta.
+ *
+ * POR QUE AQUI E NAO NA PAGINA DO RELATORIO. `/relatorio/<token>` e publica e
+ * sem sessao: gerar de la abriria um endpoint em que qualquer um com um token
+ * queima chamada paga de IA, e ainda deixaria o cliente final do parceiro
+ * parado minutos na frente de uma pagina em branco, porque a geracao demora.
+ * O momento certo e este: os contadores acabaram de ser gravados, e ninguem
+ * esta esperando o texto — quando o link for aberto, ele ja existe.
+ *
+ * POR QUE `after` E NAO `await`. O callback roda DEPOIS que a resposta foi
+ * embora, entao a transacao de `concluir` ja fechou (a chamada nao segura a
+ * linha travada nem a conexao do pool) e o respondente nao espera a IA para
+ * ver a tela de conclusao.
+ *
+ * CONCORRENCIA. Dispara uma vez por assessment na vida: `concluir` recusa o
+ * segundo fecho com a linha travada por `for update`, entao dois envios
+ * simultaneos so agendam um. E o teto conhecido de `persistir.ts` — a
+ * checagem de "ja existe narrativa?" fora de lock — deixa de ser alcancavel
+ * por este caminho.
+ *
+ * FALHA. Nao ha mais resposta para escrever nela, entao fica no log. A lista
+ * do parceiro continua oferecendo "Gerar relatorio" enquanto nao houver
+ * narrativa, e e por ali que a segunda tentativa entra.
+ */
+function agendarNarrativa(token: string): void {
+  const escrever = async () => {
+    try {
+      await gerarESalvar(token);
+    } catch (erro) {
+      console.error(`[relatorio] narrativa de ${token} nao foi gerada`, erro);
+    }
+  };
+
+  try {
+    after(escrever);
+  } catch {
+    // Fora de uma requisicao do Next — teste, seed, CLI — `after` lanca. Nao
+    // ha o que agendar ali, e o fecho do assessment NAO pode falhar por causa
+    // do texto: os contadores ja estao gravados. Quem roda fora do servidor
+    // gera pelo `npm run relatorio:gerar`.
+  }
+}
+
+/**
  * Fecha o assessment gravando os quatro contadores.
  *
  * Grava os contadores e nada mais: perfil primario, secundario e percentuais
@@ -252,6 +298,11 @@ export async function concluir(
 
     return { ok: true, contadores } as const;
   });
+
+  // Fora da transacao, de proposito: ela ja commitou aqui, e a narrativa e
+  // consequencia do fecho, nao parte dele. Se a IA falhar, os contadores
+  // continuam gravados.
+  if (resultado.ok) agendarNarrativa(token);
 
   return resultado;
 }

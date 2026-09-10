@@ -45,6 +45,12 @@ const permissoes: Record<string, Papel[]> = {
   "cursos:criar": ["admin"],
   "cursos:ler": ["admin"],
   "cursos:atualizar": ["admin"],
+  // `cursos:deletar` cobre modulo e aula (`db/schema/ead.ts`), que sao o curso
+  // por dentro e nao um recurso a parte: quem escreve o programa e o mesmo que
+  // escreve o curso, e uma segunda entrada aqui so criaria a chance de os dois
+  // conjuntos divergirem. O curso em si continua sem delete — sair do ar e
+  // despublicar, que e `cursos:atualizar`.
+  "cursos:deletar": ["admin"],
   // O banco de questoes vem do codigo (`data/assessment.ts`), entao nao ha
   // action que o escreva — so a exportacao em CSV o le. A linha existe para
   // essa leitura ter dono declarado aqui, e nao um `papel === "admin"` solto

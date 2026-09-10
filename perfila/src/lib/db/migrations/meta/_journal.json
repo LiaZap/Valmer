@@ -92,6 +92,41 @@
       "when": 1789077501393,
       "tag": "0012_catalogo_inicial_de_precos",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1789080402743,
+      "tag": "0013_daffy_ares",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1789080836916,
+      "tag": "0014_tirar_narrativa_de_exemplo_do_relatorio",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1789080842391,
+      "tag": "0015_pale_thunderbolt",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1789082413704,
+      "tag": "0016_apagar_toda_narrativa_de_exemplo",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1789082860215,
+      "tag": "0017_secret_lifeguard",
+      "breakpoints": true
     }
   ]
 }

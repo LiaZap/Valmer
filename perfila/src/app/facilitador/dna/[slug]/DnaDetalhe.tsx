@@ -43,14 +43,14 @@ export function DnaDetalhe({ dna }: { dna: Dna }) {
           <>
             <Button
               icon={<Icon name="file" />}
-              onClick={() => toast('Relatório do DNA ainda não disponível')}
+              onClick={() => toast('Relatório do DNA ainda não disponível', 'aviso')}
             >
               Visualizar relatório
             </Button>
             <Button
               variant="primary"
               icon={<Icon name="download" />}
-              onClick={() => toast('Download do PDF ainda não disponível')}
+              onClick={() => toast('Download do PDF ainda não disponível', 'aviso')}
             >
               Baixar PDF
             </Button>
@@ -85,7 +85,7 @@ export function DnaDetalhe({ dna }: { dna: Dna }) {
           <Button
             variant="dark"
             size="lg"
-            onClick={() => toast('Busca de respondentes ainda não disponível')}
+            onClick={() => toast('Busca de respondentes ainda não disponível', 'aviso')}
           >
             Pesquisar
           </Button>

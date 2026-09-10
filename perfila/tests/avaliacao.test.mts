@@ -19,7 +19,8 @@ import { config } from "dotenv";
 config({ path: [".env.local", ".env"] });
 
 const { db } = await import("@/lib/db");
-const { usuarios, assessments, assessmentsRespostas, auditoria } = await import("@/lib/db/schema");
+const { usuarios, assessments, assessmentsRespostas, assessmentsRelatorios, auditoria } =
+  await import("@/lib/db/schema");
 const acoes = await import("@/lib/actions/avaliacao");
 const { questoes } = await import("@/data/assessment");
 const { and, eq } = await import("drizzle-orm");
@@ -249,6 +250,25 @@ describe("avaliacao", () => {
       .from(auditoria)
       .where(and(eq(auditoria.registro_id, idAberto), eq(auditoria.acao, "atualizar")));
     assert.equal(trilha.length, 1, "conclusao gravada na auditoria");
+  });
+
+  it("o fecho nao espera a IA nem quebra sem contexto de requisicao", async () => {
+    // `concluir` agenda a escrita da narrativa com `after`, que so existe
+    // dentro de uma requisicao do Next. Aqui nao ha nenhuma, entao a chamada
+    // lanca — e o fecho acima devolveu ok assim mesmo. E o ponto: os
+    // contadores sao o produto, e perder o assessment por causa do texto seria
+    // trocar o produto por um efeito colateral dele.
+    const [linha] = await db.select().from(assessments).where(eq(assessments.id, idAberto));
+    assert.equal(linha!.situacao, "concluido", "o fecho sobreviveu ao agendamento");
+
+    // E nenhuma narrativa foi gravada DENTRO da transacao: a chamada paga leva
+    // minutos, e presa ali seguraria a linha travada e a conexao do pool o
+    // tempo todo. Em producao ela e escrita depois da resposta ir embora.
+    const versoes = await db
+      .select()
+      .from(assessmentsRelatorios)
+      .where(eq(assessmentsRelatorios.assessment_id, idAberto));
+    assert.equal(versoes.length, 0, "a geracao nao roda dentro do fecho");
   });
 
   it("nao materializa perfil pronto em coluna", async () => {

@@ -1,6 +1,7 @@
 import { Icon } from '@/components/ui/Icon'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { listar } from '@/lib/actions/cursos'
+import { programaDosCursos } from '@/lib/ead'
 import ui from '@/styles/common.module.css'
 import { GestaoCursos } from './GestaoCursos'
 
@@ -12,7 +13,10 @@ import { GestaoCursos } from './GestaoCursos'
  * a tela irmã desta dentro de Conteúdo.
  */
 export default async function CursosAdminPage() {
-  const cursos = await listar()
+  // A permissão é conferida em `listar()`; o programa vem depois, montado por
+  // cima da lista que já foi lida — duas consultas para a página inteira, e não
+  // uma por curso. Ver `lib/ead.ts`.
+  const cursos = await programaDosCursos(await listar())
   const publicados = cursos.filter((curso) => curso.publicado).length
 
   return (
@@ -27,8 +31,9 @@ export default async function CursosAdminPage() {
           <Icon name="info" />
         </span>
         <span>
-          Aqui você escreve e publica o curso. O aluno não entra por este login: ele acessa a
-          plataforma de ensino, com cadastro próprio, e lá aparece só o que estiver publicado.
+          Aqui você escreve o curso, monta o programa e sobe os vídeos. Só o que estiver
+          publicado aparece na aba Treinamento do parceiro — e aula sem vídeo aparece lá como
+          pendente, em vez de sumir.
         </span>
       </div>
 

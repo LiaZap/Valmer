@@ -143,7 +143,7 @@ export function ListaCargos({ itens }: { itens: ItemCargo[] }) {
     iniciarGravacao(async () => {
       const resposta = await excluirPelaTela(item.id)
       if (!resposta.ok) {
-        toast(resposta.erro)
+        toast(resposta.erro, 'aviso')
         return
       }
       if (rascunho?.id === item.id) setRascunho(null)
@@ -274,7 +274,7 @@ export function ListaCargos({ itens }: { itens: ItemCargo[] }) {
           <Button
             variant="dark"
             size="lg"
-            onClick={() => toast('Busca por cargo ainda não disponível')}
+            onClick={() => toast('Busca por cargo ainda não disponível', 'aviso')}
           >
             Pesquisar
           </Button>
@@ -314,7 +314,7 @@ export function ListaCargos({ itens }: { itens: ItemCargo[] }) {
                       <IconButton
                         icon="download"
                         label="Baixar"
-                        onClick={() => toast('Download do PDF ainda não disponível')}
+                        onClick={() => toast('Download do PDF ainda não disponível', 'aviso')}
                       />
                       <IconButton
                         icon="edit"

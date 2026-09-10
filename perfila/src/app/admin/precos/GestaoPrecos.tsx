@@ -135,7 +135,7 @@ export function GestaoPrecos({
     iniciarGravacao(async () => {
       const resposta = await excluirPacotePelaTela(pacote.id)
       if (!resposta.ok) {
-        toast(resposta.erro)
+        toast(resposta.erro, 'aviso')
         return
       }
       if (rascunho?.tipo === 'pacote' && rascunho.id === pacote.id) setRascunho(null)

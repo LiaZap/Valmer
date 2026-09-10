@@ -18,9 +18,62 @@
   font-size: var(--fs-13);
   box-shadow: var(--shadow-toast);
   animation: toastIn var(--transition-slow) ease;
+  /* O aviso explica o que fazer agora, então a frase é mais longa que a
+     confirmação de uma palavra: sem teto ela sairia da tela no celular. */
+  max-width: min(92vw, 460px);
+}
+
+/* Recusa e erro não podem sair com o selo de quem gravou. Trocam o fundo
+   escuro pelo âmbar de atenção do tema — o mesmo par do .calloutWarning —,
+   porque só mudar o ícone é diferença que ninguém enxerga de relance. */
+.aviso {
+  background: var(--color-warning-tint);
+  color: var(--color-warning-text);
+  box-shadow:
+    var(--shadow-toast),
+    inset 0 0 0 1px var(--color-warning-solid);
 }
 
 .icon {
   display: flex;
   color: var(--color-accent-on-dark);
+}
+
+.aviso .icon {
+  color: var(--color-warning);
+}
+
+/* O viewport ignora o mouse para não bloquear o que está atrás dele. O aviso
+   precisa do contrário: ele tem botão de fechar, e botão que não recebe clique
+   é um aviso que não sai mais da tela. */
+.aviso {
+  pointer-events: auto;
+}
+
+.fechar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-left: var(--space-4);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--transition-base), background var(--transition-base);
+}
+
+.fechar:hover {
+  opacity: 1;
+  background: rgb(0 0 0 / 0.12);
+}
+
+.fechar:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+  opacity: 1;
 }

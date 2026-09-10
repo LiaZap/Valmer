@@ -32,7 +32,7 @@ export default function CursosPage() {
                 block
                 className={styles.acessar}
                 iconRight={<Icon name="ext" />}
-                onClick={() => toast('Acesso ao curso ainda não disponível')}
+                onClick={() => toast('Acesso ao curso ainda não disponível', 'aviso')}
               >
                 Acessar
               </Button>

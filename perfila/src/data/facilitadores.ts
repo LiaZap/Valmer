@@ -112,10 +112,23 @@ export type Assessment = {
   temNarrativa?: boolean
 }
 
-export const assessments: Assessment[] = [
+/**
+ * Os mapas do seed. Sem `token`, e isso e a guarda, nao um esquecimento.
+ *
+ * Este array ja trouxe tokens escritos a mao — "demo" e "expirado" entre eles.
+ * O token e a UNICA credencial do avaliado (`lib/actions/avaliacao.ts`), entao
+ * palavra curta em arquivo versionado e link secreto publicado: quem digitar
+ * /avaliacao/demo no endereco de homologacao responde e conclui o mapa de uma
+ * pessoa real. Trocar por doze hexadecimais fixos nao resolveria — continuaria
+ * publicado aqui.
+ *
+ * Quem sorteia o token e `lib/db/seed.ts`, com o MESMO `novoToken()` da criacao
+ * de verdade, e os imprime no fim da execucao. Sem o campo aqui, nao ha como
+ * alguem reintroduzir um token adivinhavel sem o compilador reclamar.
+ */
+export const assessments: Omit<Assessment, 'token'>[] = [
   {
     id: 'a1',
-    token: 'demo',
     facilitadorId: 'valmer',
     avaliadoNome: 'Paulo V S Melo',
     avaliadoEmail: 'contatopaulonvr@gmail.com',
@@ -127,7 +140,6 @@ export const assessments: Assessment[] = [
   },
   {
     id: 'a2',
-    token: 'k3mq81',
     facilitadorId: 'valmer',
     avaliadoNome: 'Elias da Silva Maia',
     avaliadoEmail: 'elmaiasilva83@gmail.com',
@@ -141,7 +153,6 @@ export const assessments: Assessment[] = [
   },
   {
     id: 'a3',
-    token: 'p7xa20',
     facilitadorId: 'valmer',
     avaliadoNome: 'Thais da Silva Muniz',
     avaliadoEmail: 'thaismuniz83@gmail.com',
@@ -153,7 +164,6 @@ export const assessments: Assessment[] = [
   },
   {
     id: 'a4',
-    token: 'expirado',
     facilitadorId: 'valmer',
     avaliadoNome: 'Fernando Brambilla',
     avaliadoEmail: 'fernandobrambilla@hotmail.com',
@@ -165,7 +175,6 @@ export const assessments: Assessment[] = [
   },
   {
     id: 'a5',
-    token: 'z9bt44',
     facilitadorId: 'juliana-rocha',
     avaliadoNome: 'Antonio Rodrigues Vidal',
     avaliadoEmail: 'vidalantonio6167@gmail.com',
@@ -209,6 +218,13 @@ export type Transacao = {
   tipo: TipoTransacao
   /** Positivo em compras e bônus, negativo em uso. */
   quantidade: number
+  /**
+   * O que a plataforma cobrou nesta compra, em reais. Nulo em movimento que
+   * não é compra e nas compras anteriores à coluna que o grava — ver
+   * `db/schema/creditos.ts`. Opcional porque os dados de protótipo deste
+   * arquivo não têm valor gravado nenhum.
+   */
+  valorCobrado?: number | null
   descricao: string
   data: string
 }
@@ -280,10 +296,6 @@ export const transacoes: Transacao[] = [
   },
 ]
 
-export function transacoesDe(facilitadorId: string): Transacao[] {
-  return transacoes.filter((transacao) => transacao.facilitadorId === facilitadorId)
-}
-
-export function assessmentsDe(facilitadorId: string): Assessment[] {
-  return assessments.filter((assessment) => assessment.facilitadorId === facilitadorId)
-}
+// `transacoesDe` e `assessmentsDe` sairam: recortavam o array de prototipo por
+// dono e nao tinham um unico chamador desde que as telas passaram a ler o banco
+// por `lib/painel.ts`, que faz o mesmo recorte no WHERE.

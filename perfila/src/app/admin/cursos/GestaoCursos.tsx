@@ -10,9 +10,11 @@ import { Row, Stack } from '@/components/ui/Layout'
 import { Pill } from '@/components/ui/Pill'
 import { useToast } from '@/components/ui/Toast'
 import { alternarPublicacaoPelaTela, criarPelaTela } from '@/lib/actions/cursos'
+import type { CursoComPrograma } from '@/lib/ead'
 import type { Curso } from '@/lib/db/schema'
 import ui from '@/styles/common.module.css'
 import styles from './page.module.css'
+import { Programa } from './Programa'
 
 const DATA_BR = new Intl.DateTimeFormat('pt-BR', {
   timeZone: 'America/Sao_Paulo',
@@ -30,7 +32,7 @@ const DATA_BR = new Intl.DateTimeFormat('pt-BR', {
  * compara os dois: se outra aba mexeu no curso, a gravação é recusada em vez de
  * passar por cima.
  */
-export function GestaoCursos({ cursos }: { cursos: Curso[] }) {
+export function GestaoCursos({ cursos }: { cursos: CursoComPrograma[] }) {
   const { toast } = useToast()
   const [titulo, setTitulo] = useState('')
   const [descricao, setDescricao] = useState('')
@@ -110,12 +112,17 @@ export function GestaoCursos({ cursos }: { cursos: Curso[] }) {
               )}
             </Field>
 
-            <Field label="Conteúdo">
+            {/* A EMENTA, e não o programa. Módulo e aula deixaram de ser texto
+                corrido e viraram tabela (`db/schema/ead.ts`): eles se cadastram
+                no bloco "Programa" de cada curso, logo abaixo. O que fica aqui
+                é a prosa que descreve o curso — o endereço da aula não mora
+                mais num textarea que ninguém consegue ordenar nem espelhar. */}
+            <Field label="Ementa">
               {(id) => (
                 <Textarea
                   id={id}
-                  rows={8}
-                  placeholder="Programa, módulos e os endereços das aulas."
+                  rows={6}
+                  placeholder="O que o curso cobre, para quem é e o que o aluno leva."
                   value={conteudo}
                   onChange={(evento) => setConteudo(evento.target.value)}
                   required
@@ -170,11 +177,14 @@ export function GestaoCursos({ cursos }: { cursos: Curso[] }) {
                   consultada para conferir o que está no ar, não para reler o
                   curso inteiro. */}
               <details>
-                <summary className={ui.note}>Ver conteúdo</summary>
+                <summary className={ui.note}>Ver ementa</summary>
                 <p className={ui.prose} style={{ whiteSpace: 'pre-wrap' }}>
                   {curso.conteudo}
                 </p>
               </details>
+
+              {/* O programa de verdade: é isto que /facilitador/ead espelha. */}
+              <Programa curso={curso} />
 
               <Row gap={12} justify="space-between" wrap>
                 <span className={ui.note}>

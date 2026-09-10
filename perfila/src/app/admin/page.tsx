@@ -11,7 +11,6 @@ import { Avatar } from '@/components/ui/Avatar'
 import { assessmentsVisiveis, listarFacilitadores, listarTransacoes } from '@/lib/painel'
 import { moeda } from '@/data/planos'
 import { metricasPlataforma, taxaConclusao } from '@/lib/metricas'
-import { listarPacotes } from '@/lib/precos'
 import ui from '@/styles/common.module.css'
 import styles from './page.module.css'
 
@@ -23,16 +22,16 @@ import styles from './page.module.css'
  * três idas ao banco em fila para desenhar o mesmo cabeçalho.
  */
 export default async function AdminPage() {
-  const [facilitadores, assessments, transacoes, pacotes] = await Promise.all([
+  const [facilitadores, assessments, transacoes] = await Promise.all([
     listarFacilitadores(),
     assessmentsVisiveis(),
     listarTransacoes(),
-    listarPacotes(),
   ])
 
-  // Os pacotes entram na conta da receita: sem eles, uma compra de pacote
-  // criado pelo admin nao acha par e some do indicador. Ver `lib/metricas.ts`.
-  const m = metricasPlataforma({ facilitadores, assessments, transacoes, pacotes })
+  // A tabela de pacotes saiu da conta: a receita agora sai do valor cobrado
+  // gravado em cada compra, e o preco vigente vale para a proxima venda, nao
+  // para as que ja aconteceram. Ver `lib/metricas.ts`.
+  const m = metricasPlataforma({ facilitadores, assessments, transacoes })
   const conclusao = taxaConclusao(assessments)
 
   const indicadores = [
@@ -58,7 +57,15 @@ export default async function AdminPage() {
       label: 'Receita de créditos',
       icon: 'dollar' as const,
       valor: moeda(m.receita),
-      nota: 'Soma dos pacotes vendidos',
+      // Compra sem valor gravado é anterior à coluna que o registra. Ela conta
+      // no crédito vendido e não na receita, e a nota diz isso em vez de deixar
+      // os dois cartões discordando sem explicação.
+      nota:
+        m.comprasSemValor === 0
+          ? 'Soma do que foi cobrado nas vendas'
+          : `Fora da conta: ${m.comprasSemValor} compra${
+              m.comprasSemValor > 1 ? 's' : ''
+            } sem valor registrado`,
     },
   ]
 

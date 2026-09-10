@@ -66,7 +66,7 @@ ATENCAO: ${emAndamento} desses ja comecaram a responder, e as ` +
       const resposta = await removerPendentesPelaTela(turmaId)
 
       if (!resposta.ok) {
-        toast(resposta.erro)
+        toast(resposta.erro, 'aviso')
         return
       }
 

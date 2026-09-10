@@ -9,11 +9,11 @@
  * extrato na MESMA transacao — igual a `actions/assessments.ts:criar`, que
  * gasta o credito pelo mesmo contrato.
  *
- * ponytail: o arquivo esta a poucas linhas do teto de 500 do projeto
- * (scripts/check-compliance.mjs). A proxima funcao nao cabe. Quando precisar,
- * o corte natural e tirar a edicao (obter/atualizar/definirSenhaDoParceiro e as
- * portas de tela) para actions/facilitadores-edicao.ts — o que segura os dois
- * juntos hoje e so `comoRecusa`, que teria de subir para actions/recusa.ts.
+ * ponytail: o arquivo vive perto do teto de 500 linhas do projeto
+ * (scripts/check-compliance.mjs). `comoRecusa` ja subiu para actions/recusa.ts,
+ * que era o corte barato. O proximo, quando faltar espaco de novo, e tirar a
+ * edicao (obter/atualizar/definirSenhaDoParceiro e as portas de tela) para
+ * actions/facilitadores-edicao.ts, que hoje nao depende mais de nada daqui.
  */
 "use server";
 
@@ -33,7 +33,7 @@ import {
   criarFacilitadorSchema,
   venderCreditosSchema,
 } from "@/lib/validators/facilitador";
-import { RecusaDeRegra } from "./recusa";
+import { comoRecusa, RecusaDeRegra } from "./recusa";
 
 const TABELA = "usuarios";
 
@@ -100,6 +100,12 @@ export async function criar(dados: unknown) {
       usuario_id: novo.id,
       tipo: "compra",
       quantidade: pacote.creditos,
+      // O preco COBRADO fica na linha, junto da quantidade, pelo mesmo motivo
+      // que o custo do mapa fica em `assessments.creditos_usados`: o painel
+      // recalculava a receita com o pacote vigente, entao o admin mexer em
+      // /admin/precos reescrevia o faturamento do mes passado. Ver
+      // `schema/creditos.ts`.
+      valor_cobrado: pacote.preco,
       descricao: `Pacote ${pacote.nome} na abertura da conta`,
       modified_by: sessao.userId,
     });
@@ -169,6 +175,9 @@ export async function venderCreditos(dados: unknown) {
       usuario_id: parceiro.id,
       tipo: "compra",
       quantidade: pacote.creditos,
+      // Mesma copia de preco de `criar`: os dois sao caminhos de venda, e um
+      // deles sem o valor gravado deixaria metade da receita sem lastro.
+      valor_cobrado: pacote.preco,
       descricao: `Pacote ${pacote.nome}`,
       modified_by: sessao.userId,
     });
@@ -452,47 +461,4 @@ export async function definirSituacaoPelaTela(id: string, ativo: boolean): Promi
       anterior.updated_at,
     );
   });
-}
-
-/**
- * Violacao de unicidade do Postgres, se houver, em qualquer nivel da cadeia.
- *
- * O erro do driver vem embrulhado pelo Drizzle, entao o codigo nao esta no
- * topo: e preciso descer pelo `cause` ate achar. Sem isso a checagem acerta em
- * teste, onde o erro chega cru, e erra em producao.
- */
-function violacaoDeUnicidade(erro: unknown): string | null {
-  let atual: unknown = erro;
-  for (let salto = 0; atual && salto < 5; salto += 1) {
-    const alvo = atual as { code?: unknown; constraint?: unknown; cause?: unknown };
-    if (alvo.code === "23505") {
-      return typeof alvo.constraint === "string" ? alvo.constraint : "";
-    }
-    atual = alvo.cause;
-  }
-  return null;
-}
-
-/** A mensagem legivel de uma recusa, ou null quando e falha de verdade. */
-function comoRecusa(erro: unknown): string | null {
-  if (erro instanceof RecusaDeRegra) return erro.message;
-  // Zod ja explica o campo errado; a primeira mensagem basta, porque o usuario
-  // corrige um campo por vez.
-  if (erro instanceof ZodError) return erro.issues[0]?.message ?? "Dados invalidos";
-
-  // A consulta antes do INSERT da nome a recusa no caminho normal, mas ela NAO
-  // fecha a corrida: dois cadastros do mesmo e-mail no mesmo instante passam os
-  // dois pelo SELECT e o indice recusa o segundo. Sem esta traducao, esse
-  // segundo admin recebia "duplicate key value violates unique constraint" —
-  // ou, em producao, um digest opaco — para a mesma decisao de negocio banal
-  // que o outro caminho explica em portugues. Quem garante a unicidade e o
-  // indice; isto so faz a recusa dele ter as mesmas palavras.
-  const restricao = violacaoDeUnicidade(erro);
-  if (restricao !== null) {
-    return restricao === "uq_usuarios_email"
-      ? "Ja existe um usuario com este e-mail."
-      : "Este registro ja existe.";
-  }
-
-  return null;
 }

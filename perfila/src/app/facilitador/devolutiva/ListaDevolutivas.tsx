@@ -70,7 +70,7 @@ export function ListaDevolutivas({
       // encontrado" e "o banco caiu" são coisas diferentes, e só a primeira o
       // facilitador resolve sozinho.
       if (!resposta.ok) {
-        toast(resposta.erro)
+        toast(resposta.erro, 'aviso')
         return
       }
 
@@ -99,7 +99,7 @@ export function ListaDevolutivas({
       )
 
       if (!resposta.ok) {
-        toast(resposta.erro)
+        toast(resposta.erro, 'aviso')
         return
       }
 
@@ -164,7 +164,7 @@ export function ListaDevolutivas({
           <Button
             variant="dark"
             size="lg"
-            onClick={() => toast('Busca de devolutivas ainda não disponível')}
+            onClick={() => toast('Busca de devolutivas ainda não disponível', 'aviso')}
           >
             Pesquisar
           </Button>
@@ -213,19 +213,29 @@ export function ListaDevolutivas({
                       <IconButton
                         icon="eye"
                         label="Visualizar"
-                        onClick={() => toast('Visualização da devolutiva ainda não disponível')}
+                        onClick={() =>
+                          toast(
+                            'Visualização da devolutiva ainda não disponível',
+                            'aviso',
+                          )
+                        }
                       />
                       {item.finalizada ? (
                         <>
                           <IconButton
                             icon="download"
                             label="Baixar PDF"
-                            onClick={() => toast('Download do PDF ainda não disponível')}
+                            onClick={() => toast('Download do PDF ainda não disponível', 'aviso')}
                           />
                           <IconButton
                             icon="mail"
                             label="Enviar por e-mail"
-                            onClick={() => toast('Envio por e-mail ainda não disponível')}
+                            onClick={() =>
+                              toast(
+                                'O envio automático depende do provedor de e-mail, ainda não contratado. Combine a entrega direto com a pessoa.',
+                                'aviso',
+                              )
+                            }
                           />
                         </>
                       ) : (

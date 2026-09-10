@@ -31,7 +31,12 @@ export default function SuportePage() {
           <CardFooter>
             <Button
               variant="primary"
-              onClick={() => toast('Envio ainda não disponível: use os contatos desta tela')}
+              onClick={() =>
+                toast(
+                  'Este formulário não envia: o provedor de e-mail ainda não foi contratado. Use os contatos ao lado.',
+                  'aviso',
+                )
+              }
             >
               Enviar mensagem
             </Button>

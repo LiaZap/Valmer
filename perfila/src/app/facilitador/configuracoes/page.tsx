@@ -38,7 +38,7 @@ export default function ConfiguracoesPage() {
     // "Atualizado" afirmava que algo foi gravado. Nada é: não há action de
     // preferências, e nem os toggles individuais sobrevivem a um F5. O
     // restaurar mexe só no estado desta tela, e é isso que a frase diz.
-    toast('Padrão restaurado nesta tela; preferências ainda não são salvas')
+    toast('Padrão restaurado nesta tela; preferências ainda não são salvas', 'aviso')
   }
 
   return (
@@ -60,7 +60,7 @@ export default function ConfiguracoesPage() {
           <Button
             variant="warning"
             size="sm"
-            onClick={() => toast('Integração com WhatsApp ainda não disponível')}
+            onClick={() => toast('Integração com WhatsApp ainda não disponível', 'aviso')}
           >
             Configurar
           </Button>

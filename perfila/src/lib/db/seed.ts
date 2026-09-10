@@ -22,13 +22,20 @@
  * contadores deles, e inventar 28 respostas para casar com contadores ja
  * fixados seria dado falso. O em andamento e a excecao — ver
  * `respostasEmAndamento`.
+ *
+ * E ficam sem NARRATIVA gravada, pelo mesmo motivo. O seed chegou a inserir
+ * `data/narrativa-exemplo.ts` como v1 do mapa do Elias, mas aquele texto foi
+ * escrito para o Paulo: gravado, ele vira relatorio de homologacao chamando a
+ * pessoa pelo nome errado, e nenhuma checagem de NODE_ENV alcanca uma linha que
+ * ja esta no banco. Mapa concluido sem narrativa tem tela propria
+ * (`components/relatorio/TextoPendente.tsx`) e o botao de gerar esta na lista
+ * do parceiro — o caminho de verdade, que a demo passa a exercitar.
  */
 import { config } from "dotenv";
 import { Pool } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
 import {
   assessments as tabelaAssessments,
-  assessmentsRelatorios,
   assessmentsRespostas,
   creditosTransacoes,
   precosPacotes,
@@ -37,7 +44,7 @@ import {
 } from "./schema";
 import { assessments as dadosAssessments, facilitadores, transacoes } from "../../data/facilitadores";
 import { pacotesCreditos, tiposRelatorio } from "../../data/planos";
-import { narrativaExemplo } from "../../data/narrativa-exemplo";
+import { novoToken } from "../assessment-link";
 
 config({ path: [".env.local", ".env"] });
 
@@ -117,6 +124,19 @@ function expiraEm(situacao: string, valor: string): Date {
   return dataBr(valor);
 }
 
+/**
+ * O que a compra custou, pelo pacote que a descricao nomeia.
+ *
+ * O valor vai GRAVADO na linha, como manda `schema/creditos.ts`, e nao e
+ * reconstruido depois pelo preco vigente: o seed e a unica foto do passado que
+ * este banco tem, e ele nao pode nascer contando a historia que a coluna existe
+ * para impedir. Bonus e estorno nao cobram nada e ficam nulos.
+ */
+function valorCobrado(tipo: string, descricao: string): number | null {
+  if (tipo !== "compra") return null;
+  return pacotesCreditos.find((pacote) => descricao === `Pacote ${pacote.nome}`)?.preco ?? null;
+}
+
 // Compras, bonus e estornos vem da lista fixa; os usos vem dos assessments,
 // para toda linha de consumo apontar o assessment que a causou.
 const linhasCompra = transacoes
@@ -125,6 +145,7 @@ const linhasCompra = transacoes
     usuario_id: idUsuario[transacao.facilitadorId]!,
     tipo: transacao.tipo,
     quantidade: transacao.quantidade,
+    valor_cobrado: valorCobrado(transacao.tipo, transacao.descricao),
     descricao: transacao.descricao,
     created_at: dataBr(transacao.data),
     modified_by: idUsuario[transacao.facilitadorId]!,
@@ -219,6 +240,12 @@ async function main(): Promise<void> {
     // usuarios.creditos bate com a soma do extrato. Semear os usuarios com saldo
     // num commit e as transacoes em outro deixaria o primeiro commit fora da
     // invariante. De quebra, seed que falha no meio nao deixa banco pela metade.
+    // Sorteados FORA da transacao: o log do fim precisa dos MESMOS valores, e
+    // sortear de novo la imprimiria links que nao existem no banco.
+    const tokenSemeado: Record<string, string> = Object.fromEntries(
+      dadosAssessments.map((assessment) => [assessment.id, novoToken()]),
+    );
+
     await db.transaction(async (tx) => {
       await tx.insert(usuarios).values(
         facilitadores.map((facilitador) => ({
@@ -239,7 +266,18 @@ async function main(): Promise<void> {
       await tx.insert(tabelaAssessments).values(
       dadosAssessments.map((assessment) => ({
           id: idAssessment[assessment.id]!,
-          token: assessment.token,
+          // O TOKEN E SORTEADO, e nao o do arquivo de dados.
+          //
+          // `data/facilitadores.ts` trazia tokens escritos a mao — "demo" e
+          // "expirado" entre eles. O token e a UNICA credencial do avaliado
+          // (ver `actions/avaliacao.ts`): quem digitar /avaliacao/demo no
+          // endereco de homologacao responde e CONCLUI o mapa de uma pessoa
+          // real. Palavra curta e adivinhavel nao e link secreto.
+          //
+          // `novoToken()` e o mesmo gerador da criacao de verdade — doze
+          // hexadecimais de `randomBytes`. Os tokens sorteados sao impressos no
+          // fim do seed, entao quem semeou continua tendo os links em maos.
+          token: tokenSemeado[assessment.id]!,
           facilitador_id: idUsuario[assessment.facilitadorId]!,
           avaliado_nome: assessment.avaliadoNome,
           avaliado_email: assessment.avaliadoEmail,
@@ -267,15 +305,6 @@ async function main(): Promise<void> {
       );
 
       await tx.insert(creditosTransacoes).values(linhasTransacao);
-
-      // A narrativa de exemplo vira a v1 do relatorio do assessment concluido
-      // que a rota /relatorio/k3mq81 mostra hoje.
-      await tx.insert(assessmentsRelatorios).values({
-        assessment_id: idAssessment.a2!,
-        versao: 1,
-        narrativa: narrativaExemplo,
-        modified_by: idUsuario.valmer!,
-      });
     });
 
     // Fora da transacao acima: o Better Auth abre a propria conexao, entao nao
@@ -293,9 +322,17 @@ async function main(): Promise<void> {
     console.log(`  usuarios:     ${facilitadores.length}`);
     console.log(`  assessments:  ${dadosAssessments.length}`);
     console.log(`  transacoes:   ${linhasTransacao.length}`);
-    console.log(`  respostas:    ${respostasEmAndamento.length} (token p7xa20, em andamento)`);
-    console.log("  relatorios:   1 (narrativa de exemplo, v1, token k3mq81)");
+    console.log(`  respostas:    ${respostasEmAndamento.length} (mapa em andamento)`);
     console.log(`  senha de todos: ${SENHA_DEV}`);
+    // Os links precisam ser impressos: sem os tokens escritos a mao, esta e a
+    // unica forma de quem semeou chegar a um mapa ou a um relatorio de exemplo.
+    console.log("  links de exemplo:");
+    for (const assessment of dadosAssessments) {
+      const caminho = assessment.situacao === "concluido" ? "relatorio" : "avaliacao";
+      console.log(
+        `    /${caminho}/${tokenSemeado[assessment.id]}  (${assessment.avaliadoNome}, ${assessment.situacao})`,
+      );
+    }
     for (const facilitador of facilitadores) {
       console.log(`  saldo ${facilitador.nome}: ${saldo(facilitador.id)}`);
     }

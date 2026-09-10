@@ -16,7 +16,9 @@ import { config } from "dotenv";
 config({ path: [".env.local", ".env"] });
 
 const { db } = await import("@/lib/db");
-const { usuarios, assessments, creditosTransacoes } = await import("@/lib/db/schema");
+const { usuarios, assessments, clientes, creditosTransacoes, devolutivas } = await import(
+  "@/lib/db/schema",
+);
 const painel = await import("@/lib/painel");
 
 const marca = `teste-${Date.now()}`;
@@ -106,6 +108,54 @@ before(async () => {
   deOutroDono = await criarAssessment(facilitadorB, "pendente", AMANHA);
 
   facilitadorCiclo = await criarParceiroComHistorico();
+
+  // Carteira e devolutivas dos dois parceiros, para `resumoDaOperacao`: A com
+  // dois clientes e duas sessoes (uma finalizada, uma em andamento), B com um
+  // cliente e uma sessao. Sem o de B, um recorte de dono quebrado passaria.
+  await db.insert(clientes).values([
+    {
+      facilitador_id: facilitadorA,
+      nome: "Cliente A1",
+      email: `a1.${marca}@exemplo.com`,
+      modified_by: SISTEMA,
+    },
+    {
+      facilitador_id: facilitadorA,
+      nome: "Cliente A2",
+      email: `a2.${marca}@exemplo.com`,
+      modified_by: SISTEMA,
+    },
+    {
+      facilitador_id: facilitadorB,
+      nome: "Cliente B1",
+      email: `b1.${marca}@exemplo.com`,
+      modified_by: SISTEMA,
+    },
+  ]);
+
+  await db.insert(devolutivas).values([
+    {
+      assessment_id: concluidoVencido,
+      facilitador_id: facilitadorA,
+      duracao_segundos: 3600 + 26 * 60,
+      finalizada_em: ONTEM,
+      modified_by: SISTEMA,
+    },
+    // Sem `finalizada_em`: cronometro rodando. Conta no tempo, nao no total.
+    {
+      assessment_id: noPrazo,
+      facilitador_id: facilitadorA,
+      duracao_segundos: 120,
+      modified_by: SISTEMA,
+    },
+    {
+      assessment_id: deOutroDono,
+      facilitador_id: facilitadorB,
+      duracao_segundos: 999,
+      finalizada_em: ONTEM,
+      modified_by: SISTEMA,
+    },
+  ]);
 });
 
 /**
@@ -175,6 +225,9 @@ after(async () => {
   const ids = [facilitadorA, facilitadorB, admin, facilitadorCiclo];
   await db.transaction(async (tx) => {
     await tx.execute(`delete from creditos_transacoes where usuario_id in ('${ids.join("','")}')`);
+    // Devolutiva aponta para assessment: sai antes dele.
+    await tx.execute(`delete from devolutivas where facilitador_id in ('${ids.join("','")}')`);
+    await tx.execute(`delete from clientes where facilitador_id in ('${ids.join("','")}')`);
     await tx.execute(`delete from assessments where facilitador_id in ('${ids.join("','")}')`);
     await tx.execute(`delete from usuarios where id in ('${ids.join("','")}')`);
   });
@@ -332,6 +385,44 @@ describe("painel", () => {
     assert.equal(diaF, diaI, "mesmo dia do mes");
     assert.equal(mesF, mesI, "mesmo mes");
     assert.equal(anoF, anoI! + 1, "um ano de janela");
+  });
+
+  /**
+   * Os quatro numeros do topo do painel do parceiro.
+   *
+   * Antes eles vinham de arquivo fixo (227 clientes, 42h26) e nenhum teste
+   * podia falhar por isso. O que se prova aqui e o que quebra calado: o recorte
+   * por dono nos DOIS lados, e que "finalizada" e `finalizada_em` preenchido e
+   * nao a existencia da linha — a sessao em andamento entra no tempo e fica
+   * fora da contagem.
+   */
+  it("resumoDaOperacao conta a carteira e as devolutivas do dono", async () => {
+    entrarComo(facilitadorA);
+    const resumo = await painel.resumoDaOperacao();
+
+    assert.equal(resumo.clientes, 2, "so os clientes de A");
+    assert.equal(resumo.devolutivasFinalizadas, 1, "a sessao sem finalizada_em nao conta");
+    // 3600 + 26*60 da sessao finalizada, mais os 120s da que ainda roda.
+    assert.equal(resumo.devolutivasTempo, "1h28");
+    assert.equal(resumo.mapasConcluidos, 1, "so o assessment concluido de A");
+
+    entrarComo(facilitadorB);
+    const deB = await painel.resumoDaOperacao();
+    assert.equal(deB.clientes, 1, "B nao ve a carteira de A");
+    assert.equal(deB.devolutivasFinalizadas, 1);
+    assert.equal(deB.mapasConcluidos, 0, "B nao tem mapa concluido");
+  });
+
+  it("resumoDaOperacao formata zero como 0h00, e nao como travessao", async () => {
+    // O parceiro novo abre o painel antes de ter qualquer coisa: os quatro
+    // cartoes precisam mostrar zero, e nao quebrar nem sumir.
+    entrarComo(facilitadorCiclo);
+    const resumo = await painel.resumoDaOperacao();
+
+    assert.equal(resumo.clientes, 0);
+    assert.equal(resumo.devolutivasFinalizadas, 0);
+    assert.equal(resumo.devolutivasTempo, "0h00");
+    assert.equal(resumo.mapasConcluidos, 0);
   });
 
   it("empresasPorId resolve os nomes numa consulta so", async () => {

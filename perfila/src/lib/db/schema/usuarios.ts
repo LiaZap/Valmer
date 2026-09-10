@@ -18,7 +18,7 @@ import { papelUsuario, tipoRelatorio } from "./enums";
  * Quantas amostras gratuitas todo parceiro recebe ao abrir a conta.
  *
  * E o numero que a tela /facilitador/degustacao ja mostrava fixo em
- * `data/creditos.ts` — trazido para o banco como DEFAULT da coluna, e nao como
+ * um arquivo fixo — trazido para o banco como DEFAULT da coluna, e nao como
  * regra de action nenhuma. Assim o comportamento de hoje (todo mundo tem 180)
  * continua identico, e o parceiro criado amanha nasce com o mesmo saldo sem
  * depender de ninguem lembrar de conceder.

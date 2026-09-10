@@ -11,8 +11,11 @@
  *   endpoint POST publico: sem a checagem no corpo da funcao, um script de
  *   terceiro esvaziaria a conta da API repetindo a requisicao.
  *
- * A tela publica do relatorio NAO chama a geracao. Quem gera e a lista de
- * mapas, que ja roda logada.
+ * A tela publica do relatorio NAO chama a geracao, e nao deve passar a chamar:
+ * ela nao tem sessao para conferir, e quem abrisse o link pagaria minutos de
+ * espera por uma pagina em branco. O texto e escrito quando o respondente
+ * CONCLUI o mapa (`actions/avaliacao.ts`, fora da transacao), e a lista de
+ * mapas mantem o botao manual como segunda tentativa quando aquilo falha.
  */
 "use server";
 
@@ -117,6 +120,10 @@ const MOTIVO: Record<FalhaPersistencia, string> = {
   invalido: "Mapa nao encontrado.",
   nao_concluido: "Este mapa ainda nao foi respondido.",
   sem_contadores: "Este mapa nao tem resultado calculado.",
+  // Nao e erro: outro processo esta escrevendo o mesmo texto agora — o
+  // `after()` da conclusao, quase sempre. A frase manda esperar em vez de
+  // mandar tentar de novo, porque tentar de novo cai na mesma recusa.
+  em_geracao: "O texto deste relatorio ja esta sendo escrito. Recarregue a pagina em instantes.",
 };
 
 /**

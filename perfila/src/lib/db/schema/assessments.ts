@@ -70,6 +70,29 @@ export const assessments = pgTable(
     degustacao: boolean("degustacao").notNull().default(false),
     expira_em: timestamp("expira_em", TEMPO).notNull(),
     concluido_em: timestamp("concluido_em", TEMPO),
+    /**
+     * Quando alguem COMECOU a escrever a narrativa deste mapa. Um arrendamento,
+     * nao um estado.
+     *
+     * Escrever a narrativa e a unica operacao PAGA do sistema, leva minutos e
+     * tem dois gatilhos independentes: o `after()` da conclusao
+     * (`actions/avaliacao.ts`) e o botao "Gerar relatorio" da lista do parceiro.
+     * Os dois olham "ja existe narrativa?" antes de comecar, e nesse intervalo a
+     * resposta e nao para os dois — a plataforma paga a API duas vezes pelo
+     * mesmo texto. O dado nao corrompe (o indice unico de versao e o
+     * `for update` de `salvarNarrativa` seguram isso); o que se perde e dinheiro.
+     *
+     * Nao da para resolver com transacao: ela ficaria aberta durante a chamada,
+     * segurando a linha e a conexao do pool por minutos. Nem com
+     * `pg_advisory_lock`, que e preso a CONEXAO — com pool, travar e destravar
+     * podem cair em conexoes diferentes.
+     *
+     * Entao o arrendamento: quem vai gerar carimba a hora aqui, numa transacao
+     * curta com a linha travada, e quem chega depois ve o carimbo e desiste. Ele
+     * VENCE (`PRAZO_DA_GERACAO_MS`), porque processo que morre no meio nao
+     * apaga carimbo nenhum, e sem vencimento o mapa ficaria travado para sempre.
+     */
+    narrativa_gerando_em: timestamp("narrativa_gerando_em", TEMPO),
 
     /**
      * Quantas das 28 respostas cairam em cada fator. Somam 28, entao os

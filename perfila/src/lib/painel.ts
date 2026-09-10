@@ -15,8 +15,10 @@ import { db } from "@/lib/db";
 import {
   assessments,
   assessmentsRelatorios,
+  clientes,
   creditosTransacoes,
   DEGUSTACOES_INICIAIS,
+  devolutivas,
   usuarios,
 } from "@/lib/db/schema";
 import { getSession, temPermissao, type Sessao } from "@/lib/auth";
@@ -202,6 +204,7 @@ function paraTransacao(linha: typeof creditosTransacoes.$inferSelect): Transacao
     facilitadorId: linha.usuario_id,
     tipo: linha.tipo,
     quantidade: linha.quantidade,
+    valorCobrado: linha.valor_cobrado,
     descricao: linha.descricao,
     data: data(linha.created_at),
   };
@@ -302,6 +305,82 @@ export async function degustacaoDaConta() {
     relatorio: linha.relatorio,
     concedidas: DEGUSTACOES_INICIAIS,
     utilizadas: DEGUSTACOES_INICIAIS - linha.saldo,
+  };
+}
+
+/**
+ * Os indicadores do topo do painel do parceiro.
+ *
+ * Os tres numeros vinham de um arquivo fixo (`data/creditos.ts`, ja removido):
+ * 227 clientes, 42h26 de devolutiva e um faturamento que ninguem calculava.
+ * Eram o mesmo defeito ja corrigido no credito e na degustacao — numero
+ * inventado ao lado de numero real, na mesma tela, sem como a pessoa saber
+ * qual valia. As duas tabelas existem desde a migration 0008; era so ler.
+ *
+ * FATURAMENTO NAO ENTRA, E NAO E ESQUECIMENTO: a plataforma nao sabe por
+ * quanto o parceiro revende. `precos_relatorios.revenda_min/max` e faixa
+ * SUGERIDA, nao cobranca. Um cartao de receita aqui so poderia mostrar zero
+ * para sempre ou um numero inventado. No lugar dele vai o mapa concluido, que
+ * e o trabalho entregue e sai da mesma tabela que a lista da tela ao lado.
+ *
+ * Tres COUNT numa consulta so seria um join de tres tabelas sem relacao entre
+ * si, multiplicando linha. Sao tres consultas curtas, cada uma sobre o proprio
+ * indice de dono, disparadas juntas.
+ */
+export async function resumoDaOperacao() {
+  const sessao = await getSession();
+  if (!sessao) throw new Error("Nao autenticado");
+
+  // O admin ve a plataforma inteira; o parceiro, so o que e dele. Mesmo
+  // recorte das outras leituras deste arquivo.
+  const doAdmin = sessao.papel === "admin";
+
+  const [carteira, sessoes, mapas] = await Promise.all([
+    db
+      .select({ total: sql<number>`count(*)::int` })
+      .from(clientes)
+      .where(
+        and(
+          eq(clientes.is_deleted, false),
+          doAdmin ? undefined : eq(clientes.facilitador_id, sessao.userId),
+        ),
+      ),
+    db
+      .select({
+        // `finalizada_em` preenchido e a definicao de finalizada — nao ha
+        // coluna de situacao. Ver o cabecalho de `schema/devolutivas.ts`.
+        total: sql<number>`count(*) filter (where ${devolutivas.finalizada_em} is not null)::int`,
+        segundos: sql<number>`coalesce(sum(${devolutivas.duracao_segundos}), 0)::int`,
+      })
+      .from(devolutivas)
+      .where(
+        and(
+          eq(devolutivas.is_deleted, false),
+          doAdmin ? undefined : eq(devolutivas.facilitador_id, sessao.userId),
+        ),
+      ),
+    db
+      .select({ total: sql<number>`count(*)::int` })
+      .from(assessments)
+      .where(
+        and(
+          eq(assessments.is_deleted, false),
+          eq(assessments.situacao, "concluido"),
+          doAdmin ? undefined : eq(assessments.facilitador_id, sessao.userId),
+        ),
+      ),
+  ]);
+
+  const segundos = sessoes[0]?.segundos ?? 0;
+
+  return {
+    clientes: carteira[0]?.total ?? 0,
+    devolutivasFinalizadas: sessoes[0]?.total ?? 0,
+    /** Total cronometrado, no formato "42h26". Zero vira "0h00", e nao "—". */
+    devolutivasTempo: `${Math.floor(segundos / 3600)}h${String(
+      Math.floor((segundos % 3600) / 60),
+    ).padStart(2, "0")}`,
+    mapasConcluidos: mapas[0]?.total ?? 0,
   };
 }
 

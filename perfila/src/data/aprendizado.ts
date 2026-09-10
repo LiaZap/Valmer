@@ -91,32 +91,15 @@ export const mentores: Mentor[] = [
   },
 ]
 
-export type AulaEad = {
-  /** Título já com o prefixo do módulo, quando houver. */
-  title: string
-  /** Marcador do círculo: número da aula (ou check, quando concluída). */
-  marcador: string
-  concluida: boolean
-}
-
-const AULAS = [
-  'Apresentação',
-  'Introdução à Teoria DISC',
-  'Gráficos DISC',
-  'Tipos Psicológicos',
-  'Teoria de Valores',
-  'Encerramento',
-  'Vendas',
-]
-
-export const aulasEad: AulaEad[] = AULAS.map((title, index) => ({
-  // As seis primeiras pertencem a módulos numerados; a última é avulsa.
-  title: index < 6 ? `Módulo 0${index + 1} · ${title}` : title,
-  marcador: index === 0 ? '✓' : String(index + 1),
-  concluida: index === 0,
-}))
-
-export const eadProgresso = {
-  concluidas: aulasEad.filter((aula) => aula.concluida).length,
-  total: aulasEad.length,
-}
+/**
+ * NAO EXISTE MAIS `aulasEad` NEM `eadProgresso` AQUI.
+ *
+ * Eram sete titulos num array literal, com a aula 1 marcada como concluida no
+ * proprio codigo (`concluida: index === 0`). O contador "1 de 7 concluidos" era
+ * constante de build: o mesmo numero para todo parceiro, para sempre — e a
+ * duracao "07:05 · Vimeo" estava escrita a mao.
+ *
+ * O programa agora e tabela (`db/schema/ead.ts`): o admin cadastra modulo e
+ * aula em /admin/cursos e /facilitador/ead le o que foi PUBLICADO, por
+ * `lib/ead.ts`. Nada de EAD volta para este arquivo.
+ */

@@ -35,7 +35,12 @@ export default function IntegracoesPage() {
             <Button
               variant="dark"
               block
-              onClick={() => toast(`Integração com ${integracao.name} ainda não disponível`)}
+              onClick={() =>
+                toast(
+                  `Integração com ${integracao.name} ainda não disponível`,
+                  'aviso',
+                )
+              }
             >
               Integrar
             </Button>

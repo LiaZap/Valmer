@@ -69,7 +69,7 @@ export function ListaTurmas({ itens }: { itens: ItemTurma[] }) {
             </Button>
             <Button
               icon={<Icon name="link" />}
-              onClick={() => toast('Meus links ainda não disponíveis')}
+              onClick={() => toast('Meus links ainda não disponíveis', 'aviso')}
             >
               Meus links
             </Button>
@@ -83,7 +83,10 @@ export function ListaTurmas({ itens }: { itens: ItemTurma[] }) {
               variant="danger"
               icon={<Icon name="trash" />}
               onClick={() =>
-                toast('Remover pendentes é por turma: abra a turma no olho e use o botão de lá.')
+                toast(
+                  'Remover pendentes é por turma: abra a turma no olho e use o botão de lá.',
+                  'aviso',
+                )
               }
             >
               Remover pendentes
@@ -117,14 +120,14 @@ export function ListaTurmas({ itens }: { itens: ItemTurma[] }) {
           <Button
             variant="dark"
             size="lg"
-            onClick={() => toast('Busca de turmas ainda não disponível')}
+            onClick={() => toast('Busca de turmas ainda não disponível', 'aviso')}
           >
             Pesquisar
           </Button>
           <Button
             variant="ghost"
             size="lg"
-            onClick={() => toast('Limpar filtros ainda não disponível')}
+            onClick={() => toast('Limpar filtros ainda não disponível', 'aviso')}
           >
             Limpar
           </Button>
@@ -217,7 +220,10 @@ export function ListaTurmas({ itens }: { itens: ItemTurma[] }) {
                           icon="link"
                           label="Gerar link"
                           onClick={() =>
-                            toast('O link é de cada avaliado: abra a turma no olho para copiá-los.')
+                            toast(
+                              'O link é de cada avaliado: abra a turma no olho para copiá-los.',
+                              'aviso',
+                            )
                           }
                         />
                         {/* Rótulo diferente do "Exportar" do cabeçalho DE

@@ -241,3 +241,64 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Barras do gráfico de créditos. Duas séries por coluna, escaladas pelo maior
+   valor das duas — ver GraficoCreditos.tsx. Sem biblioteca de gráfico: são
+   dois retângulos por período. */
+.barras {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-10);
+  width: 100%;
+  height: 100%;
+  padding: var(--space-12) var(--space-8) 0;
+}
+
+.barraGrupo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+  height: 100%;
+  min-width: 0;
+}
+
+/* A altura da barra é percentual, então o par precisa de altura própria — sem
+   ela, `height: 60%` seria 60% de nada. O rótulo fica fora, e por isso o par
+   não pode ocupar os 100% da coluna. */
+.barraPar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3px;
+  width: 100%;
+  height: calc(100% - 18px);
+}
+
+.barra {
+  width: 40%;
+  max-width: 14px;
+  /* Movimento zero ainda desenha um fio: coluna vazia e coluna ausente têm de
+     ser distinguíveis. */
+  min-height: 2px;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  transition: height var(--transition-base);
+}
+
+.barraComprados {
+  background: var(--color-accent);
+}
+
+.barraUtilizados {
+  background: var(--color-warning);
+}
+
+.barraRotulo {
+  font-size: var(--fs-11);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}

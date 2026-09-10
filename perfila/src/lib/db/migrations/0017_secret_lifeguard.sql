@@ -1,0 +1,12 @@
+-- O arrendamento da geracao da narrativa.
+--
+-- Escrever a narrativa e a unica operacao PAGA do sistema e tem dois gatilhos
+-- independentes (o `after()` da conclusao e o botao "Gerar relatorio"). Os dois
+-- consultavam "ja existe narrativa?" antes de comecar, e no intervalo da chamada
+-- — minutos — a resposta era nao para os dois: a API era paga duas vezes pelo
+-- mesmo texto. Ver o comentario da coluna em `schema/assessments.ts`.
+--
+-- NULA, e nao NOT NULL com default: o valor natural de um mapa que ninguem esta
+-- gerando e "ninguem", e sobre tabela que ja tem linha um NOT NULL exigiria
+-- carimbar toda a base com uma hora que nunca aconteceu.
+ALTER TABLE "assessments" ADD COLUMN "narrativa_gerando_em" timestamp (3) with time zone;

@@ -1,0 +1,2 @@
+ALTER TABLE "creditos_transacoes" ADD COLUMN "valor_cobrado" integer;--> statement-breakpoint
+ALTER TABLE "creditos_transacoes" ADD CONSTRAINT "ck_transacoes_valor_cobrado" CHECK ("creditos_transacoes"."valor_cobrado" >= 0);

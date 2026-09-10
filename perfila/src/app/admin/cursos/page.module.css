@@ -11,3 +11,46 @@
     padding: var(--space-16);
   }
 }
+
+/* ---------- Programa do curso: módulo e aula ---------- */
+
+.modulo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding: var(--space-12) var(--space-14);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+}
+
+.aula {
+  padding: var(--space-8) var(--space-10);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.numero {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-hover);
+  color: var(--color-text-muted);
+  font-size: var(--fs-11);
+  font-weight: var(--fw-bold);
+}
+
+.aulaTitulo {
+  font-size: var(--fs-135);
+  font-weight: var(--fw-medium);
+}
+
+/* Campo de texto que divide a linha com o botão ao lado. */
+.campoLinha {
+  flex: 1;
+  min-width: 200px;
+}

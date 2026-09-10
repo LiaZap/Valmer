@@ -15,6 +15,7 @@
 import { after, before, describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { config } from "dotenv";
+import type { Navegador } from "@/lib/copiar";
 
 config({ path: [".env.local", ".env"] });
 
@@ -22,6 +23,9 @@ const { db } = await import("@/lib/db");
 const { usuarios, assessments, assessmentsRelatorios } = await import("@/lib/db/schema");
 const acoes = await import("@/lib/actions/relatorio");
 const { narrativaExemplo } = await import("@/data/narrativa-exemplo");
+const { copiarTexto } = await import("@/lib/copiar");
+const persistir = await import("@/lib/relatorio/persistir");
+const { eq } = await import("drizzle-orm");
 
 const marca = `teste-${Date.now()}`;
 const SISTEMA = "00000000-0000-0000-0000-000000000000";
@@ -34,6 +38,7 @@ let tokenSemNarrativa = "";
 let tokenPendente = "";
 let tokenSemContadores = "";
 let idPronto = "";
+let idSemNarrativa = "";
 
 type Situacao = "pendente" | "em_andamento" | "concluido" | "expirado";
 
@@ -88,7 +93,7 @@ before(async () => {
 
   // Vencido de proposito: relatorio pronto nao depende do link continuar aberto.
   idPronto = await inserirAssessment(tokenPronto, "concluido", { D: 10, I: 8, S: 6, C: 4 });
-  await inserirAssessment(tokenSemNarrativa, "concluido", { D: 4, I: 5, S: 8, C: 11 });
+  idSemNarrativa = await inserirAssessment(tokenSemNarrativa, "concluido", { D: 4, I: 5, S: 8, C: 11 });
   await inserirAssessment(tokenPendente, "pendente", null);
   // Estado que nao deveria existir: concluido sem os contadores da conclusao.
   await inserirAssessment(tokenSemContadores, "concluido", null);
@@ -198,5 +203,119 @@ describe("relatorio", () => {
     assert.equal(relatorio?.narrativa?.fraseDoPerfil, "Versao 2, a que vale.");
 
     await db.execute(`delete from assessments_relatorios where id = '${linha!.id}'`);
+  });
+});
+
+/**
+ * Copiar o link, os tres degraus.
+ *
+ * Nao ha DOM aqui, entao `copiarTexto` recebe a fatia de navegador por
+ * parametro — mesmo arranjo do `ambiente` de `narrativaParaExibir`. O degrau
+ * do meio (`execCommand`) precisa de `document` de verdade e fica de fora: o
+ * que este teste guarda e a REGRA que o `?.` engolido quebrava, ou seja, sem
+ * area de transferencia a funcao avisa e devolve `false`, e nunca deixa a tela
+ * dizer "copiado" com a area de transferencia intacta.
+ */
+/**
+ * O arrendamento da geracao.
+ *
+ * Escrever a narrativa e a UNICA operacao paga do sistema, leva minutos e tem
+ * dois gatilhos: o `after()` da conclusao e o botao "Gerar relatorio" da lista.
+ * Antes do arrendamento, os dois liam "sem narrativa" e a plataforma pagava a
+ * API duas vezes pelo mesmo texto.
+ *
+ * O teste nao chama a API: ele prova que a SEGUNDA chamada desiste ANTES de
+ * chegar la. Se ela chegasse, o erro seria outro — o de chave ausente, que o
+ * ultimo caso usa justamente como prova de que passou.
+ */
+describe("arrendamento da geracao da narrativa", () => {
+  const chaveOriginal = process.env.ANTHROPIC_API_KEY;
+
+  after(() => {
+    if (chaveOriginal === undefined) delete process.env.ANTHROPIC_API_KEY;
+    else process.env.ANTHROPIC_API_KEY = chaveOriginal;
+  });
+
+  it("recusa a segunda geracao enquanto a primeira esta escrevendo", async () => {
+    // Sem a chave, chegar na API seria um erro visivel: e o que garante que a
+    // recusa abaixo veio do arrendamento, e nao de outro lugar.
+    delete process.env.ANTHROPIC_API_KEY;
+
+    await db
+      .update(assessments)
+      .set({ narrativa_gerando_em: new Date() })
+      .where(eq(assessments.id, idSemNarrativa));
+
+    const resposta = await persistir.gerarESalvar(tokenSemNarrativa);
+    assert.deepEqual(resposta, { ok: false, erro: "em_geracao" });
+  });
+
+  it("o arrendamento vence, senao um processo morto travaria o mapa para sempre", async () => {
+    delete process.env.ANTHROPIC_API_KEY;
+
+    // Onze minutos: um a mais que o prazo. E o processo que caiu no meio.
+    await db
+      .update(assessments)
+      .set({ narrativa_gerando_em: new Date(Date.now() - 11 * 60 * 1000) })
+      .where(eq(assessments.id, idSemNarrativa));
+
+    // Passar do arrendamento significa TENTAR gerar — e sem chave isso falha
+    // com a mensagem de configuracao. Esse erro e a prova de que passou.
+    await assert.rejects(() => persistir.gerarESalvar(tokenSemNarrativa), /ANTHROPIC_API_KEY/);
+
+    const [linha] = await db
+      .select({ desde: assessments.narrativa_gerando_em })
+      .from(assessments)
+      .where(eq(assessments.id, idSemNarrativa));
+    assert.equal(linha!.desde, null, "falha da API tem de devolver o arrendamento na hora");
+  });
+});
+
+describe("copiar link", () => {
+  function fingir(clipboard: Navegador["navigator"]["clipboard"]) {
+    const mostrados: string[] = [];
+    const janela = {
+      navigator: { clipboard },
+      prompt: (_mensagem?: string, valor?: string) => {
+        mostrados.push(valor ?? "");
+        return null;
+      },
+    } satisfies Navegador;
+
+    return { janela, mostrados };
+  }
+
+  it("copia quando a area de transferencia existe", async () => {
+    const escritos: string[] = [];
+    const { janela, mostrados } = fingir({
+      writeText: async (texto: string) => {
+        escritos.push(texto);
+      },
+    });
+
+    assert.equal(await copiarTexto("https://exemplo/relatorio/abc", janela), true);
+    assert.deepEqual(escritos, ["https://exemplo/relatorio/abc"]);
+    assert.deepEqual(mostrados, [], "copiou sozinho, nao ha o que avisar");
+  });
+
+  it("fora de contexto seguro avisa e mostra o endereco", async () => {
+    // Este e o defeito relatado: em HTTP `navigator.clipboard` e undefined.
+    // O `navigator.clipboard?.writeText(...)` de antes engolia a chamada e o
+    // botao acendia sem copiar nada.
+    const { janela, mostrados } = fingir(undefined);
+
+    assert.equal(await copiarTexto("https://exemplo/relatorio/abc", janela), false);
+    assert.deepEqual(mostrados, ["https://exemplo/relatorio/abc"]);
+  });
+
+  it("permissao negada tambem avisa, em vez de sumir", async () => {
+    const { janela, mostrados } = fingir({
+      writeText: async () => {
+        throw new Error("NotAllowedError");
+      },
+    });
+
+    assert.equal(await copiarTexto("https://exemplo/relatorio/abc", janela), false);
+    assert.deepEqual(mostrados, ["https://exemplo/relatorio/abc"]);
   });
 });

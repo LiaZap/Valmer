@@ -43,7 +43,7 @@ export function Vitrine({ mentores }: { mentores: MentorNaVitrine[] }) {
               block
               className={styles.agendar}
               iconRight={<Icon name="chevR" />}
-              onClick={() => toast('Agendamento de mentoria ainda não disponível')}
+              onClick={() => toast('Agendamento de mentoria ainda não disponível', 'aviso')}
             >
               Agendar mentoria
             </Button>

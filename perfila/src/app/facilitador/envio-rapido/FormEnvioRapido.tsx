@@ -113,8 +113,10 @@ export function FormEnvioRapido({
       // Vai para a turma porque o produto deste envio são os LINKS: é lá que
       // eles estão, um por avaliado, prontos para copiar.
       router.push(`/facilitador/campanhas/${turma!.id}`)
+      // "Gerado", não "enviado": os créditos saíram e os links existem, mas
+      // quem entrega é a pessoa — não há provedor de e-mail contratado.
       toast(
-        `${criados} passaporte(s) enviado(s) para a turma "${nomeDaTurma}" · ${creditos} crédito(s) consumidos.`,
+        `${criados} passaporte(s) gerado(s) na turma "${nomeDaTurma}" · ${creditos} crédito(s). Copie os links abaixo e envie por fora.`,
       )
     })
   }
@@ -224,7 +226,7 @@ export function FormEnvioRapido({
                 </Button>
                 <Button
                   icon={<Icon name="upload" />}
-                  onClick={() => toast('Importação de planilha ainda não disponível')}
+                  onClick={() => toast('Importação de planilha ainda não disponível', 'aviso')}
                 >
                   Importar planilha
                 </Button>
@@ -301,7 +303,15 @@ export function FormEnvioRapido({
               O nível da turma define o relatório e o preço: cada passaporte
               {turma ? ` desta turma consome ${turma.custo} crédito(s).` : ' consome créditos.'}
             </li>
-            <li>O lote é tudo-ou-nada: se o saldo não cobrir todos, nenhum é enviado.</li>
+            <li>O lote é tudo-ou-nada: se o saldo não cobrir todos, nenhum é gerado.</li>
+            {/* A tela se chama "Envio rápido" desde o protótipo, mas quem
+                entrega o link ainda é a pessoa: não há provedor de e-mail
+                contratado. Dizer isso aqui evita que alguém feche a tela
+                achando que os passaportes já saíram. */}
+            <li>
+              A plataforma ainda não envia e-mail: os links ficam na turma, prontos para copiar e
+              enviar por fora.
+            </li>
           </ol>
           <div className={styles.saldo}>
             <span className={styles.saldoLabel}>Saldo disponível</span>

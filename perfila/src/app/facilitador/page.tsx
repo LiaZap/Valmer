@@ -6,14 +6,18 @@ import { AutoGrid, Row, Stack } from '@/components/ui/Layout'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { Pill } from '@/components/ui/Pill'
 import { Progress } from '@/components/ui/Progress'
-import { Select } from '@/components/ui/Select'
 import { cursosDestaque } from '@/data/aprendizado'
 
-import { indicadores } from '@/data/creditos'
-import { opcoes } from '@/data/opcoes'
 import { dataPorExtenso, saudacao } from '@/lib/data-extenso'
-import { contaAtual, degustacaoDaConta, progressoDoPrograma, transacoesDaConta } from '@/lib/painel'
+import {
+  contaAtual,
+  degustacaoDaConta,
+  progressoDoPrograma,
+  resumoDaOperacao,
+  transacoesDaConta,
+} from '@/lib/painel'
 import ui from '@/styles/common.module.css'
+import { GraficoCreditos } from './GraficoCreditos'
 import styles from './page.module.css'
 
 /**
@@ -31,11 +35,12 @@ import styles from './page.module.css'
  */
 export default async function DashboardPage() {
   const agora = new Date()
-  const [conta, extrato, programa, amostras] = await Promise.all([
+  const [conta, extrato, programa, amostras, resumo] = await Promise.all([
     contaAtual(),
     transacoesDaConta(),
     progressoDoPrograma(),
     degustacaoDaConta(),
+    resumoDaOperacao(),
   ])
 
   const recebidos = extrato
@@ -46,11 +51,29 @@ export default async function DashboardPage() {
     .filter((movimento) => movimento.quantidade < 0)
     .reduce((soma, movimento) => soma + Math.abs(movimento.quantidade), 0)
 
-  // O indicador de créditos entra por último, como estava, mas vindo do
-  // extrato. Os outros três continuam do arquivo: cliente, devolutiva e
-  // faturamento ainda não têm tabela para consultar.
+  // Os quatro saem do banco. Cliente e devolutiva ganharam tabela na migration
+  // 0008 e continuavam mostrando os números de protótipo (227 clientes, 42h26)
+  // ao lado do saldo real. O cartão de faturamento saiu: a plataforma não sabe
+  // por quanto o parceiro revende — ver `resumoDaOperacao`.
   const indicadoresDaTela = [
-    ...indicadores,
+    {
+      label: 'Total de clientes',
+      icon: 'users' as const,
+      valor: String(resumo.clientes),
+      nota: resumo.clientes === 0 ? 'Nenhum cliente cadastrado ainda' : 'Na sua carteira',
+    },
+    {
+      label: 'Devolutivas',
+      icon: 'chat' as const,
+      valor: resumo.devolutivasTempo,
+      nota: `${resumo.devolutivasFinalizadas} finalizada(s)`,
+    },
+    {
+      label: 'Mapas concluídos',
+      icon: 'check' as const,
+      valor: String(resumo.mapasConcluidos),
+      nota: 'Respondidos pelos avaliados',
+    },
     {
       label: 'Créditos utilizados',
       icon: 'card' as const,
@@ -231,29 +254,7 @@ export default async function DashboardPage() {
       {/* Vendas e cursos */}
       <AutoGrid min={320}>
         <Card className={styles.painel}>
-          <div className={ui.sectionHead}>
-            <div className={ui.cardTitle}>Vendas por período</div>
-            <div className={styles.legenda}>
-              <span className={styles.legendaItem}>
-                <i className={`${styles.legendaPonto} ${styles.legendaPago}`} />
-                Pago
-              </span>
-              <span className={styles.legendaItem}>
-                <i className={`${styles.legendaPonto} ${styles.legendaFaturado}`} />
-                Faturado
-              </span>
-              <div className={styles.legendaSelect}>
-                <Select options={opcoes.periodo} size="sm" label="Período do gráfico" />
-              </div>
-            </div>
-          </div>
-          <div className={styles.grafico}>
-            <p className={styles.graficoAviso}>
-              Ainda não há vendas suficientes para exibir o gráfico.{' '}
-              <Link href="/facilitador/degustacao">Configure a degustação</Link> para começar a converter
-              clientes.
-            </p>
-          </div>
+          <GraficoCreditos movimentos={extrato} />
         </Card>
 
         <Card className={styles.cursos}>

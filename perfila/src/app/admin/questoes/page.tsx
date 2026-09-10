@@ -36,7 +36,12 @@ export default function QuestoesPage() {
             <Button
               variant="primary"
               icon={<Icon name="plus" />}
-              onClick={() => toast('Nova questão ainda não disponível: o banco de questões vem do código')}
+              onClick={() =>
+                toast(
+                  'Nova questão ainda não disponível: o banco de questões vem do código',
+                  'aviso',
+                )
+              }
             >
               Nova questão
             </Button>
@@ -80,7 +85,12 @@ export default function QuestoesPage() {
                     <IconButton
                       icon="edit"
                       label={`Editar ${questao.codigo}`}
-                      onClick={() => toast('Edição de questões ainda não disponível: o banco vem do código')}
+                      onClick={() =>
+                        toast(
+                          'Edição de questões ainda não disponível: o banco vem do código',
+                          'aviso',
+                        )
+                      }
                     />
                   </div>
 

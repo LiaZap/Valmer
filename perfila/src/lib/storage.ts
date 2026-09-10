@@ -249,3 +249,136 @@ export async function urlAssinadaOuNula(
     return null;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Video de aula
+// ---------------------------------------------------------------------------
+//
+// O VIDEO NAO PASSA POR SERVER ACTION, e a razao e de tamanho: o corpo de uma
+// Server Action tem teto (1 MB por padrao no Next) e subir 800 MB por dentro do
+// processo Node o transformaria em servidor de streaming — o gargalo deixaria
+// de ser o banco e passaria a ser o processo que atende todo o resto. E o que
+// `docs/infra.md`, Etapa 6b, ja tinha decidido: "o video sai do MinIO direto
+// para o navegador", com o prefixo `cursos/videos/` provisionado no bucket.
+//
+// Entao o servidor so ASSINA: `assinarEnvioDeVideo` devolve uma URL de PUT com
+// prazo curto e o navegador envia o arquivo direto para o bucket. O servidor
+// nunca ve os bytes.
+//
+// O QUE ISSO CUSTA, E ONDE ISSO E COBERTO
+// ---------------------------------------
+// Nao da para conferir magic bytes de um arquivo que nao passa por aqui, entao
+// a garantia de `tipoRealDaImagem` nao existe para video. Tres coisas seguram o
+// buraco, e nenhuma delas e confiar no navegador:
+//
+// - quem consegue assinar e SO o admin (`cursos:atualizar` no rbac). Nao ha
+//   caminho de facilitador nem de visitante ate aqui;
+// - a CHAVE e do servidor — `cursos/videos/<aula>/<uuid>.<ext>` —, entao nem o
+//   nome nem a pasta vem de fora, e um envio so pode aterrissar debaixo da aula
+//   que o pediu;
+// - o tamanho e conferido DE VOLTA (`tamanhoDoObjeto`) antes de a chave virar
+//   linha de banco: URL assinada de PUT nao impoe teto, quem impoe e a conferida
+//   depois, e o que passar do teto e apagado em vez de gravado.
+//
+// O arquivo servido de um dominio que nao e o nosso nao vira XSS na nossa
+// origem, que e o motivo pelo qual a lista de tipos da imagem e fechada.
+
+/**
+ * Formatos de video aceitos, e a extensao de cada um na chave.
+ *
+ * So os dois que o `<video>` de navegador toca sem plugin. `.mov` fica de fora
+ * de proposito: sobe, ocupa o bucket e nao reproduz — o admin acharia que
+ * publicou a aula e o parceiro veria uma tela preta.
+ */
+export const TIPOS_DE_VIDEO = {
+  "video/mp4": "mp4",
+  "video/webm": "webm",
+} as const;
+
+export type TipoDeVideo = keyof typeof TIPOS_DE_VIDEO;
+
+/**
+ * Teto de uma aula. Alto porque aula gravada em tela cheia passa facil de 1 GB,
+ * e baixo o bastante para um envio errado nao encher o bucket sozinho.
+ *
+ * ponytail: PUT unico ate 2 GB; se um dia entrar aula maior, o caminho e o
+ * multipart do proprio MinIO, e nao aumentar este numero.
+ */
+export const TAMANHO_MAXIMO_VIDEO = 2 * 1024 * 1024 * 1024;
+
+/**
+ * Prazo da URL de LEITURA do video — quatro horas, e nao os 300 segundos do
+ * padrao.
+ *
+ * A URL assinada nao autoriza o clique: ela autoriza cada requisicao por faixa
+ * que o `<video>` faz enquanto a aula roda. Com prazo de cinco minutos, a aula
+ * de meia hora simplesmente pararia aos cinco, e arrastar a barra depois disso
+ * devolveria 403 — parecendo video corrompido.
+ */
+export const PRAZO_VIDEO_SEGUNDOS = 4 * 60 * 60;
+
+/** Prazo da URL de ENVIO. Cabe uma conexao ruim; nao cabe um link guardado. */
+export const PRAZO_ENVIO_SEGUNDOS = 30 * 60;
+
+/**
+ * Assina o envio de um video e devolve a chave junto.
+ *
+ * A chave volta para quem chamou porque e ela que vai para o banco DEPOIS de o
+ * envio terminar — o servidor nao fica sabendo sozinho que o PUT acabou.
+ *
+ * O tamanho declarado e recusado aqui, antes de assinar, para um arquivo que ja
+ * se sabe grande demais nao ocupar meia hora de banda ate ser jogado fora. Ele
+ * vem do navegador, entao nao e garantia: a garantia e `tamanhoDoObjeto`.
+ */
+export async function assinarEnvioDeVideo({
+  prefixo,
+  tipo,
+  tamanho,
+}: {
+  /** Pasta logica dentro do bucket, sem barra no fim: `cursos/videos/<aula>`. */
+  prefixo: string;
+  tipo: string;
+  tamanho: number;
+}): Promise<{ chave: string; url: string }> {
+  if (!/^[a-z0-9][a-z0-9/_-]*[a-z0-9]$/.test(prefixo)) {
+    // Prefixo e do codigo, nunca do formulario. Mesma guarda de `enviarImagem`.
+    throw new Error(`Prefixo de objeto invalido: ${prefixo}`);
+  }
+
+  if (!(tipo in TIPOS_DE_VIDEO)) {
+    throw new RecusaDeRegra("Formato nao aceito. Envie um MP4 ou um WebM.");
+  }
+
+  if (!Number.isFinite(tamanho) || tamanho <= 0) {
+    throw new RecusaDeRegra("Arquivo vazio.");
+  }
+
+  if (tamanho > TAMANHO_MAXIMO_VIDEO) {
+    const gb = (TAMANHO_MAXIMO_VIDEO / 1024 / 1024 / 1024).toFixed(0);
+    throw new RecusaDeRegra(`Arquivo maior que ${gb} GB. Comprima o video antes de enviar.`);
+  }
+
+  const { cliente, bucket } = armazenamento();
+  const chave = `${prefixo}/${randomUUID()}.${TIPOS_DE_VIDEO[tipo as TipoDeVideo]}`;
+  const url = await cliente.presignedPutObject(bucket, chave, PRAZO_ENVIO_SEGUNDOS);
+
+  return { chave, url };
+}
+
+/**
+ * O tamanho do objeto no bucket, ou `null` quando ele nao esta la.
+ *
+ * E a unica prova de que o envio direto terminou. Sem esta conferida, um PUT
+ * interrompido no meio deixaria a linha do banco apontando para uma chave que
+ * nunca existiu, e a aula apareceria publicada com um video que da 404.
+ */
+export async function tamanhoDoObjeto(chave: string): Promise<number | null> {
+  if (!chave.trim()) return null;
+  try {
+    const { cliente, bucket } = armazenamento();
+    const info = await cliente.statObject(bucket, chave);
+    return info.size;
+  } catch {
+    return null;
+  }
+}

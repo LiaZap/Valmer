@@ -1,22 +1,32 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
+import { copiarTexto } from '@/lib/copiar'
 
 /**
  * As duas ações que existem só na tela.
  *
- * "Baixar PDF" abre a impressão do navegador em vez de gerar o arquivo
- * no servidor: a mesma página, com as regras de @media print, é o que o
- * Puppeteer vai renderizar em produção. Manter um caminho só evita o
- * clássico de o PDF sair diferente do que a pessoa viu na tela.
+ * O botão de impressão diz o que ele faz de verdade: abre a caixa de
+ * impressão do navegador, onde a pessoa escolhe "Salvar como PDF". Não
+ * existe PDF de servidor nesta rota, e prometer "Baixar PDF" fazia o
+ * clique parecer quebrado quando o que abria era o diálogo de imprimir.
+ * A folha sai apresentável porque as regras de `@media print` deste
+ * relatório já cuidam disso — é a mesma página que o Puppeteer do CLI
+ * renderiza, então um caminho só.
+ *
+ * Copiar não usa `navigator.clipboard` direto: fora de HTTPS ele não
+ * existe. Quem resolve é `lib/copiar.ts`, para todos os botões de copiar
+ * do produto de uma vez.
  *
  * `imprimir` chega por `?imprimir=1` e é o que faz o botão de download da
  * lista de mapas funcionar sem existir PDF de servidor: a linha abre esta
  * página em aba nova e ela mesma dispara a impressão.
  */
 export function AcoesRelatorio({ imprimir = false }: { imprimir?: boolean }) {
+  const [copiado, setCopiado] = useState(false)
+
   useEffect(() => {
     if (!imprimir) return
 
@@ -34,24 +44,34 @@ export function AcoesRelatorio({ imprimir = false }: { imprimir?: boolean }) {
     }
   }, [imprimir])
 
+  // O rótulo volta sozinho: sem isto o botão fica "Link copiado" para
+  // sempre e a segunda cópia não dá sinal nenhum de ter acontecido.
+  useEffect(() => {
+    if (!copiado) return
+    const volta = setTimeout(() => setCopiado(false), 2500)
+    return () => clearTimeout(volta)
+  }, [copiado])
+
   return (
     <>
       <Button
         size="sm"
-        icon={<Icon name="link" size={14} />}
-        onClick={() => {
-          void navigator.clipboard?.writeText(window.location.href)
+        icon={<Icon name={copiado ? 'check' : 'link'} size={14} />}
+        onClick={async () => {
+          // Só anuncia "copiado" quando copiou mesmo. Quando não deu,
+          // `copiarTexto` já mostrou o endereço para copiar à mão.
+          setCopiado(await copiarTexto(window.location.href))
         }}
       >
-        Copiar link
+        {copiado ? 'Link copiado' : 'Copiar link'}
       </Button>
       <Button
         size="sm"
         variant="primary"
-        icon={<Icon name="download" size={14} />}
+        icon={<Icon name="printer" size={14} />}
         onClick={() => window.print()}
       >
-        Baixar PDF
+        Imprimir ou salvar PDF
       </Button>
     </>
   )

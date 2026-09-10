@@ -7,6 +7,7 @@ import { Pill } from '@/components/ui/Pill'
 import { RowActions, Table, Td, Th, Tr, tableStyles } from '@/components/ui/Table'
 import { useToast } from '@/components/ui/Toast'
 import { gerarPelaTela } from '@/lib/actions/relatorio'
+import { copiarTexto } from '@/lib/copiar'
 import { resultadoDeContadores } from '@/lib/disc'
 import { ROTULO_SITUACAO, type Assessment, type SituacaoAssessment } from '@/data/facilitadores'
 import styles from './TabelaAssessments.module.css'
@@ -48,12 +49,12 @@ function BotaoGerarRelatorio({ assessment }: { assessment: Assessment }) {
       } else {
         // Recusa de regra chega com a mensagem que a pessoa resolve sozinha:
         // falta de chave, mapa de outro parceiro, mapa não respondido.
-        toast(resposta.erro)
+        toast(resposta.erro, 'aviso')
       }
     } catch {
       // Falha de verdade chega como digest opaco em produção, então a tela
       // diz o que dá para dizer: não gerou, e nada foi cobrado duas vezes.
-      toast('Não foi possível gerar o relatório agora. Tente de novo.')
+      toast('Não foi possível gerar o relatório agora. Tente de novo.', 'aviso')
     } finally {
       setGerando(false)
     }
@@ -105,16 +106,13 @@ export function TabelaAssessments({
   async function copiarLink(assessment: Assessment) {
     const url = `${window.location.origin}/avaliacao/${assessment.token}`
 
-    try {
-      await navigator.clipboard.writeText(url)
-      toast(`Link de ${assessment.avaliadoNome} copiado`)
-    } catch {
-      // `navigator.clipboard` só existe em contexto seguro (https ou
-      // localhost) e o navegador ainda pode negar a permissão. Avisar é o
-      // mínimo: dizer "copiado" com a área de transferência intacta faz o
-      // facilitador colar o link antigo no e-mail do cliente dele.
-      toast('Não foi possível copiar. Abra o link pelo relatório do avaliado.')
-    }
+    // Contexto inseguro, permissão negada e o aviso de "não deu, copie à
+    // mão" são resolvidos em `lib/copiar.ts`. O mesmo defeito estava também
+    // no botão da página do relatório, então o conserto mora num lugar só.
+    // Aqui sobra dizer "copiado" quando copiou de verdade: anunciar sucesso
+    // com a área de transferência intacta faz o facilitador colar o link
+    // antigo no e-mail do cliente dele.
+    if (await copiarTexto(url)) toast(`Link de ${assessment.avaliadoNome} copiado`)
   }
 
   return (
@@ -190,13 +188,16 @@ export function TabelaAssessments({
                       target="_blank"
                     />
                     {/* `imprimir=1` faz a própria página do relatório abrir a
-                        impressão ao terminar de carregar. Não há PDF de
-                        servidor ainda, e o `@media print` da tela já é o que o
-                        Puppeteer vai renderizar quando houver: um caminho só,
-                        e o arquivo sai igual ao que a pessoa reviu. */}
+                        caixa de impressão ao terminar de carregar, e é dela
+                        que sai o PDF. Não há PDF de servidor nesta rota, por
+                        isso o rótulo fala em imprimir: prometer "baixar"
+                        fazia o clique parecer quebrado, porque o que abre é o
+                        diálogo do navegador. O `@media print` da tela é o
+                        mesmo que o Puppeteer do CLI renderiza — um caminho
+                        só, e o arquivo sai igual ao que a pessoa reviu. */}
                     <IconButton
-                      icon="download"
-                      label={`Baixar PDF de ${assessment.avaliadoNome}`}
+                      icon="printer"
+                      label={`Imprimir ou salvar em PDF o relatório de ${assessment.avaliadoNome}`}
                       href={`/relatorio/${assessment.token}?imprimir=1`}
                       target="_blank"
                     />
@@ -208,14 +209,17 @@ export function TabelaAssessments({
                       label={`Copiar link de ${assessment.avaliadoNome}`}
                       onClick={() => copiarLink(assessment)}
                     />
-                    {/* Não existe envio de e-mail no projeto, então o aviso
+                    {/* Não existe provedor de e-mail no projeto, então o aviso
                         aponta para a ação ao lado, que funciona de verdade:
                         copiar o link e mandar por onde já se manda hoje. */}
                     <IconButton
                       icon="mail"
                       label={`Reenviar convite para ${assessment.avaliadoNome}`}
                       onClick={() =>
-                        toast('Reenvio por e-mail ainda não disponível: copie o link ao lado')
+                        toast(
+                          'Copie o link ao lado e envie por fora: o envio automático depende do provedor de e-mail, ainda não contratado.',
+                          'aviso',
+                        )
                       }
                     />
                   </>

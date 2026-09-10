@@ -28,7 +28,7 @@ const { db } = await import("@/lib/db");
 const { auditoria, usuarios, creditosTransacoes } = await import("@/lib/db/schema");
 const acoes = await import("@/lib/actions/facilitadores");
 const { auth } = await import("@/lib/auth/config");
-const { eq, sql } = await import("drizzle-orm");
+const { desc, eq, sql } = await import("drizzle-orm");
 
 /** Marca as linhas desta rodada, para a limpeza no fim nao levar nada alheio. */
 const marca = `teste-${Date.now()}`;
@@ -191,6 +191,9 @@ describe("facilitadores", () => {
       .where(eq(creditosTransacoes.usuario_id, novo.id));
     assert.equal(compra!.tipo, "compra");
     assert.equal(compra!.quantidade, 10);
+    // O preco vai GRAVADO na linha: e dele que a receita do painel sai, e nao
+    // do pacote vigente na hora de olhar o painel. Ver `schema/creditos.ts`.
+    assert.equal(compra!.valor_cobrado, 290, "o preco do Starter no momento da venda");
   });
 
   it("o parceiro criado entra com a senha definida", async () => {
@@ -247,6 +250,14 @@ describe("facilitadores", () => {
     assert.equal(venda.saldo, 60, "10 do Starter + 50 do Pro");
     assert.equal(await saldoDe(parceiroId), 60);
     assert.equal(await somaDoExtrato(parceiroId), 60);
+
+    const [ultima] = await db
+      .select()
+      .from(creditosTransacoes)
+      .where(eq(creditosTransacoes.usuario_id, parceiroId))
+      .orderBy(desc(creditosTransacoes.created_at))
+      .limit(1);
+    assert.equal(ultima!.valor_cobrado, 990, "a venda tambem grava o que cobrou");
   });
 
   it("facilitador nao cria parceiro nem vende credito", async () => {

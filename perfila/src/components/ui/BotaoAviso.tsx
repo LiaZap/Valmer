@@ -14,6 +14,9 @@ import { useToast } from './Toast'
  * só para manter um botão que hoje só emite um toast — como o "Vender
  * créditos" de /admin/creditos.
  *
+ * O toast sai sempre no tom de aviso: este botão nunca grava nada, e um check
+ * verde aqui seria exatamente a mentira que ele deveria evitar.
+ *
  * Quando a ação existir de verdade, troque a chamada pelo componente próprio
  * dela; este some sozinho quando o último uso sair.
  */
@@ -22,5 +25,5 @@ export function BotaoAviso({
   ...props
 }: Omit<ComponentProps<typeof Button>, 'onClick' | 'href'> & { aviso: string }) {
   const { toast } = useToast()
-  return <Button {...props} onClick={() => toast(aviso)} />
+  return <Button {...props} onClick={() => toast(aviso, 'aviso')} />
 }

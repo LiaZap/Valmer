@@ -31,6 +31,10 @@ export const ICON_PATHS = {
   search: 'M11 19a8 8 0 100-16 8 8 0 000 16zM21 21l-4.35-4.35',
   plus: 'M12 5v14M5 12h14',
   download: 'M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3',
+  /* Impressora: o relatorio nao tem PDF de servidor, entao o botao mostra
+     o que ele realmente aciona — a caixa de impressao do navegador. */
+  printer:
+    'M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z',
   upload: 'M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12',
   eye: 'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zM12 15a3 3 0 100-6 3 3 0 000 6z',
   edit: 'M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z',
@@ -46,6 +50,9 @@ export const ICON_PATHS = {
   /* Círculo cortado na diagonal: o sinal de proibição que todo mundo já
      lê sem legenda, e que sobrevive à impressão em preto e branco. */
   ban: 'M12 22a10 10 0 100-20 10 10 0 000 20zM5.6 5.6l12.8 12.8',
+  // O X de fechar. `ban` (circulo cortado) era o mais parecido que existia e
+  // diz outra coisa: "proibido", nao "dispensar este aviso".
+  fechar: 'M18 6L6 18M6 6l12 12',
   menu: 'M3 12h18M3 6h18M3 18h18',
   refresh: 'M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15',
   info: 'M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01',

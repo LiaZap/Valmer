@@ -10,7 +10,7 @@ import { FormDegustacao } from './FormDegustacao'
  * saem do banco (`usuarios.creditos_degustacao` e
  * `usuarios.degustacao_relatorio`), e a lista de níveis sai da tabela de
  * preços, que é quem sabe o nome e a faixa de revenda de cada um. Nada aqui é
- * número de protótipo: o saldo fixo de `data/creditos.ts` saiu junto com o
+ * número de protótipo: o saldo fixo do arquivo de dados saiu junto com o
  * botão que avisava não gravar.
  *
  * O formulário fica no componente cliente ao lado, que é onde há estado.

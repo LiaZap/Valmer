@@ -21,7 +21,7 @@ export default function NovoDnaPage() {
   // muda é o aviso, que não promete mais uma gravação que não existe.
   function salvar() {
     router.push('/facilitador/dna')
-    toast('DNA ainda não é salvo: esta tela ainda não grava')
+    toast('DNA ainda não é salvo: esta tela ainda não grava', 'aviso')
   }
 
   return (
@@ -49,7 +49,7 @@ export default function NovoDnaPage() {
                 <Button
                   size="sm"
                   icon={<Icon name="plus" />}
-                  onClick={() => toast('Vincular turma ainda não disponível')}
+                  onClick={() => toast('Vincular turma ainda não disponível', 'aviso')}
                 >
                   Adicionar turma
                 </Button>
@@ -67,12 +67,12 @@ export default function NovoDnaPage() {
                     icon="refresh"
                     label="Atualizar"
                     variant="outline"
-                    onClick={() => toast('Atualizar inventário ainda não disponível')}
+                    onClick={() => toast('Atualizar inventário ainda não disponível', 'aviso')}
                   />
                   <Button
                     size="sm"
                     icon={<Icon name="plus" />}
-                    onClick={() => toast('Adicionar inventário ainda não disponível')}
+                    onClick={() => toast('Adicionar inventário ainda não disponível', 'aviso')}
                   >
                     Adicionar inventário
                   </Button>

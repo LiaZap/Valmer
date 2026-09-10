@@ -98,7 +98,11 @@ export function ListaClientes({ itens }: { itens: ItemCliente[] }) {
     gravar(async () => {
       const resposta = await excluirPelaTela(cliente.id)
       setPainel(null)
-      toast(resposta.ok ? `${cliente.nome} foi removido da sua carteira.` : resposta.erro)
+      if (!resposta.ok) {
+        toast(resposta.erro, 'aviso')
+        return
+      }
+      toast(`${cliente.nome} foi removido da sua carteira.`)
     })
   }
 
@@ -111,7 +115,7 @@ export function ListaClientes({ itens }: { itens: ItemCliente[] }) {
           <>
             <Button
               icon={<Icon name="upload" />}
-              onClick={() => toast('Importação de clientes ainda não disponível')}
+              onClick={() => toast('Importação de clientes ainda não disponível', 'aviso')}
             >
               Importar
             </Button>
@@ -240,7 +244,7 @@ export function ListaClientes({ itens }: { itens: ItemCliente[] }) {
           <Button
             variant="dark"
             size="lg"
-            onClick={() => toast('Busca de clientes ainda não disponível')}
+            onClick={() => toast('Busca de clientes ainda não disponível', 'aviso')}
           >
             Pesquisar
           </Button>
@@ -302,10 +306,17 @@ export function ListaClientes({ itens }: { itens: ItemCliente[] }) {
                         label="Editar"
                         onClick={() => abrir({ modo: 'editar', cliente })}
                       />
+                      {/* O e-mail já está na linha, ao lado do nome: é ele o
+                          caminho manual enquanto não houver provedor. */}
                       <IconButton
                         icon="mail"
                         label="Enviar e-mail"
-                        onClick={() => toast('Envio de e-mail ainda não disponível')}
+                        onClick={() =>
+                          toast(
+                            `Copie o e-mail da linha (${cliente.email}) e escreva por fora: o envio automático depende do provedor de e-mail, ainda não contratado.`,
+                            'aviso',
+                          )
+                        }
                       />
                       <IconButton
                         icon="trash"

@@ -45,14 +45,14 @@ export default function DnaPage() {
           <Button
             variant="dark"
             size="lg"
-            onClick={() => toast('Busca de DNA ainda não disponível')}
+            onClick={() => toast('Busca de DNA ainda não disponível', 'aviso')}
           >
             Pesquisar
           </Button>
           <Button
             variant="ghost"
             size="lg"
-            onClick={() => toast('Limpar filtros ainda não disponível')}
+            onClick={() => toast('Limpar filtros ainda não disponível', 'aviso')}
           >
             Limpar
           </Button>
@@ -91,29 +91,29 @@ export default function DnaPage() {
                     <IconButton
                       icon="edit"
                       label="Editar"
-                      onClick={() => toast('Edição do DNA ainda não disponível')}
+                      onClick={() => toast('Edição do DNA ainda não disponível', 'aviso')}
                     />
                     <IconButton
                       icon="file"
                       label="Ver relatório"
-                      onClick={() => toast('Relatório do DNA ainda não disponível')}
+                      onClick={() => toast('Relatório do DNA ainda não disponível', 'aviso')}
                     />
                     <IconButton
                       icon="chart"
                       label="Gráficos"
-                      onClick={() => toast('Gráficos do DNA ainda não disponíveis')}
+                      onClick={() => toast('Gráficos do DNA ainda não disponíveis', 'aviso')}
                     />
                     <IconButton
                       icon="download"
                       label="Baixar PDF"
-                      onClick={() => toast('Download do PDF ainda não disponível')}
+                      onClick={() => toast('Download do PDF ainda não disponível', 'aviso')}
                     />
                     <IconButton
                       icon="trash"
                       label="Remover"
                       tone="danger"
                       onClick={() =>
-                        toast('Remover ainda não disponível: esta lista ainda não grava')
+                        toast('Remover ainda não disponível: esta lista ainda não grava', 'aviso')
                       }
                     />
                   </RowActions>
