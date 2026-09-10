@@ -11,6 +11,7 @@ import { Avatar } from '@/components/ui/Avatar'
 import { assessmentsVisiveis, listarFacilitadores, listarTransacoes } from '@/lib/painel'
 import { moeda } from '@/data/planos'
 import { metricasPlataforma, taxaConclusao } from '@/lib/metricas'
+import { listarPacotes } from '@/lib/precos'
 import ui from '@/styles/common.module.css'
 import styles from './page.module.css'
 
@@ -22,13 +23,16 @@ import styles from './page.module.css'
  * três idas ao banco em fila para desenhar o mesmo cabeçalho.
  */
 export default async function AdminPage() {
-  const [facilitadores, assessments, transacoes] = await Promise.all([
+  const [facilitadores, assessments, transacoes, pacotes] = await Promise.all([
     listarFacilitadores(),
     assessmentsVisiveis(),
     listarTransacoes(),
+    listarPacotes(),
   ])
 
-  const m = metricasPlataforma({ facilitadores, assessments, transacoes })
+  // Os pacotes entram na conta da receita: sem eles, uma compra de pacote
+  // criado pelo admin nao acha par e some do indicador. Ver `lib/metricas.ts`.
+  const m = metricasPlataforma({ facilitadores, assessments, transacoes, pacotes })
   const conclusao = taxaConclusao(assessments)
 
   const indicadores = [

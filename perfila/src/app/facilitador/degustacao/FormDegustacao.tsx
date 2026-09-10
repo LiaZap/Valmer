@@ -67,30 +67,37 @@ export function FormDegustacao({
   // O nível salvo pode ter sido descontinuado pelo admin depois de escolhido:
   // cair no primeiro da lista mantém a tela utilizável em vez de mostrar um
   // campo vazio que não abre.
+  //
+  // `escolhido` é a ÚNICA fonte do nível daqui para baixo — Salvar e Enviar
+  // mandam `escolhido.codigo`, nunca o `codigo` do estado. Com os dois em uso,
+  // um nível descontinuado fazia a tela exibir o substituto e gravar o antigo:
+  // o cartão dizia S1 e o mapa nascia S3.
   const escolhido = niveis.find((nivel) => nivel.codigo === codigo) ?? niveis[0]
   const semSaldo = saldo < 1
 
   function salvar() {
+    if (!escolhido) return
     setErro(null)
     iniciarSalvar(async () => {
-      const resposta = await salvarConfigDegustacaoPelaTela({ tipo_relatorio: codigo })
+      const resposta = await salvarConfigDegustacaoPelaTela({ tipo_relatorio: escolhido.codigo })
       if (!resposta.ok) {
         setErro(resposta.erro)
         return
       }
-      toast(`Degustação configurada: você oferece o ${codigo} como amostra.`)
+      toast(`Degustação configurada: você oferece o ${escolhido.codigo} como amostra.`)
     })
   }
 
   function enviar(evento: React.FormEvent) {
     evento.preventDefault()
+    if (!escolhido) return
     setErro(null)
 
     iniciarEnvio(async () => {
       const resposta = await criarPelaTela({
         avaliado_nome: nome,
         avaliado_email: email,
-        tipo_relatorio: codigo,
+        tipo_relatorio: escolhido.codigo,
         degustacao: true,
       })
 
@@ -163,7 +170,7 @@ export function FormDegustacao({
           <div>
             <div className={ui.cardTitle}>Enviar degustação</div>
             <p className={ui.note}>
-              Cria o link do avaliado com o {escolhido?.codigo ?? codigo}. Consome 1 amostra e
+              Cria o link do avaliado com o {escolhido?.codigo ?? '—'}. Consome 1 amostra e
               nenhum crédito.
             </p>
           </div>

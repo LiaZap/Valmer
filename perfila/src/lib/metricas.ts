@@ -11,7 +11,6 @@
  */
 
 import type { Assessment, Facilitador, Transacao } from '@/data/facilitadores'
-import { pacotesCreditos } from '@/data/planos'
 
 export type DadosPlataforma = {
   facilitadores: Facilitador[]
@@ -21,19 +20,20 @@ export type DadosPlataforma = {
    * Os pacotes vigentes, para casar cada compra com o preço que ela custou.
    *
    * Chega por parâmetro pelo mesmo motivo dos outros três: quem lê o banco é o
-   * lado servidor. Opcional porque a tabela `precos_pacotes` nasceu agora e as
-   * telas que chamam esta função ainda passam a lista fixa por omissão — o
-   * fallback é o mesmo `data/planos.ts` de sempre, então o número do painel não
-   * muda enquanto a tela não for ligada ao banco.
+   * lado servidor. OBRIGATÓRIO, e não opcional com o `data/planos.ts` por
+   * omissão: a venda passou a aceitar qualquer pacote de `precos_pacotes`, e um
+   * pacote criado pelo admin não acharia par na lista fixa — a receita dele
+   * sumiria da métrica calada, que é o defeito que o cabeçalho deste arquivo
+   * diz ter sido corrigido.
    */
-  pacotes?: { creditos: number; preco: number }[]
+  pacotes: { creditos: number; preco: number }[]
 }
 
 export function metricasPlataforma({
   facilitadores,
   assessments,
   transacoes,
-  pacotes = pacotesCreditos,
+  pacotes,
 }: DadosPlataforma) {
   const ativos = facilitadores.filter((facilitador) => facilitador.ativo)
 

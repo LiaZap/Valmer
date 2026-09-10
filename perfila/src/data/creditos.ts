@@ -1,23 +1,11 @@
-/** Saldos de créditos e de degustação. */
-
-export const creditos = {
-  saldo: 2,
-  vitalicios: 2,
-  aExpirar: 0,
-  /** Data de expiração dos créditos com prazo ("N/D" quando não há). */
-  expiraEm: 'N/D',
-  utilizadosNoCiclo: 71,
-  metaDoCiclo: 80,
-  cicloIniciadoEm: '06/01/2026',
-}
-
-export const degustacao = {
-  saldo: 180,
-  vitalicios: 180,
-  aExpirar: 0,
-  expiraEm: 'N/D',
-  utilizadas: 3,
-}
+/**
+ * O que sobrou do protótipo de créditos.
+ *
+ * Os saldos saíram daqui: crédito vem de `creditos_transacoes` e degustação de
+ * `usuarios.creditos_degustacao`, os dois por `lib/painel.ts`. Os números fixos
+ * que moravam neste arquivo apareciam ao lado dos reais na mesma tela,
+ * discordando deles.
+ */
 
 /**
  * Indicadores do topo do Dashboard que ainda nao tem tabela no banco.

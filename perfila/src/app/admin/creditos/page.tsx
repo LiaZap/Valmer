@@ -6,8 +6,9 @@ import { Icon } from '@/components/ui/Icon'
 import { AutoGrid } from '@/components/ui/Layout'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { TabelaExtrato } from '@/components/creditos/TabelaExtrato'
-import { custoPorCredito, moeda, pacotesCreditos } from '@/data/planos'
+import { custoPorCredito, moeda } from '@/data/planos'
 import { metricasPlataforma } from '@/lib/metricas'
+import { listarPacotes } from '@/lib/precos'
 import {
   assessmentsVisiveis,
   empresasPorId,
@@ -28,15 +29,21 @@ import { VenderPacote } from './VenderPacote'
  *
  * O extrato já chega do mais novo para o mais antigo, como o de uma conta:
  * a ordem é do `ORDER BY`, e não de um `reverse()` sobre o que voltou.
+ *
+ * Os cartões de pacote vêm de `precos_pacotes`, e não mais de `data/planos.ts`:
+ * quem valida a venda passou a conferir o pacote contra o banco, então a
+ * vitrine fixa mostrava pacote descontinuado com botão Vender que só sabia
+ * recusar, e escondia o pacote que o admin acabou de criar em /admin/precos.
  */
 export default async function CreditosAdminPage() {
-  const [facilitadores, assessments, transacoes] = await Promise.all([
+  const [facilitadores, assessments, transacoes, pacotes] = await Promise.all([
     listarFacilitadores(),
     assessmentsVisiveis(),
     listarTransacoes(),
+    listarPacotes(),
   ])
 
-  const m = metricasPlataforma({ facilitadores, assessments, transacoes })
+  const m = metricasPlataforma({ facilitadores, assessments, transacoes, pacotes })
 
   // Os nomes saem dos ids que aparecem NO EXTRATO, e não da lista de
   // parceiros: quem movimenta crédito nem sempre tem papel de facilitador — o
@@ -67,8 +74,14 @@ export default async function CreditosAdminPage() {
         }
       />
 
+      {pacotes.length === 0 ? (
+        <EmptyState>
+          Nenhum pacote de crédito cadastrado. Crie um em <strong>Preços</strong> para poder vender.
+        </EmptyState>
+      ) : null}
+
       <AutoGrid min={240}>
-        {pacotesCreditos.map((pacote) => (
+        {pacotes.map((pacote) => (
           <Card key={pacote.nome} className={styles.pacote}>
             <div className={ui.eyebrow}>{pacote.nome}</div>
             <div className={styles.creditos}>{pacote.creditos}</div>

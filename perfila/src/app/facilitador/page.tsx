@@ -9,10 +9,10 @@ import { Progress } from '@/components/ui/Progress'
 import { Select } from '@/components/ui/Select'
 import { cursosDestaque } from '@/data/aprendizado'
 
-import { degustacao, indicadores } from '@/data/creditos'
+import { indicadores } from '@/data/creditos'
 import { opcoes } from '@/data/opcoes'
 import { dataPorExtenso, saudacao } from '@/lib/data-extenso'
-import { contaAtual, progressoDoPrograma, transacoesDaConta } from '@/lib/painel'
+import { contaAtual, degustacaoDaConta, progressoDoPrograma, transacoesDaConta } from '@/lib/painel'
 import ui from '@/styles/common.module.css'
 import styles from './page.module.css'
 
@@ -23,13 +23,19 @@ import styles from './page.module.css'
  * lateral e a tela de créditos. Antes o chip do topo lia do banco e o corpo
  * lia de um arquivo fixo: dois números de crédito na mesma tela, discordando,
  * e nenhum jeito de a pessoa saber qual valia.
+ *
+ * A degustação entrou na mesma regra e pelo mesmo motivo: /facilitador/degustacao
+ * passou a debitar `usuarios.creditos_degustacao` de verdade, e este cartão
+ * continuava mostrando os 180 fixos do arquivo — a primeira amostra enviada já
+ * fazia as duas telas do mesmo portal discordarem.
  */
 export default async function DashboardPage() {
   const agora = new Date()
-  const [conta, extrato, programa] = await Promise.all([
+  const [conta, extrato, programa, amostras] = await Promise.all([
     contaAtual(),
     transacoesDaConta(),
     progressoDoPrograma(),
+    degustacaoDaConta(),
   ])
 
   const recebidos = extrato
@@ -141,20 +147,17 @@ export default async function DashboardPage() {
             </div>
           </Row>
           <div className={styles.saldoValor}>
-            <span className={ui.metricXl}>{degustacao.saldo}</span>
-            <span className={styles.saldoUnidade}>créditos</span>
+            <span className={ui.metricXl}>{amostras.saldo}</span>
+            <span className={styles.saldoUnidade}>amostras</span>
           </div>
           <Stack gap={8}>
             <div className={ui.dataRow}>
-              <span className={ui.dataRowLabel}>Vitalícios</span>
-              <span className={ui.dataRowValue}>{degustacao.vitalicios}</span>
+              <span className={ui.dataRowLabel}>Concedidas</span>
+              <span className={ui.dataRowValue}>{amostras.concedidas}</span>
             </div>
             <div className={ui.dataRow}>
-              <span className={ui.dataRowLabel}>A expirar</span>
-              <span className={ui.dataRowValue}>
-                {degustacao.aExpirar}{' '}
-                <span className={ui.dataRowExtra}>· {degustacao.expiraEm}</span>
-              </span>
+              <span className={ui.dataRowLabel}>Utilizadas</span>
+              <span className={ui.dataRowValue}>{amostras.utilizadas}</span>
             </div>
           </Stack>
           <Button
