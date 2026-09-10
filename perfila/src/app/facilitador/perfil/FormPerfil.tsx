@@ -213,8 +213,11 @@ export function FormPerfil({
  * Região viva permanente: a recusa do servidor chega depois do clique, longe
  * de onde se olha, e criada junto com o texto o leitor de tela não a anuncia.
  * Mesmo padrão de assessments/novo/FormNovoAssessment.tsx.
+ *
+ * Exportado porque `FotoPerfil.tsx`, na mesma tela, mostra a recusa do envio no
+ * mesmo formato — duas cópias da mesma caixa é onde uma delas para de anunciar.
  */
-function Aviso({ mensagem }: { mensagem: string | null }) {
+export function Aviso({ mensagem }: { mensagem: string | null }) {
   return (
     <div role="status" aria-live="polite">
       {mensagem ? (

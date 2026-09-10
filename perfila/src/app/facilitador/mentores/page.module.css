@@ -33,3 +33,11 @@
 .agendar {
   margin-top: var(--space-8);
 }
+
+/* A foto real ocupa exatamente o espaço do retângulo reservado acima. */
+.retrato {
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  object-fit: cover;
+  display: block;
+}

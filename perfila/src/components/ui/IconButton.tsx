@@ -15,6 +15,8 @@ type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className'
   href?: string
   /** Só com `href`. `_blank` já sai com `rel="noopener"`. */
   target?: '_blank'
+  /** Com `href`, baixa o arquivo em vez de navegar até ele. */
+  download?: boolean
   className?: string
 }
 
@@ -34,6 +36,7 @@ export function IconButton({
   iconSize = 16,
   href,
   target,
+  download,
   className,
   type = 'button',
   ...rest
@@ -48,6 +51,18 @@ export function IconButton({
     .join(' ')
 
   if (href) {
+    // Mesmo motivo do `download` do Button: com <Link>, o prefetch chama a
+    // rota assim que o botão aparece na tela, e a rota de exportação geraria o
+    // CSV — consulta ao banco inclusa — sem ninguém ter clicado. Numa TABELA
+    // isso acontece uma vez por linha visível.
+    if (download) {
+      return (
+        <a href={href} download className={classes} title={label} aria-label={label}>
+          <Icon name={icon} size={iconSize} />
+        </a>
+      )
+    }
+
     return (
       <Link
         href={href}

@@ -139,6 +139,7 @@ const STATIC_SUBS: Record<string, string> = {
  */
 const TITULOS_FORA_DO_MENU: Record<string, string> = {
   '/facilitador/perfil': 'Perfil',
+  '/admin/perfil': 'Perfil',
 }
 
 export function resolveBreadcrumb(

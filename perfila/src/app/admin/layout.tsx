@@ -4,6 +4,7 @@ import { AppShell } from '@/components/layout/AppShell'
 import { initials } from '@/lib/text'
 import { exigirSessaoNaTela } from '@/lib/auth/tela'
 import { BASE_ADMIN, NAV_ADMIN } from '@/lib/routes'
+import { urlAssinadaOuNula } from '@/lib/storage'
 
 export const metadata: Metadata = {
   title: 'Impacto Academy · Administração',
@@ -19,9 +20,13 @@ export const metadata: Metadata = {
  * autenticado não pode entrar por digitar /admin na barra.
  */
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { sessao } = await exigirSessaoNaTela(BASE_ADMIN)
+  const { sessao, conta } = await exigirSessaoNaTela(BASE_ADMIN)
 
   if (sessao.papel !== 'admin') redirect('/facilitador')
+
+  // O banco guarda a CHAVE do objeto; a URL assinada nasce aqui, depois da
+  // checagem de sessão acima, e expira em minutos. Ver `lib/storage.ts`.
+  const foto = await urlAssinadaOuNula(conta.imagem)
 
   return (
     <AppShell
@@ -30,10 +35,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       subtitulo="Administração"
       raiz="Admin"
       buscaPlaceholder="Buscar facilitador, avaliado…"
+      perfilHref="/admin/perfil"
       usuario={{
         nome: sessao.nome.split(' ').slice(0, 2).join(' '),
         iniciais: initials(sessao.nome),
         resumo: 'Administrador da plataforma',
+        foto,
       }}
     >
       {children}

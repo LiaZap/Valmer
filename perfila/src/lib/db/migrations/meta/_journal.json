@@ -64,6 +64,13 @@
       "when": 1789066662211,
       "tag": "0008_freezing_wallow",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1789072755717,
+      "tag": "0009_stormy_emma_frost",
+      "breakpoints": true
     }
   ]
 }

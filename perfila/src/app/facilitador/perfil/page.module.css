@@ -39,3 +39,20 @@
   color: var(--color-text);
   overflow-wrap: anywhere;
 }
+
+/* Foto à esquerda, explicação e botão à direita; empilham em tela estreita. */
+.foto {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-20);
+  margin-top: var(--space-16);
+}
+
+.fotoLado {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-12);
+  flex: 1 1 260px;
+}

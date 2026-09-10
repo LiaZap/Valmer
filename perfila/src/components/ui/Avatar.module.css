@@ -28,3 +28,19 @@
   background: var(--color-ink);
   color: var(--color-on-ink);
 }
+
+.xl {
+  width: 88px;
+  height: 88px;
+  font-size: var(--fs-24);
+}
+
+/* A foto preenche o círculo sem distorcer: recorte no centro, que é onde o
+   rosto está em foto de perfil. */
+.foto {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}

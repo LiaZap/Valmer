@@ -4,6 +4,7 @@ import { AppShell } from '@/components/layout/AppShell'
 import { initials } from '@/lib/text'
 import { exigirSessaoNaTela } from '@/lib/auth/tela'
 import { BASE_FACILITADOR, NAV_FACILITADOR } from '@/lib/routes'
+import { urlAssinadaOuNula } from '@/lib/storage'
 
 export const metadata: Metadata = {
   title: 'Impacto Academy · Portal do Parceiro',
@@ -23,6 +24,10 @@ export default async function FacilitadorLayout({ children }: { children: React.
   // lista vazia, porque assessment nenhum pertence a ele.
   if (sessao.papel === 'admin') redirect('/admin')
 
+  // O banco guarda a CHAVE do objeto; a URL assinada nasce aqui, depois da
+  // checagem de sessão acima, e expira em minutos. Ver `lib/storage.ts`.
+  const foto = await urlAssinadaOuNula(conta.imagem)
+
   return (
     <AppShell
       grupos={NAV_FACILITADOR}
@@ -35,6 +40,7 @@ export default async function FacilitadorLayout({ children }: { children: React.
         nome: sessao.nome.split(' ').slice(0, 2).join(' '),
         iniciais: initials(sessao.nome),
         resumo: `${conta.empresa ?? 'Sem empresa'} · ${conta.creditos} créditos`,
+        foto,
       }}
     >
       {children}

@@ -83,6 +83,31 @@
   flex-wrap: wrap;
 }
 
+/* ---------- Lista de destinatários do lote ---------- */
+.destinatarios {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.destinatario {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+  padding: var(--space-8) var(--space-12);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-13);
+}
+
+.destinatarioNome {
+  font-weight: var(--fw-semibold);
+}
+
 /* ---------- Card lateral ---------- */
 .ajuda {
   display: flex;

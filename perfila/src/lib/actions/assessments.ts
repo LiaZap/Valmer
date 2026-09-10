@@ -7,7 +7,6 @@
  */
 "use server";
 
-import { randomBytes } from "node:crypto";
 import { and, desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -17,6 +16,7 @@ import { assessments, creditosTransacoes, usuarios } from "@/lib/db/schema";
 import { getSession, temPermissao, type Acao, type Sessao } from "@/lib/auth";
 import { registrarAuditoria } from "@/lib/audit/logger";
 import { RecusaDeRegra } from "./recusa";
+import { novoToken, validadeDoLink } from "@/lib/assessment-link";
 import {
   atualizarAssessmentSchema,
   criarAssessmentSchema,
@@ -24,9 +24,6 @@ import {
 import { getTipoRelatorio } from "@/data/planos";
 
 const TABELA = "assessments";
-
-/** Por quantos dias o link de avaliacao continua valendo. */
-const DIAS_VALIDADE = 7;
 
 async function exigirSessao(acao: Acao): Promise<Sessao> {
   const sessao = await getSession();
@@ -43,11 +40,6 @@ async function exigirSessao(acao: Acao): Promise<Sessao> {
  */
 function escopoDoDono(sessao: Sessao) {
   return sessao.papel === "admin" ? undefined : eq(assessments.facilitador_id, sessao.userId);
-}
-
-/** Token do link /avaliacao/<token>. 12 caracteres hexadecimais. */
-function novoToken(): string {
-  return randomBytes(6).toString("hex");
 }
 
 /** Lista os assessments visiveis para a sessao, do mais novo ao mais antigo. */
@@ -94,7 +86,7 @@ export async function criar(dados: unknown) {
   }
 
   const custo = getTipoRelatorio(validado.tipo_relatorio).creditos;
-  const expiraEm = new Date(Date.now() + DIAS_VALIDADE * 24 * 60 * 60 * 1000);
+  const expiraEm = validadeDoLink(new Date());
 
   const criado = await db.transaction(async (tx) => {
     const [dono] = await tx

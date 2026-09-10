@@ -22,6 +22,7 @@ import { getSession, temPermissao, type Sessao } from "@/lib/auth";
 import { conferirSenha, definirSenha } from "@/lib/auth/senha";
 import { registrarAuditoria } from "@/lib/audit/logger";
 import { atualizarPerfilSchema, trocarSenhaSchema } from "@/lib/validators/perfil";
+import { apagarObjeto, enviarImagem } from "@/lib/storage";
 import { RecusaDeRegra } from "./recusa";
 
 const TABELA = "usuarios";
@@ -130,6 +131,63 @@ export async function trocarSenha(dados: unknown) {
   });
 }
 
+/**
+ * Troca a foto de perfil de quem esta logado.
+ *
+ * A sessao e exigida na PRIMEIRA linha, e nao depois de ler o arquivo: Server
+ * Action e um POST publico, e uma que sobe arquivo antes de saber quem pediu e
+ * um deposito aberto na internet — qualquer um enche o bucket.
+ *
+ * O banco recebe a CHAVE do objeto, nunca a URL. Ver a nota de `lib/storage.ts`:
+ * o endereco de hoje e o subdominio padrao do EasyPanel, e no dia em que virar
+ * dominio proprio toda URL gravada quebraria de uma vez.
+ *
+ * A ORDEM e: sobe a nova, grava a chave, so entao apaga a antiga. Apagar antes
+ * deixaria a pessoa sem foto nenhuma se o envio falhasse no meio. O preco desta
+ * ordem e um objeto orfao quando o UPDATE falha depois do upload — barato perto
+ * de perder a foto de quem so queria trocar.
+ *
+ * Sem esta limpeza o armazenamento cresce para sempre com arquivo que ninguem
+ * mais alcanca: cada troca deixaria o anterior no bucket, sem nenhuma linha do
+ * banco apontando para ele.
+ */
+export async function trocarFoto(dados: FormData) {
+  const sessao = await exigirSessao();
+
+  const arquivo = dados.get("foto");
+  if (!(arquivo instanceof File)) throw new RecusaDeRegra("Escolha uma imagem.");
+
+  const anterior = await meuCadastro(sessao);
+  if (!anterior) throw new RecusaDeRegra("Cadastro nao encontrado");
+
+  const chave = await enviarImagem({
+    prefixo: `perfil/${sessao.userId}`,
+    arquivo,
+  });
+
+  const [novo] = await db
+    .update(usuarios)
+    .set({ image: chave, updated_at: new Date(), modified_by: sessao.userId })
+    .where(and(eq(usuarios.id, sessao.userId), eq(usuarios.is_deleted, false)))
+    .returning();
+
+  if (!novo) throw new RecusaDeRegra("Cadastro nao encontrado");
+
+  await apagarObjeto(anterior.image);
+
+  await registrarAuditoria({
+    userId: sessao.userId,
+    acao: "atualizar",
+    tabela: TABELA,
+    registroId: sessao.userId,
+    detalhes: `Trocou a propria foto de perfil (${novo.email})`,
+    dadosAnteriores: anterior,
+    dadosNovos: novo,
+  });
+
+  return novo;
+}
+
 type Resposta = { ok: true } | { ok: false; erro: string };
 
 /**
@@ -147,11 +205,36 @@ type Resposta = { ok: true } | { ok: false; erro: string };
 export async function atualizarPelaTela(dados: unknown): Promise<Resposta> {
   try {
     await atualizar(dados);
-    revalidatePath("/facilitador", "layout");
+    revalidarMolduras();
     return { ok: true };
   } catch (erro) {
     return comoResposta(erro);
   }
+}
+
+/** Troca de foto a partir da tela. Mesmo contrato de `atualizarPelaTela`. */
+export async function trocarFotoPelaTela(dados: FormData): Promise<Resposta> {
+  try {
+    await trocarFoto(dados);
+    revalidarMolduras();
+    return { ok: true };
+  } catch (erro) {
+    return comoResposta(erro);
+  }
+}
+
+/**
+ * Invalida as duas molduras, e nao so a do parceiro.
+ *
+ * Nome, empresa e foto aparecem na barra superior, que e do LAYOUT — sem isso
+ * a tela salva e continua mostrando o dado antigo no canto. Sao dois layouts
+ * porque o dono da plataforma edita o proprio cadastro por /admin/perfil e o
+ * parceiro por /facilitador/perfil: invalidar so um deixava metade das contas
+ * com a barra desatualizada ate o proximo recarregamento.
+ */
+function revalidarMolduras() {
+  revalidatePath("/facilitador", "layout");
+  revalidatePath("/admin", "layout");
 }
 
 /** Troca de senha a partir da tela. Mesmo contrato de `atualizarPelaTela`. */

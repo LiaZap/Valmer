@@ -120,6 +120,36 @@ export async function assessmentsVisiveis(): Promise<Assessment[]> {
   return linhas.map(paraAssessment);
 }
 
+/**
+ * Os mapas de UMA turma, para a tela de detalhe dela.
+ *
+ * O recorte por dono continua no WHERE, junto do filtro de turma: a rota de
+ * detalhe recebe o uuid pela URL, e um uuid de turma alheia colado ali tem de
+ * devolver lista vazia, e nao a turma do concorrente. `actions/turmas.obter`
+ * ja recusa a turma em si; esta consulta recusa os mapas dela pelo mesmo
+ * criterio, para as duas portas fecharem sozinhas.
+ *
+ * Devolve no mesmo formato de `assessmentsVisiveis`, entao a tela de detalhe
+ * reaproveita `TabelaAssessments` sem uma segunda conversao.
+ */
+export async function assessmentsDaTurma(turmaId: string): Promise<Assessment[]> {
+  const sessao = await exigirSessao("assessments");
+
+  const linhas = await db
+    .select()
+    .from(assessments)
+    .where(
+      and(
+        eq(assessments.turma_id, turmaId),
+        eq(assessments.is_deleted, false),
+        sessao.papel === "admin" ? undefined : eq(assessments.facilitador_id, sessao.userId),
+      ),
+    )
+    .orderBy(desc(assessments.created_at));
+
+  return linhas.map(paraAssessment);
+}
+
 /** Os facilitadores, para o painel do admin. */
 export async function listarFacilitadores(): Promise<Facilitador[]> {
   await exigirSessao("usuarios");

@@ -26,7 +26,7 @@ const DATA_ARQUIVO = new Intl.DateTimeFormat("sv-SE", {
   dateStyle: "short",
 });
 
-export async function GET(_requisicao: Request, { params }: { params: Promise<{ tipo: string }> }) {
+export async function GET(requisicao: Request, { params }: { params: Promise<{ tipo: string }> }) {
   const { tipo } = await params;
 
   const exportacao = EXPORTACOES[tipo];
@@ -40,7 +40,12 @@ export async function GET(_requisicao: Request, { params }: { params: Promise<{ 
 
   const arquivo = `${exportacao.arquivo}-${DATA_ARQUIVO.format(new Date())}.csv`;
 
-  return new Response(csv(await exportacao.montar()), {
+  // Os parametros da URL vao inteiros para o `montar`: a exportacao da turma
+  // recorta por `?turma=<uuid>`, e as outras ignoram o argumento. Ler a query
+  // aqui e decidir o recorte na rota espalharia a regra por dois arquivos.
+  const busca = new URL(requisicao.url).searchParams;
+
+  return new Response(csv(await exportacao.montar(busca)), {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
       "Content-Disposition": `attachment; filename="${arquivo}"`,

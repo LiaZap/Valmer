@@ -2,7 +2,10 @@ import { PageHeader } from '@/components/ui/PageHeader'
 import { Card } from '@/components/ui/Card'
 import { exigirSessaoNaTela } from '@/lib/auth/tela'
 import { BASE_FACILITADOR } from '@/lib/routes'
+import { urlAssinadaOuNula } from '@/lib/storage'
+import { initials } from '@/lib/text'
 import { FormPerfil } from './FormPerfil'
+import { FotoPerfil } from './FotoPerfil'
 import ui from '@/styles/common.module.css'
 import styles from './page.module.css'
 
@@ -21,18 +24,24 @@ const ROTULO_PAPEL = {
  * saber em que conta está — esconder deixaria a tela incompleta sem deixar
  * nada mais seguro.
  *
- * Não há campo de foto. O armazenamento existe, mas as credenciais não estão
- * no ambiente local: um seletor de arquivo que ninguém consegue exercitar é
- * botão que promete o que não entrega.
+ * A foto tem card próprio, acima do formulário: ela grava sozinha, no momento
+ * em que o arquivo é escolhido, e misturá-la ao formulário de cadastro faria
+ * salvar o telefone depender de reenviar a imagem.
+ *
+ * O banco guarda a CHAVE do objeto; a URL assinada nasce aqui, já com a sessão
+ * conferida, e expira em minutos. Ver `lib/storage.ts`.
  */
 export default async function PerfilPage() {
   const { sessao, conta } = await exigirSessaoNaTela(`${BASE_FACILITADOR}/perfil`)
+  const foto = await urlAssinadaOuNula(conta.imagem)
 
   return (
     <>
       <PageHeader title="Perfil" subtitle="Seus dados de parceiro e o acesso à plataforma." />
 
       <div className={styles.coluna}>
+        <FotoPerfil foto={foto} iniciais={initials(sessao.nome)} />
+
         <FormPerfil
           nome={sessao.nome}
           empresa={conta.empresa ?? ''}

@@ -24,6 +24,20 @@ const SEM_INDICE_SEM_REFERER = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
 
+  experimental: {
+    /**
+     * O corpo de uma Server Action vem limitado a 1 MB por padrão, e a foto de
+     * perfil aceita até 2 MB (ver `TAMANHO_MAXIMO_IMAGEM` em `lib/storage.ts`).
+     * Sem esta folga, um arquivo entre 1 e 2 MB era barrado pelo Next ANTES de
+     * chegar à validação — e o que aparecia na tela era um erro genérico, em
+     * vez de "arquivo maior que 2 MB", que é a frase que diz o que fazer.
+     *
+     * O teto de verdade continua sendo o do servidor, em `lib/storage.ts`:
+     * este número é só a porta larga o bastante para a recusa ser NOSSA.
+     */
+    serverActions: { bodySizeLimit: '3mb' },
+  },
+
   async headers() {
     return [
       { source: '/avaliacao/:path*', headers: SEM_INDICE_SEM_REFERER },

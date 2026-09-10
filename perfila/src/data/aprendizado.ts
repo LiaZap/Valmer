@@ -65,6 +65,16 @@ export const cursosDestaque = cursos.slice(0, 3)
 export type Mentor = {
   name: string
   role: string
+  /**
+   * O e-mail da conta dele na plataforma, quando existe.
+   *
+   * E por ele que a vitrine acha a foto, e nao pelo `name`. Casar pessoa por
+   * nome de exibicao falha calado: no banco esta "Valmer Albuquerque dos
+   * Santos" e no card esta "Valmer Albuquerque", entao a foto nunca apareceria
+   * — e no dia em que aparecesse, bastaria alguem encurtar o nome no cadastro
+   * para ela sumir de novo. E-mail e unico por indice e nao muda por gosto.
+   */
+  contaEmail?: string
 }
 
 /**
@@ -74,7 +84,11 @@ export type Mentor = {
  * tivesse sido combinado. Ninguém volta para esta lista sem o aval dele.
  */
 export const mentores: Mentor[] = [
-  { name: 'Valmer Albuquerque', role: 'Impacto Academy · Perfil Comportamental' },
+  {
+    name: 'Valmer Albuquerque',
+    role: 'Impacto Academy · Perfil Comportamental',
+    contaEmail: 'valmersantos1@gmail.com',
+  },
 ]
 
 export type AulaEad = {

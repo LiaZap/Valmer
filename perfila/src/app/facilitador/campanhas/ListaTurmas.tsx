@@ -73,10 +73,18 @@ export function ListaTurmas({ itens }: { itens: ItemTurma[] }) {
             >
               Meus links
             </Button>
+            {/* Remover pendentes EXISTE e funciona — mas por turma, e não
+                daqui: é uma exclusão que estorna crédito, e a confirmação
+                precisa dizer quantos mapas somem e quantos créditos voltam.
+                Deste cabeçalho não há turma escolhida, e varrer todas de uma
+                vez seria a versão da ação em que ninguém consegue conferir o
+                que apagou. O aviso leva ao lugar onde ela roda. */}
             <Button
               variant="danger"
               icon={<Icon name="trash" />}
-              onClick={() => toast('Remover pendentes ainda não disponível')}
+              onClick={() =>
+                toast('Remover pendentes é por turma: abra a turma no olho e use o botão de lá.')
+              }
             >
               Remover pendentes
             </Button>
@@ -191,29 +199,37 @@ export function ListaTurmas({ itens }: { itens: ItemTurma[] }) {
                     </Td>
                     <Td align="right">
                       <RowActions>
+                        {/* Rota por id, e nunca por apelido derivado do nome:
+                            "Turma 2026" de dois parceiros daria o mesmo apelido,
+                            e uma colisão dessas é caminho de vazamento, não
+                            inconveniência de URL. */}
                         <IconButton
                           icon="eye"
-                          label="Visualizar"
-                          onClick={() => toast('Visualização da turma ainda não disponível')}
+                          label={`Abrir a turma ${turma.nome}`}
+                          href={`/facilitador/campanhas/${turma.id}`}
                         />
+                        {/* Não há link público de turma: o link é do avaliado,
+                            um por mapa, e sai na tela de detalhe. Um endereço
+                            de turma que aceitasse qualquer pessoa seria um
+                            passaporte sem dono — ninguém saberia quem
+                            respondeu o quê. */}
                         <IconButton
                           icon="link"
                           label="Gerar link"
-                          onClick={() => toast('Link da turma ainda não disponível')}
+                          onClick={() =>
+                            toast('O link é de cada avaliado: abra a turma no olho para copiá-los.')
+                          }
                         />
-                        {/* Rotulo diferente do "Exportar" do cabecalho DE
-                            PROPOSITO. Aquele baixa a lista de turmas e funciona;
-                            este baixaria as respostas DESTA turma, que ainda nao
-                            existem porque nada liga mapa a turma. Dois botoes com
-                            o mesmo icone e o mesmo nome, um funcionando e o outro
-                            nao, fazem a pessoa concluir que a exportacao e
-                            intermitente. */}
+                        {/* Rótulo diferente do "Exportar" do cabeçalho DE
+                            PROPÓSITO: aquele baixa a lista de turmas, este
+                            baixa as respostas DESTA turma. Mesmo gerador de
+                            CSV, recorte diferente. `download` evita o prefetch
+                            do <Link>, que geraria um CSV por linha visível. */}
                         <IconButton
                           icon="download"
-                          label="Baixar respostas da turma"
-                          onClick={() =>
-                            toast('Respostas da turma ainda nao disponiveis: nenhum mapa e ligado a turma')
-                          }
+                          label={`Baixar respostas da turma ${turma.nome}`}
+                          href={`/api/exportar/turma?turma=${turma.id}`}
+                          download
                         />
                       </RowActions>
                     </Td>

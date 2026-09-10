@@ -17,6 +17,11 @@ import { getSession, type Sessao } from "./sessao";
 
 export type ContaDaSessao = {
   empresa: string | null;
+  /**
+   * CHAVE do objeto da foto no bucket, nunca a URL — ver `lib/storage.ts`.
+   * Quem desenha a tela troca por uma URL assinada de prazo curto.
+   */
+  imagem: string | null;
   telefone: string | null;
   creditos: number;
   email: string;
@@ -40,6 +45,7 @@ export async function exigirSessaoNaTela(
   const [conta] = await db
     .select({
       empresa: usuarios.empresa,
+      imagem: usuarios.image,
       telefone: usuarios.telefone,
       creditos: usuarios.creditos,
       email: usuarios.email,

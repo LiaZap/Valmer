@@ -23,7 +23,13 @@ export const usuarios = pgTable(
     email: text("email").notNull(),
     /** Exigido pelo Better Auth. Sem fluxo de confirmacao por e-mail ainda. */
     emailVerified: boolean("email_verificado").notNull().default(false),
-    /** Foto de perfil. Exigido pelo Better Auth; a interface ainda usa iniciais. */
+    /**
+     * Foto de perfil: a CHAVE do objeto no armazenamento, nunca a URL.
+     *
+     * O endereco assinado nasce no clique e expira em minutos. Guardar URL
+     * aqui quebraria TODA foto de uma vez no dia em que o bucket mudar de
+     * dominio — e o de hoje e o subdominio padrao do provedor.
+     */
     image: text("imagem"),
     papel: papelUsuario("papel").notNull().default("facilitador"),
     empresa: text("empresa"),

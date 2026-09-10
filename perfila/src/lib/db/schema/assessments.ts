@@ -5,7 +5,7 @@
  * assessments -> assessments_relatorios.
  */
 import {
-  pgTable, uuid, text, integer, boolean, timestamp, jsonb, index, uniqueIndex,
+  pgTable, uuid, text, integer, boolean, timestamp, jsonb, foreignKey, index, uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { usuarios } from "./usuarios";
 import { turmas } from "./turmas";
@@ -31,8 +31,8 @@ export const assessments = pgTable(
      * Existe desde ja porque sem ele a exclusao de turma nao tem como recusar:
      * o soft delete deixaria assessment vivo apontando para turma invisivel.
      * A FK COMPOSTA (turma_id, facilitador_id) -> uq_turmas_id_facilitador,
-     * que e o que impede um assessment de cruzar de dono, entra com o Envio
-     * Rapido, junto do fluxo que passa a gravar esta coluna.
+     * que e o que impede um assessment de cruzar de dono, ja esta declarada
+     * abaixo: entrou com o Envio Rapido, o fluxo que passou a gravar a coluna.
      */
     turma_id: uuid("turma_id").references(() => turmas.id, { onDelete: "restrict" }),
     avaliado_nome: text("avaliado_nome").notNull(),
@@ -65,6 +65,19 @@ export const assessments = pgTable(
     modified_by: uuid("modified_by").notNull(),
   },
   (t) => [
+    // Escopo do dono na CHAVE. Aponta para `uq_turmas_id_facilitador`: o BANCO
+    // recusa um assessment de um parceiro apontando para a turma de outro, em
+    // vez de depender do WHERE da action. WHERE alguem esquece, chave nao.
+    //
+    // MATCH SIMPLE (o padrao) e o que faz o mapa avulso continuar valendo: com
+    // `turma_id` nulo a checagem nem roda, e os assessments criados pela tela
+    // de novo mapa — que nunca tiveram turma — seguem legais.
+    foreignKey({
+      name: "fk_assessments_turma_dono",
+      columns: [t.turma_id, t.facilitador_id],
+      foreignColumns: [turmas.id, turmas.facilitador_id],
+    }).onDelete("restrict"),
+
     uniqueIndex("uq_assessments_token").on(t.token),
     // NAO e redundante com a PK. E o alvo da FK COMPOSTA de devolutivas
     // (assessment_id, facilitador_id): com ela, o banco RECUSA uma devolutiva

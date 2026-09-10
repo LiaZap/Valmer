@@ -1,126 +1,43 @@
-'use client'
+import { getTipoRelatorio } from '@/data/planos'
+import { listar } from '@/lib/actions/turmas'
+import { contaAtual } from '@/lib/painel'
+import { FormEnvioRapido, type TurmaDestino } from './FormEnvioRapido'
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
-import { EmptyState } from '@/components/ui/EmptyState'
-import { Field, Input, SearchInput } from '@/components/ui/Field'
-import { Icon } from '@/components/ui/Icon'
-import { AutoGrid } from '@/components/ui/Layout'
-import { PageHeader } from '@/components/ui/PageHeader'
-import { Select } from '@/components/ui/Select'
-import { useToast } from '@/components/ui/Toast'
-import { creditos, degustacao } from '@/data/creditos'
-import { opcoes } from '@/data/opcoes'
-import ui from '@/styles/common.module.css'
-import styles from './page.module.css'
+/**
+ * Envio rápido, agora ligado ao banco.
+ *
+ * Server Component: as turmas e o saldo são lidos aqui, com o recorte por dono
+ * já no WHERE de `turmas.listar`, e a interatividade fica no formulário ao
+ * lado. Assim a tela não precisa de rota de API nem de estado de carregamento
+ * — mesmo desenho da lista de turmas e da de mapas.
+ *
+ * O rótulo de cada turma é montado aqui porque o `Select` do sistema escolhe
+ * por TEXTO, e nada impede um parceiro de ter duas turmas com o mesmo nome:
+ * sem o desempate, escolher a segunda mandaria os passaportes para a primeira.
+ * O id continua sendo o que viaja para a action.
+ */
+export default async function EnvioRapidoPage() {
+  const [turmas, conta] = await Promise.all([listar(), contaAtual()])
 
-const ABAS = ['Envio de passaporte', 'Histórico'] as const
+  const usados = new Set<string>()
+  const destinos: TurmaDestino[] = turmas.map((turma) => {
+    const base = `${turma.nome} · ${turma.tipo_relatorio}`
+    let rotulo = base
+    for (let repeticao = 2; usados.has(rotulo); repeticao++) rotulo = `${base} (${repeticao})`
+    usados.add(rotulo)
 
-export default function EnvioRapidoPage() {
-  const { toast } = useToast()
-  const [abaAtiva, setAbaAtiva] = useState<(typeof ABAS)[number]>('Envio de passaporte')
+    return {
+      id: turma.id,
+      rotulo,
+      nome: turma.nome,
+      tipo: turma.tipo_relatorio,
+      // O custo do passaporte é o do nível DA TURMA: é ela que define o que
+      // cada pessoa recebe, então é ela que define o preço. A action recalcula
+      // do mesmo lugar — aqui o número existe para a conta aparecer antes do
+      // clique, não para ser a fonte da cobrança.
+      custo: getTipoRelatorio(turma.tipo_relatorio).creditos,
+    }
+  })
 
-  return (
-    <>
-      <PageHeader
-        title="Envio rápido"
-        subtitle="Envie passaportes para uma turma existente ou crie uma nova em segundos."
-      />
-
-      <AutoGrid min={300} alignStart>
-        <Card padding="none" className={styles.cardBusca}>
-          <div className={styles.busca}>
-            <span className={styles.buscaLabel}>Turma</span>
-            <div className={styles.buscaLinha}>
-              <SearchInput
-                placeholder="Procurar uma turma existente"
-                size="lg"
-                className={styles.buscaCampo}
-              />
-              <Button
-                href="/facilitador/campanhas/nova"
-                icon={<Icon name="plus" />}
-                className={styles.buscaBotao}
-              >
-                Nova turma
-              </Button>
-            </div>
-          </div>
-
-          <div className={styles.corpo}>
-            <div className={styles.abas} role="tablist">
-              {ABAS.map((aba) => (
-                <button
-                  key={aba}
-                  type="button"
-                  role="tab"
-                  aria-selected={aba === abaAtiva}
-                  className={[styles.aba, aba === abaAtiva ? styles.abaAtiva : null]
-                    .filter(Boolean)
-                    .join(' ')}
-                  onClick={() => setAbaAtiva(aba)}
-                >
-                  {aba}
-                </button>
-              ))}
-            </div>
-
-            <div className={`${ui.callout} ${ui.calloutInfo}`}>
-              <span className={ui.calloutIcon}>
-                <Icon name="info" />
-              </span>
-              <span>
-                Importe um arquivo <b>.csv</b> ou <b>.xlsx</b> com as colunas <b>email</b> e{' '}
-                <b>nome</b>, ou adicione destinatários um a um abaixo.
-              </span>
-            </div>
-
-            <div className={styles.campos}>
-              <Field label="E-mail">
-                {(id) => <Input id={id} type="email" placeholder="seuemail@exemplo.com" />}
-              </Field>
-              <Field label="Nome">{(id) => <Input id={id} placeholder="Nome completo" />}</Field>
-              <Field label="Idioma">
-                {(id) => <Select id={id} options={opcoes.idioma} label="Idioma" />}
-              </Field>
-            </div>
-
-            <div className={styles.acoes}>
-              <Button
-                variant="primary"
-                icon={<Icon name="plus" />}
-                onClick={() => toast('Adicionar destinatário ainda não disponível')}
-              >
-                Adicionar
-              </Button>
-              <Button
-                icon={<Icon name="upload" />}
-                onClick={() => toast('Importação de planilha ainda não disponível')}
-              >
-                Importar planilha
-              </Button>
-            </div>
-
-            <EmptyState variant="dashed">Nenhum destinatário adicionado ainda.</EmptyState>
-          </div>
-        </Card>
-
-        <Card className={styles.ajuda}>
-          <div className={ui.cardTitle}>Como funciona</div>
-          <ol className={styles.passos}>
-            <li>Escolha ou crie a turma que receberá os passaportes.</li>
-            <li>Adicione destinatários manualmente ou por planilha.</li>
-            <li>Cada envio consome 1 crédito (ou 1 degustação, se configurada).</li>
-          </ol>
-          <div className={styles.saldo}>
-            <span className={styles.saldoLabel}>Saldo disponível</span>
-            <span className={styles.saldoValor}>
-              {creditos.saldo} créditos · {degustacao.saldo} degustações
-            </span>
-          </div>
-        </Card>
-      </AutoGrid>
-    </>
-  )
+  return <FormEnvioRapido turmas={destinos} saldo={conta.creditos} />
 }

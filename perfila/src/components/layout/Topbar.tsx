@@ -14,6 +14,12 @@ export type UsuarioTopbar = {
   iniciais: string
   /** Linha secundária: papel, plano, saldo. */
   resumo: string
+  /**
+   * URL assinada da foto de perfil, quando existe. Vem pronta do layout, que é
+   * Server Component e já conferiu a sessão — a barra superior não fala com o
+   * armazenamento.
+   */
+  foto?: string | null
 }
 
 type TopbarProps = {
@@ -92,7 +98,7 @@ export function Topbar({
 function conteudoDoUsuario(usuario: UsuarioTopbar) {
   return (
     <>
-      <Avatar size="md" tone="ink">
+      <Avatar size="md" tone="ink" src={usuario.foto}>
         {usuario.iniciais}
       </Avatar>
       <span className={styles.userText}>

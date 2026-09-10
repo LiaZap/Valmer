@@ -20,7 +20,9 @@ import { ORDEM_FATORES, questoes } from "@/data/assessment";
 import { ROTULO_SITUACAO, ROTULO_TIPO } from "@/data/facilitadores";
 import { listar as listarClientes } from "@/lib/actions/clientes";
 import { listar as listarTurmas } from "@/lib/actions/turmas";
+import { resultadoDeContadores } from "@/lib/disc";
 import {
+  assessmentsDaTurma,
   assessmentsVisiveis,
   empresasPorId,
   listarFacilitadores,
@@ -36,7 +38,12 @@ export type Exportacao = {
   arquivo: string;
   /** Recurso do rbac que a rota confere, com a acao "ler". */
   recurso: string;
-  montar: () => Promise<Planilha>;
+  /**
+   * Os parametros da URL, para as exportacoes que precisam de um recorte —
+   * hoje so a da turma, que recebe `?turma=<uuid>`. As demais ignoram o
+   * argumento, e por isso ele nem aparece na assinatura delas.
+   */
+  montar: (busca: URLSearchParams) => Promise<Planilha>;
 };
 
 /**
@@ -110,6 +117,9 @@ const DATA_BR = new Intl.DateTimeFormat("pt-BR", {
 function data(valor: Date): string {
   return DATA_BR.format(valor);
 }
+
+/** Formato de uuid, para validar o recorte que chega pela URL. */
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export const EXPORTACOES: Record<string, Exportacao> = {
   facilitadores: {
@@ -225,6 +235,61 @@ export const EXPORTACOES: Record<string, Exportacao> = {
           item.total,
           item.respondidos,
           item.permite_download ? "Sim" : "Nao",
+        ]),
+      };
+    },
+  },
+
+  /**
+   * As respostas de UMA turma: o download da linha da lista de turmas.
+   *
+   * Reusa `assessmentsDaTurma`, a mesma leitura da tela de detalhe, com o
+   * recorte por dono dentro. O uuid vem da URL, que e fronteira: um valor que
+   * nao e uuid iria ao driver como texto e voltaria como erro 500, entao ele
+   * e barrado aqui e o arquivo sai so com o cabecalho. Turma de outro parceiro
+   * cai no mesmo lugar pelo WHERE da leitura — sem linha nenhuma, sem
+   * confirmar que aquele uuid existe.
+   *
+   * O nome do arquivo nao leva o nome da turma de proposito: buscar a turma so
+   * para batizar o CSV seria uma segunda consulta para uma informacao que quem
+   * clicou ja tem na tela.
+   */
+  turma: {
+    arquivo: "respostas-da-turma",
+    recurso: "turmas",
+    async montar(busca) {
+      const colunas = [
+        "Avaliado",
+        "E-mail",
+        "Relatorio",
+        "Situacao",
+        "Perfil",
+        "Creditos",
+        "Criado em",
+        "Expira em",
+        "Concluido em",
+      ];
+
+      const turmaId = busca.get("turma") ?? "";
+      if (!UUID.test(turmaId)) return { colunas, linhas: [] };
+
+      const itens = await assessmentsDaTurma(turmaId);
+
+      return {
+        colunas,
+        linhas: itens.map((item) => [
+          item.avaliadoNome,
+          item.avaliadoEmail,
+          item.tipoRelatorio,
+          ROTULO_SITUACAO[item.situacao],
+          // O perfil e DERIVADO dos contadores, pelo mesmo helper da tela.
+          // Quem ainda nao respondeu nao tem contador, e a celula fica vazia
+          // em vez de exibir um "DI" que nao veio de resposta nenhuma.
+          item.contadores ? resultadoDeContadores(item.contadores).combinado : "",
+          item.creditosUsados,
+          item.criadoEm,
+          item.expiraEm,
+          item.concluidoEm,
         ]),
       };
     },
