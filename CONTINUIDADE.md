@@ -98,10 +98,15 @@ O backend saiu do papel. Ver `git log` a partir de `98de0f8`.
 
 ## O que NÃO está pronto
 
-- **As sete telas de gestão ainda leem dados fixos.** Portal e admin importam
-  de `perfila/src/data/facilitadores.ts`, então um assessment criado de verdade
-  não aparece na lista. É o próximo fio: trocar as leituras pelas actions de
-  `perfila/src/lib/actions/assessments.ts`, que já existem e já têm sessão.
+- ~~**As sete telas de gestão ainda leem dados fixos.**~~ **Isso deixou de ser
+  verdade e a linha ficou aqui errada por dias.** Conferido em 10/09/2026: a
+  lista de mapas do portal e a do admin leem do banco, por `assessmentsVisiveis()`
+  em `perfila/src/lib/painel.ts:106`, com sessão e escopo do dono no `WHERE`. Os
+  arrays de `perfila/src/data/facilitadores.ts` têm um único consumidor hoje, o
+  `seed.ts`; o resto do que se importa de lá são tipos e a constante
+  `ROTULO_SITUACAO`. Se você veio consertar isso, já está consertado — confira
+  antes de reescrever. A lição é a de sempre: parágrafo de continuidade envelhece
+  mais rápido que código, e este mandou duas pessoas pelo caminho errado.
 - **2FA do admin**, que a especificação pede. O login é de um fator só. Com o
   Better Auth isso virou configuração (plugin), não implementação.
 - **Recuperação de senha e verificação de e-mail.** A biblioteca traz os dois,

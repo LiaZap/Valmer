@@ -115,15 +115,26 @@ export function TabelaAssessments({
               <RowActions>
                 {assessment.situacao === 'concluido' ? (
                   <>
+                    {/* Aba nova nos dois: quem está numa lista filtrada não
+                        quer perder o filtro para conferir um relatório, e
+                        depois de imprimir a aba fecha e a lista continua
+                        onde estava. */}
                     <IconButton
                       icon="eye"
                       label={`Ver relatório de ${assessment.avaliadoNome}`}
-                      onClick={() => toast('Abrindo relatório')}
+                      href={`/relatorio/${assessment.token}`}
+                      target="_blank"
                     />
+                    {/* `imprimir=1` faz a própria página do relatório abrir a
+                        impressão ao terminar de carregar. Não há PDF de
+                        servidor ainda, e o `@media print` da tela já é o que o
+                        Puppeteer vai renderizar quando houver: um caminho só,
+                        e o arquivo sai igual ao que a pessoa reviu. */}
                     <IconButton
                       icon="download"
                       label={`Baixar PDF de ${assessment.avaliadoNome}`}
-                      onClick={() => toast('Download do PDF iniciado')}
+                      href={`/relatorio/${assessment.token}?imprimir=1`}
+                      target="_blank"
                     />
                   </>
                 ) : (

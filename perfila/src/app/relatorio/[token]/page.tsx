@@ -40,8 +40,17 @@ export const metadata: Metadata = {
     'Relatório de perfil comportamental gerado pela Impacto Academy a partir de inventário de quatro fatores.',
 }
 
-export default async function RelatorioPage({ params }: { params: Promise<{ token: string }> }) {
+export default async function RelatorioPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ token: string }>
+  // `?imprimir=1` vem do botao de baixar da lista de mapas. Ele nao muda o
+  // documento, so pede que a pagina abra a impressao ao terminar de carregar.
+  searchParams: Promise<{ imprimir?: string }>
+}) {
   const { token } = await params
+  const { imprimir } = await searchParams
   const relatorio = await carregarRelatorio(token)
 
   // Sem contadores não há resultado, e sem resultado não há relatório:
@@ -79,7 +88,7 @@ export default async function RelatorioPage({ params }: { params: Promise<{ toke
           {NOME_MARCA}
         </span>
         <div className={styles.acoesBotoes}>
-          <AcoesRelatorio />
+          <AcoesRelatorio imprimir={imprimir === '1'} />
         </div>
       </div>
 

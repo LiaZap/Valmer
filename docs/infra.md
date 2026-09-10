@@ -453,7 +453,49 @@ consulta, e nao pela raiz.
 - **Desfazer**: o painel guarda historico de deploy — redeploy do commit
   anterior. **Isso devolve o codigo, nao o banco**; ver a secao de rollback.
 
+### Etapa 6b — MinIO, o armazenamento de arquivo  *(por ambiente)*
+
+Decisao do Paulo em 2026-09-10, e o HML ja esta de pe. Guarda o que nao cabe em
+coluna de banco: PDF de relatorio, capa e video de curso, foto de mentor.
+
+| Item | HML |
+| --- | --- |
+| API S3 | `https://valmer-hml-miniohml.5wp0gs.easypanel.host` |
+| Bucket | `valmer-hml`, **privado** |
+| Prefixos | `relatorios/`, `cursos/capas/`, `cursos/videos/`, `mentores/` |
+| Credencial da app | conta de servico com politica so desse bucket — **nunca o root** |
+
+Quatro regras, e cada uma existe por um motivo que ja custou caro em algum
+projeto:
+
+**O bucket e privado, e nao ha excecao.** O acesso sai por URL assinada de prazo
+curto, gerada pela aplicacao DEPOIS de conferir a sessao. Bucket publico entrega
+o arquivo a quem tiver o endereco, para sempre, sem login — e um relatorio
+carrega nome, e-mail e resultado comportamental de pessoa real. URL assinada
+aceita requisicao por faixa, entao video continua permitindo arrastar a barra
+de progresso: nao se perde nada sendo privado.
+
+**A aplicacao nao usa o root.** O root administra; quem le e escreve e uma conta
+de servico limitada ao bucket. Root em variavel de ambiente de app significa que
+qualquer falha que vaze o ambiente entrega o armazenamento inteiro, dos dois
+ambientes.
+
+**O banco guarda a CHAVE do objeto, nunca a URL.** `relatorios/k3mq81/v1.pdf`,
+e nao o endereco completo. O dominio de hoje e o subdominio padrao do EasyPanel;
+no dia em que virar dominio proprio, toda URL gravada quebraria de uma vez. A
+URL nasce no clique e morre no prazo.
+
+**O video sai do MinIO direto para o navegador.** Se ele passar pela aplicacao,
+o Node vira servidor de streaming e o gargalo deixa de ser o banco e passa a ser
+o processo que atende todo o resto.
+
 ### Etapa 7 — Backup e restore  *(obrigatoria antes do PRD receber dado real)*
+
+**Atencao: com o MinIO, este passo ficou incompleto.** O `backup.sh` faz dump do
+Postgres e mais nada. A partir do momento em que PDF, capa e video vivem em
+bucket, metade do produto esta fora do backup, e restaurar so o banco devolve um
+sistema com linha apontando para arquivo que nao existe mais. Falta espelhar o
+bucket para o mesmo destino off-site — ver a pendencia 13.
 
 Configure o destino off-site antes de ligar o agendamento:
 
@@ -688,6 +730,8 @@ Em ordem de urgencia. A lista voltou ao inicio: a VPS e outra.
 | 7 | Secrets de SSH no GitHub, por Environment `hml` e `prd` | deploy automatico |
 | 8 | Variavel `DEPLOY_HABILITADO=true` nos Environments, quando os ambientes subirem | o job de deploy, que fica parado ate la |
 | 11 | Decidir sobre o backup automatico pago do provedor, hoje desligado | nada — e complemento da Etapa 7, nao substituto |
+| 13 | **Espelhar o bucket do MinIO para o destino off-site**, junto do dump do Postgres. Hoje a Etapa 7 so cobre o banco, e restaurar so o banco devolve linha apontando para arquivo inexistente | o PRD receber dado real |
+| 14 | **Trocar a senha do root do MinIO e criar a conta de servico** do bucket. A senha inicial foi curta e derivada do nome do projeto, e circulou em chat | nada agora; e divida de seguranca aberta |
 | 12 | **Devolver o Puppeteer ao container quando o PDF em lote tiver que rodar no servidor.** Ele desceu para devDependencies antes do primeiro deploy: nada que atende requisicao o importa (so o CLI `relatorio:gerar`), e em dependencies ele baixava ~350 MB de Chromium a cada build, num cache fora de `/app` que a imagem final descarta, numa imagem sem as libs do Chrome. Para trazer de volta: subir para `dependencies`, `PUPPETEER_CACHE_DIR=/app/.cache/puppeteer` no ambiente, e um `perfila/nixpacks.toml` com libnss3, libgbm1, libasound2, libatk-bridge2.0-0 e libxkbcommon0 | a remessa de 700 PDF, quando ela rodar de dentro da VPS |
 
 ### Branches — o estado hoje e o que falta

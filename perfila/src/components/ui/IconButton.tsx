@@ -13,6 +13,8 @@ type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className'
   iconSize?: number
   /** Quando informado, navega em vez de executar. */
   href?: string
+  /** Só com `href`. `_blank` já sai com `rel="noopener"`. */
+  target?: '_blank'
   className?: string
 }
 
@@ -31,6 +33,7 @@ export function IconButton({
   tone = 'default',
   iconSize = 16,
   href,
+  target,
   className,
   type = 'button',
   ...rest
@@ -46,7 +49,18 @@ export function IconButton({
 
   if (href) {
     return (
-      <Link href={href} className={classes} title={label} aria-label={label}>
+      <Link
+        href={href}
+        // `noopener` sempre que abrir em aba nova: sem ele a página de
+        // destino recebe `window.opener` e pode navegar a aba de origem
+        // para onde quiser. Aqui o destino é nosso, mas a regra vale para
+        // o próximo uso, que pode não ser.
+        target={target}
+        rel={target === '_blank' ? 'noopener' : undefined}
+        className={classes}
+        title={label}
+        aria-label={label}
+      >
         <Icon name={icon} size={iconSize} />
       </Link>
     )
