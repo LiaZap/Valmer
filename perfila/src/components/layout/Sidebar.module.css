@@ -8,8 +8,16 @@
   background: var(--color-surface);
   border-right: 1px solid var(--color-border);
   transition: width var(--transition-slow) ease;
-  /* A sidebar não rola: os itens cabem inteiros e ela acompanha a
-     altura da página. A rolagem é só da página. */
+
+  /* FIXA. Antes ela era só alta e rolava junto com a página: quem descia
+     uma lista longa perdia a navegação de vista e tinha que voltar ao topo
+     para trocar de tela. `align-self: flex-start` é o que faz o sticky
+     valer — esticada pelo flex ela ocupa a altura toda do shell e nunca
+     tem para onde grudar. */
+  align-self: flex-start;
+  position: sticky;
+  top: 0;
+  height: 100vh;
   overflow: hidden;
 }
 
@@ -62,12 +70,22 @@
 }
 
 /* ---------- Navegação ---------- */
+/* A rolagem, quando existir, é só desta lista — a marca em cima e o Sair
+   embaixo ficam parados. Antes o `overflow: hidden` da sidebar cortava o
+   último item em tela baixa, em silêncio: com 21 linhas e 4 rótulos, um
+   notebook de 768px de altura perdia o Suporte e ninguém era avisado.
+
+   O respiro entre grupos dobrou. Com 8px os quatro blocos viravam uma
+   lista só de 21 itens, e o rótulo em caixa alta não dava conta de separar
+   sozinho — separação é trabalho do espaço, não do rótulo. */
 .nav {
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   padding: var(--space-8) var(--space-10);
   display: flex;
   flex-direction: column;
-  gap: var(--space-8);
+  gap: var(--space-16);
 }
 
 .group {
@@ -111,10 +129,18 @@
   text-decoration: none;
 }
 
+/* Azul cheio com texto branco, e não mais o tint claro. O ativo era
+   `--color-accent-tint` (#ebedf0) e o hover é `--color-hover` (#eceae5):
+   dois cinzas de mesma luminosidade, um frio e um morno, com o MESMO texto
+   Azul Impacto nos dois. Lado a lado eram indistinguíveis — a tela dizia
+   onde você está com uma diferença que ninguém enxerga.
+
+   Branco sobre o Azul Impacto dá 16,25:1 e não depende de o olho comparar
+   dois cinzas: lê de longe, lê no primeiro relance e lê em monitor ruim. */
 .itemActive,
 .itemActive:hover {
-  background: var(--color-accent-tint);
-  color: var(--color-accent-strong);
+  background: var(--color-accent);
+  color: var(--color-on-ink);
   font-weight: var(--fw-semibold);
 }
 
