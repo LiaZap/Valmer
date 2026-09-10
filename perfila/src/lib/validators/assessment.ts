@@ -37,6 +37,16 @@ export const criarAssessmentSchema = z.object({
   tipo_relatorio: z.enum(["S1", "S2", "S3", "S4"]),
   /** Opcional: o admin aplica em nome de um facilitador. */
   facilitador_id: z.string().uuid().optional(),
+  /**
+   * Amostra gratuita: paga com o saldo de degustacao do parceiro, e nao com
+   * credito (`actions/assessments.ts:criar`).
+   *
+   * `default(false)` porque toda tela que existe hoje envia mapa pago e nao
+   * manda este campo — quem nao pede degustacao nao ganha uma de brinde. Sai da
+   * edicao pelo mesmo motivo que `tipo_relatorio`: a forma de pagamento ja foi
+   * decidida e debitada na criacao.
+   */
+  degustacao: z.boolean().default(false),
 });
 
 /**

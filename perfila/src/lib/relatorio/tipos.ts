@@ -66,7 +66,15 @@ export type DadosRelatorio = {
   emitidoEm: string
   tipoRelatorio: CodigoRelatorio
   resultado: ResultadoDisc
-  narrativa: NarrativaRelatorio
+  /**
+   * Nula enquanto a geração não rodou para este assessment.
+   *
+   * O documento continua saindo: percentuais, perfil combinado e tabelas por
+   * perfil são calculados, não escritos. As seções narrativas se marcam como
+   * pendentes. Emprestar o texto de outra pessoa não é alternativa — foi o que
+   * fez todo relatório sair chamando o avaliado pelo nome de terceiro.
+   */
+  narrativa: NarrativaRelatorio | null
 }
 
 /**

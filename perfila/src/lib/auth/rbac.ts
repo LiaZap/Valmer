@@ -50,6 +50,21 @@ const permissoes: Record<string, Papel[]> = {
   // essa leitura ter dono declarado aqui, e nao um `papel === "admin"` solto
   // dentro da rota, que seria a segunda tabela de permissoes do projeto.
   "questoes:ler": ["admin"],
+  /**
+   * A tabela comercial da plataforma: `precos_relatorios` e `precos_pacotes`.
+   * Quem define quanto custa um mapa e por quanto o credito e vendido e o dono
+   * do negocio, e mais ninguem — inclusive `precos:ler`, que e a tela de
+   * gestao de preco em /admin/precos.
+   *
+   * A leitura do CATALOGO pelo facilitador nao passa por aqui: ela e
+   * `lib/precos.ts`, chamada de dentro de operacoes que ja tem permissao
+   * propria (criar mapa, enviar lote). O parceiro precisa ver que um S1 custa
+   * 1 credito para decidir gastar; o que ele nao pode e mudar esse numero.
+   */
+  "precos:criar": ["admin"],
+  "precos:ler": ["admin"],
+  "precos:atualizar": ["admin"],
+  "precos:deletar": ["admin"],
   "usuarios:criar": ["admin"],
   "usuarios:ler": ["admin"],
   "usuarios:atualizar": ["admin"],

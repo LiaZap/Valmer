@@ -1,4 +1,5 @@
 import { Card, CardHeader } from '@/components/ui/Card'
+import { TextoPendente } from './TextoPendente'
 import { Pill } from '@/components/ui/Pill'
 import type { DadosRelatorio, PerfilEstatico } from '@/lib/relatorio/tipos'
 import common from '@/styles/common.module.css'
@@ -29,7 +30,12 @@ import styles from './QuemVoceE.module.css'
  */
 
 type QuemVoceEProps = {
-  /** Os campos escritos pela IA para esta pessoa. */
+  /**
+   * Os campos escritos pela IA para esta pessoa. Nulo quando a geração ainda
+   * não rodou: as três seções deste arquivo se marcam como pendentes, e a
+   * moldura de leitura de cada uma sai junto, porque ela fala do texto que
+   * não está lá.
+   */
   narrativa: DadosRelatorio['narrativa']
   /** Conteúdo fixo do perfil primário — o enquadramento da narrativa. */
   perfil: PerfilEstatico
@@ -80,7 +86,11 @@ export function QuemVoceE({ narrativa, perfil }: QuemVoceEProps) {
             titulo="Quem você é"
           />
           <div className={styles.corpo}>
-            <p className={styles.abertura}>{narrativa.resumoPerfil}</p>
+            {narrativa ? (
+              <p className={styles.abertura}>{narrativa.resumoPerfil}</p>
+            ) : (
+              <TextoPendente secao="o texto sobre quem você é" />
+            )}
 
             <div className={styles.tracos}>
               <p className={[common.eyebrow, styles.tracosRotulo].filter(Boolean).join(' ')}>
@@ -112,18 +122,24 @@ export function QuemVoceE({ narrativa, perfil }: QuemVoceEProps) {
             sobretitulo="O que você entrega melhor"
             titulo="Seus pontos fortes"
           />
-          <ol className={styles.fortes}>
-            {narrativa.pontosFortes.map((ponto, indice) => (
-              <li key={ponto} className={styles.forte}>
-                {/* O <ol> já dá a ordem ao leitor de tela; o número
-                    grande é o marcador visual da lista. */}
-                <span className={styles.forteNumero} aria-hidden>
-                  {String(indice + 1).padStart(2, '0')}
-                </span>
-                <p className={styles.forteTexto}>{ponto}</p>
-              </li>
-            ))}
-          </ol>
+          {narrativa ? (
+            <ol className={styles.fortes}>
+              {narrativa.pontosFortes.map((ponto, indice) => (
+                <li key={ponto} className={styles.forte}>
+                  {/* O <ol> já dá a ordem ao leitor de tela; o número
+                      grande é o marcador visual da lista. */}
+                  <span className={styles.forteNumero} aria-hidden>
+                    {String(indice + 1).padStart(2, '0')}
+                  </span>
+                  <p className={styles.forteTexto}>{ponto}</p>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <div className={styles.corpo}>
+              <TextoPendente secao="a lista de pontos fortes" />
+            </div>
+          )}
         </Card>
       </section>
 
@@ -139,27 +155,33 @@ export function QuemVoceE({ narrativa, perfil }: QuemVoceEProps) {
             titulo="Pontos de atenção"
           />
           <div className={styles.corpo}>
-            {/* A moldura de leitura vem antes da lista: sem ela, quatro
-                blocos soltos são lidos como quatro defeitos.
+            {!narrativa ? (
+              <TextoPendente secao="a lista de pontos de atenção" />
+            ) : (
+              <>
+                {/* A moldura de leitura vem antes da lista: sem ela, quatro
+                    blocos soltos são lidos como quatro defeitos.
 
-                "nenhum deles é defeito" é ressalva, não estilo. A seção se
-                chama "Pontos de atenção" e o sobretítulo fala em
-                contrapartida, então sem a negativa explícita o leitor entra
-                em quatro parágrafos críticos sem nada na frente. Uma revisão
-                de redação já apagou ela uma vez. Se for reescrever, troque as
-                palavras e mantenha o aviso. */}
-            <p className={[common.prose, styles.nota].filter(Boolean).join(' ')}>
-              Os itens abaixo são a contrapartida do que você faz bem, e nenhum deles é
-              defeito. Cada um mostra como seu estilo se comporta em determinados contextos,
-              e é aí que um pouco de atenção deliberada rende mais.
-            </p>
-            <ul className={styles.atencoes}>
-              {narrativa.desafios.map((desafio) => (
-                <li key={desafio} className={styles.atencao}>
-                  {desafio}
-                </li>
-              ))}
-            </ul>
+                    "nenhum deles é defeito" é ressalva, não estilo. A seção se
+                    chama "Pontos de atenção" e o sobretítulo fala em
+                    contrapartida, então sem a negativa explícita o leitor entra
+                    em quatro parágrafos críticos sem nada na frente. Uma revisão
+                    de redação já apagou ela uma vez. Se for reescrever, troque as
+                    palavras e mantenha o aviso. */}
+                <p className={[common.prose, styles.nota].filter(Boolean).join(' ')}>
+                  Os itens abaixo são a contrapartida do que você faz bem, e nenhum deles é
+                  defeito. Cada um mostra como seu estilo se comporta em determinados contextos,
+                  e é aí que um pouco de atenção deliberada rende mais.
+                </p>
+                <ul className={styles.atencoes}>
+                  {narrativa.desafios.map((desafio) => (
+                    <li key={desafio} className={styles.atencao}>
+                      {desafio}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
           </div>
         </Card>
       </section>

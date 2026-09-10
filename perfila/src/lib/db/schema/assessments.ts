@@ -39,7 +39,35 @@ export const assessments = pgTable(
     avaliado_email: text("avaliado_email").notNull(),
     tipo_relatorio: tipoRelatorio("tipo_relatorio").notNull(),
     situacao: situacaoAssessment("situacao").notNull().default("pendente"),
+    /**
+     * Quanto ESTE mapa custou, no momento em que nasceu.
+     *
+     * Copia do preco vigente na criacao, e nao um join com `precos_relatorios`:
+     * o credito ja saiu do saldo e a linha do extrato ja foi lancada com este
+     * numero. Se o custo viesse do preco de hoje, mudar o preco de S1
+     * reescreveria o passado e o extrato pararia de explicar o saldo — que e o
+     * COMMIT que a trigger da migration 0005 aborta. Preco novo vale para o
+     * proximo mapa; este aqui esta pago.
+     *
+     * Zero quando `degustacao` e true: nenhum credito saiu da carteira, saiu
+     * uma amostra do saldo de degustacao. Guardar o custo "equivalente" aqui
+     * faria `removerPendentes` (actions/envio-lote.ts) estornar credito de
+     * verdade por um mapa que nunca custou credito nenhum.
+     */
     creditos_usados: integer("creditos_usados").notNull().default(0),
+    /**
+     * Amostra gratuita: o mapa nao consome credito, consome uma degustacao do
+     * saldo do proprio parceiro (`usuarios.creditos_degustacao`).
+     *
+     * Coluna, e nao tabela: o que separa um mapa de degustacao de um mapa
+     * normal e de onde saiu o pagamento. Todo o resto — token, respostas,
+     * relatorio, validade — e identico, e uma tabela paralela seria o mesmo
+     * fluxo escrito duas vezes.
+     *
+     * DEFAULT false porque a tabela ja tem linhas em homologacao: todo mapa
+     * que existe hoje foi pago com credito.
+     */
+    degustacao: boolean("degustacao").notNull().default(false),
     expira_em: timestamp("expira_em", TEMPO).notNull(),
     concluido_em: timestamp("concluido_em", TEMPO),
 

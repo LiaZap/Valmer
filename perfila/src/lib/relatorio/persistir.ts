@@ -4,10 +4,18 @@
  * NAO e "use server" de proposito. Uma Server Action vira endpoint POST
  * publico, e `gerarESalvar` gasta dinheiro a cada chamada: exposta assim, um
  * script de terceiro esvaziaria a conta da API repetindo a mesma requisicao.
- * Quem chama daqui e o CLI (`npm run relatorio:gerar`), que ja roda com acesso
- * ao banco e a chave. No dia em que a UI tiver um botao, o lugar dele e uma
- * action fina por cima disto, com sessao e escopo do dono como em
- * actions/assessments.ts.
+ * Quem chama daqui e o CLI (`npm run relatorio:gerar`) e a action fina
+ * `gerarRelatorio`, em lib/actions/relatorio.ts, que e o botao da tela: ela
+ * confere sessao, permissao e dono ANTES de chegar aqui. Este arquivo continua
+ * sem sessao de proposito, e a regra vale para o proximo chamador tambem.
+ *
+ * TETO CONHECIDO: a checagem de "ja existe narrativa?" acontece fora de lock.
+ * Duas sessoes simultaneas — duas abas, ou o admin e o dono ao mesmo tempo —
+ * passam as duas e disparam duas chamadas pagas, gravando duas versoes. A trava
+ * de duplo clique da tela nao alcanca isso, porque ela e do navegador. O
+ * conserto e um lock na linha do assessment antes da chamada; nao foi feito
+ * porque o custo hoje e uma geracao repetida e nao dado errado — a leitura pega
+ * a ultima versao.
  */
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";

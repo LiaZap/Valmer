@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { nomePessoa } from "./assessment";
+import { criarAssessmentSchema, nomePessoa } from "./assessment";
 import { senhaNovaSchema } from "./auth";
 
 /**
@@ -60,6 +60,22 @@ export const atualizarPerfilSchema = z.strictObject({
   nome: nomePessoa,
   empresa: empresaOpcional,
   telefone: telefoneOpcional,
+});
+
+/**
+ * Configuracao da degustacao: qual nivel de relatorio o parceiro oferece de
+ * amostra em /facilitador/degustacao.
+ *
+ * O enum e EMPRESTADO de `criarAssessmentSchema`, e nao redigitado: o nivel
+ * configurado aqui e exatamente o que vai para `tipo_relatorio` na criacao do
+ * mapa. Duas listas de niveis viravam duas respostas para "S5 existe?".
+ *
+ * `strictObject` pelo mesmo motivo do schema acima: esta action escreve na
+ * linha de `usuarios`, e uma chave a mais aceita em silencio e o comeco de uma
+ * escalada. O UPDATE tambem lista a coluna a mao.
+ */
+export const configDegustacaoSchema = z.strictObject({
+  tipo_relatorio: criarAssessmentSchema.shape.tipo_relatorio,
 });
 
 export const trocarSenhaSchema = z.strictObject({

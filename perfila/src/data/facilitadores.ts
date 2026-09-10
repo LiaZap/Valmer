@@ -101,6 +101,15 @@ export type Assessment = {
    * o relatório discordem: os dois derivam do mesmo número.
    */
   contadores?: Record<FatorDisc, number>
+  /**
+   * Ja existe narrativa gravada para este mapa?
+   *
+   * Falso num mapa concluido significa relatorio sem as secoes escritas, e e
+   * o que decide se a linha oferece "Gerar relatorio" ou ver e baixar.
+   * Opcional porque os dados de prototipo deste arquivo nao tem relatorio
+   * gravado nenhum.
+   */
+  temNarrativa?: boolean
 }
 
 export const assessments: Assessment[] = [

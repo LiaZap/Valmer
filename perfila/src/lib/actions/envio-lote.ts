@@ -38,7 +38,7 @@ import { getSession, temPermissao, type Acao, type Sessao } from "@/lib/auth";
 import { registrarAuditoria } from "@/lib/audit/logger";
 import { novoToken, validadeDoLink } from "@/lib/assessment-link";
 import { envioLoteSchema } from "@/lib/validators/envio-lote";
-import { getTipoRelatorio } from "@/data/planos";
+import { custoDoRelatorio } from "@/lib/precos";
 import { RecusaDeRegra } from "./recusa";
 
 /** A trilha registra o evento na TURMA: o que aconteceu foi com ela, em lote. */
@@ -160,8 +160,11 @@ export async function criarLote(dados: unknown) {
     const dono = await donoTravado(tx, turma.facilitador_id);
 
     // O custo vem do tipo de relatorio DA TURMA: e ela que define o que cada
-    // pessoa recebe, entao e ela que define o preco.
-    const custoUnitario = getTipoRelatorio(turma.tipo_relatorio).creditos;
+    // pessoa recebe, entao e ela que define o preco. O numero sai da tabela de
+    // precos, lido DENTRO da transacao e com a linha do dono ja travada: o lote
+    // inteiro e cobrado pelo preco de um instante so, e cada mapa guarda esse
+    // preco em `creditos_usados` — mudanca de preco depois nao alcanca nenhum.
+    const custoUnitario = await custoDoRelatorio(turma.tipo_relatorio, tx);
     const custoTotal = custoUnitario * validado.destinatarios.length;
 
     if (dono.creditos < custoTotal) {

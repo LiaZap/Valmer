@@ -21,7 +21,7 @@ import {
   atualizarAssessmentSchema,
   criarAssessmentSchema,
 } from "@/lib/validators/assessment";
-import { getTipoRelatorio } from "@/data/planos";
+import { custoDoRelatorio } from "@/lib/precos";
 
 const TABELA = "assessments";
 
@@ -75,6 +75,10 @@ export async function obter(id: string) {
  * trilha fora da transacao, uma falha ao grava-la derrubaria a action DEPOIS
  * do commit: a tela mostraria erro, o facilitador refaria, e o credito sairia
  * duas vezes por um assessment que ja existia.
+ *
+ * DEGUSTACAO paga com o outro bolso: consome 1 de `usuarios.creditos_degustacao`,
+ * grava `creditos_usados = 0` e NAO lanca extrato. Sao tres escritas em vez de
+ * quatro, e a mesma trava de linha protege os dois saldos.
  */
 export async function criar(dados: unknown) {
   const sessao = await exigirSessao("criar");
@@ -85,7 +89,6 @@ export async function criar(dados: unknown) {
     throw new Error("Sem permissao para criar assessment em nome de outro facilitador");
   }
 
-  const custo = getTipoRelatorio(validado.tipo_relatorio).creditos;
   const expiraEm = validadeDoLink(new Date());
 
   const criado = await db.transaction(async (tx) => {
@@ -100,7 +103,27 @@ export async function criar(dados: unknown) {
     // ao facilitador com o nome que eles tem. Ver `criarPelaTela` abaixo.
     if (!dono) throw new RecusaDeRegra("Facilitador nao encontrado");
     if (!dono.ativo) throw new RecusaDeRegra("Facilitador inativo");
-    if (dono.creditos < custo) {
+
+    /**
+     * O custo vem da tabela de precos (`precos_relatorios`), lido DENTRO da
+     * transacao e com a linha do dono ja travada: o numero que recusa por saldo
+     * curto e o mesmo que vai para `creditos_usados` e para o extrato. Se o
+     * admin mudar o preco no meio, esta transacao ja escolheu o seu.
+     *
+     * Degustacao custa ZERO credito: ela sai do saldo de amostras, que e outro
+     * bolso e nao tem extrato — ver `usuarios.creditos_degustacao`.
+     */
+    const custo = validado.degustacao
+      ? 0
+      : await custoDoRelatorio(validado.tipo_relatorio, tx);
+
+    if (validado.degustacao) {
+      if (dono.creditos_degustacao < 1) {
+        throw new RecusaDeRegra(
+          "Sem degustacoes disponiveis. As amostras gratuitas acabaram; envie este mapa como assessment normal ou peca mais degustacoes ao administrador.",
+        );
+      }
+    } else if (dono.creditos < custo) {
       throw new RecusaDeRegra(
         `Saldo insuficiente: ${validado.tipo_relatorio} custa ${custo} credito(s) e o saldo e ${dono.creditos}.`,
       );
@@ -116,28 +139,46 @@ export async function criar(dados: unknown) {
         tipo_relatorio: validado.tipo_relatorio,
         situacao: "pendente",
         creditos_usados: custo,
+        degustacao: validado.degustacao,
         expira_em: expiraEm,
         modified_by: sessao.userId,
       })
       .returning();
 
-    await tx
-      .update(usuarios)
-      .set({
-        creditos: dono.creditos - custo,
-        updated_at: new Date(),
-        modified_by: sessao.userId,
-      })
-      .where(eq(usuarios.id, facilitadorId));
+    if (validado.degustacao) {
+      /**
+       * So o saldo de amostras se move. O UPDATE nao lista `creditos`, entao a
+       * CONSTRAINT TRIGGER da migration 0005 — que dispara em `UPDATE OF
+       * creditos` — nem e acionada, e nao ha extrato a lancar: a degustacao nao
+       * e dinheiro. A trilha de auditoria abaixo e o registro do movimento.
+       */
+      await tx
+        .update(usuarios)
+        .set({
+          creditos_degustacao: dono.creditos_degustacao - 1,
+          updated_at: new Date(),
+          modified_by: sessao.userId,
+        })
+        .where(eq(usuarios.id, facilitadorId));
+    } else {
+      await tx
+        .update(usuarios)
+        .set({
+          creditos: dono.creditos - custo,
+          updated_at: new Date(),
+          modified_by: sessao.userId,
+        })
+        .where(eq(usuarios.id, facilitadorId));
 
-    await tx.insert(creditosTransacoes).values({
-      usuario_id: facilitadorId,
-      tipo: "uso",
-      quantidade: -custo,
-      descricao: `Assessment ${validado.tipo_relatorio} de ${validado.avaliado_nome}`,
-      assessment_id: novo.id,
-      modified_by: sessao.userId,
-    });
+      await tx.insert(creditosTransacoes).values({
+        usuario_id: facilitadorId,
+        tipo: "uso",
+        quantidade: -custo,
+        descricao: `Assessment ${validado.tipo_relatorio} de ${validado.avaliado_nome}`,
+        assessment_id: novo.id,
+        modified_by: sessao.userId,
+      });
+    }
 
     await registrarAuditoria(
       {
@@ -145,7 +186,9 @@ export async function criar(dados: unknown) {
         acao: "criar",
         tabela: TABELA,
         registroId: novo.id,
-        detalhes: `Criou assessment ${novo.tipo_relatorio} para ${novo.avaliado_email} (${custo} credito(s))`,
+        detalhes: validado.degustacao
+          ? `Criou assessment ${novo.tipo_relatorio} de DEGUSTACAO para ${novo.avaliado_email} (1 amostra, 0 credito)`
+          : `Criou assessment ${novo.tipo_relatorio} para ${novo.avaliado_email} (${custo} credito(s))`,
         dadosNovos: novo,
       },
       tx,

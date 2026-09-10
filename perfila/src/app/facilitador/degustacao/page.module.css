@@ -30,3 +30,14 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Faixa de revenda: valor lido, nao campo. Alinhado com a altura do input ao
+   lado para as duas colunas nao ficarem tortas. */
+.preco {
+  display: flex;
+  align-items: center;
+  height: var(--control-lg);
+  font-size: var(--fs-135);
+  font-weight: var(--fw-medium);
+  color: var(--color-text);
+}

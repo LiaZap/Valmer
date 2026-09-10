@@ -2,6 +2,7 @@ import { Card } from '@/components/ui/Card'
 import { Icon, type IconName } from '@/components/ui/Icon'
 import { SECOES, type DadosRelatorio, type PerfilEstatico } from '@/lib/relatorio/tipos'
 import common from '@/styles/common.module.css'
+import { TextoPendente } from './TextoPendente'
 import styles from './Motivadores.module.css'
 
 /**
@@ -40,7 +41,11 @@ import styles from './Motivadores.module.css'
  */
 
 type MotivadoresProps = {
-  /** Os três campos narrativos escritos pela IA para esta pessoa. */
+  /**
+   * Os três campos narrativos escritos pela IA para esta pessoa. Nulo
+   * enquanto a geração não rodou: os três blocos se marcam como pendentes, e
+   * a abertura do grupo sai junto, porque ela apresenta os textos que faltam.
+   */
   narrativa: DadosRelatorio['narrativa']
   /** Perfil primário — entra só como moldura de leitura do grupo. */
   perfil: PerfilEstatico
@@ -85,12 +90,14 @@ export function Motivadores({ narrativa, perfil }: MotivadoresProps) {
           apagou ela uma vez por parecer construção repetitiva, e o relatório
           passou a descrever preferência sem avisar que era preferência.
           Se for reescrever, troque as palavras e mantenha o aviso. */}
-      <p className={[common.prose, styles.abertura].join(' ')}>
-        Três leituras curtas sobre o mesmo eixo. Elas cobrem o que te dá energia, onde ela rende
-        mais e como ela aparece na sua fala. São tendências do perfil {perfil.nome} e descrevem
-        preferências. O que você é capaz de fazer é outra medida, fora do alcance deste
-        relatório.
-      </p>
+      {narrativa ? (
+        <p className={[common.prose, styles.abertura].join(' ')}>
+          Três leituras curtas sobre o mesmo eixo. Elas cobrem o que te dá energia, onde ela rende
+          mais e como ela aparece na sua fala. São tendências do perfil {perfil.nome} e descrevem
+          preferências. O que você é capaz de fazer é outra medida, fora do alcance deste
+          relatório.
+        </p>
+      ) : null}
 
       {BLOCOS.map((bloco) => {
         const { numero, titulo } = referenciaDaSecao(bloco.id)
@@ -120,7 +127,11 @@ export function Motivadores({ narrativa, perfil }: MotivadoresProps) {
                   </h2>
                 </div>
 
-                <p className={styles.texto}>{narrativa[bloco.campo]}</p>
+                {narrativa ? (
+                  <p className={styles.texto}>{narrativa[bloco.campo]}</p>
+                ) : (
+                  <TextoPendente secao={`o texto de "${titulo}"`} />
+                )}
               </div>
             </Card>
           </section>

@@ -21,7 +21,11 @@ import { usuarios } from "@/lib/db/schema";
 import { getSession, temPermissao, type Sessao } from "@/lib/auth";
 import { conferirSenha, definirSenha } from "@/lib/auth/senha";
 import { registrarAuditoria } from "@/lib/audit/logger";
-import { atualizarPerfilSchema, trocarSenhaSchema } from "@/lib/validators/perfil";
+import {
+  atualizarPerfilSchema,
+  configDegustacaoSchema,
+  trocarSenhaSchema,
+} from "@/lib/validators/perfil";
 import { apagarObjeto, enviarImagem } from "@/lib/storage";
 import { RecusaDeRegra } from "./recusa";
 
@@ -83,6 +87,58 @@ export async function atualizar(dados: unknown) {
     tabela: TABELA,
     registroId: sessao.userId,
     detalhes: `Atualizou o proprio cadastro (${novo.email})`,
+    dadosAnteriores: anterior,
+    dadosNovos: novo,
+  });
+
+  return novo;
+}
+
+/**
+ * Grava a configuracao da degustacao: qual nivel de relatorio o parceiro
+ * oferece como amostra em /facilitador/degustacao.
+ *
+ * Mora aqui, e nao numa action nova, porque e o que ja define este arquivo: o
+ * que o PROPRIO parceiro muda na propria linha de `usuarios`. Mesmo recorte
+ * (`id = sessao.userId`), mesma permissao (`perfil:atualizar`) e mesma trilha.
+ *
+ * O SET lista a coluna a mao, como em `atualizar`: `creditos`,
+ * `creditos_degustacao` e `papel` nao tem caminho ate o UPDATE nem se o schema
+ * for afrouxado um dia.
+ *
+ * SEM OPTIMISTIC LOCKING, DE PROPOSITO. `updated_at` desta linha se move a
+ * cada degustacao enviada (o debito de `creditos_degustacao` a toca), entao
+ * comparar o `updated_at` que a tela leu recusaria a gravacao da configuracao
+ * so porque o parceiro enviou uma amostra antes de clicar em Salvar — uma
+ * recusa que ele nao teria como entender. O que a trava protege nas outras
+ * actions e escrita concorrente de DUAS pessoas; aqui so o dono escreve, e o
+ * campo e um so: o ultimo clique dele e a vontade dele.
+ */
+export async function salvarConfigDegustacao(dados: unknown) {
+  const sessao = await exigirSessao();
+  const validado = configDegustacaoSchema.parse(dados);
+
+  const anterior = await meuCadastro(sessao);
+  if (!anterior) throw new RecusaDeRegra("Cadastro nao encontrado");
+
+  const [novo] = await db
+    .update(usuarios)
+    .set({
+      degustacao_relatorio: validado.tipo_relatorio,
+      updated_at: new Date(),
+      modified_by: sessao.userId,
+    })
+    .where(and(eq(usuarios.id, sessao.userId), eq(usuarios.is_deleted, false)))
+    .returning();
+
+  if (!novo) throw new RecusaDeRegra("Cadastro nao encontrado");
+
+  await registrarAuditoria({
+    userId: sessao.userId,
+    acao: "atualizar",
+    tabela: TABELA,
+    registroId: sessao.userId,
+    detalhes: `Passou a oferecer ${novo.degustacao_relatorio} na degustacao (era ${anterior.degustacao_relatorio})`,
     dadosAnteriores: anterior,
     dadosNovos: novo,
   });
@@ -235,6 +291,24 @@ export async function trocarFotoPelaTela(dados: FormData): Promise<Resposta> {
 function revalidarMolduras() {
   revalidatePath("/facilitador", "layout");
   revalidatePath("/admin", "layout");
+}
+
+/**
+ * Configuracao da degustacao a partir da tela. Mesmo contrato de
+ * `atualizarPelaTela`.
+ *
+ * A invalidacao e so da propria tela: o nivel oferecido nao aparece na barra
+ * lateral nem no cabecalho, entao derrubar o layout inteiro recarregaria as
+ * outras telas do portal para nada.
+ */
+export async function salvarConfigDegustacaoPelaTela(dados: unknown): Promise<Resposta> {
+  try {
+    await salvarConfigDegustacao(dados);
+    revalidatePath("/facilitador/degustacao");
+    return { ok: true };
+  } catch (erro) {
+    return comoResposta(erro);
+  }
 }
 
 /** Troca de senha a partir da tela. Mesmo contrato de `atualizarPelaTela`. */

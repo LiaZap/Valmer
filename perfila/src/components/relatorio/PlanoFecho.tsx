@@ -3,6 +3,7 @@ import { Card, CardHeader } from '@/components/ui/Card'
 import { SECOES, type DadosRelatorio, type PerfilEstatico } from '@/lib/relatorio/tipos'
 import { CREDITO_MARCA, MarcaImpacto, NOME_MARCA } from '@/components/layout/MarcaImpacto'
 import common from '@/styles/common.module.css'
+import { TextoPendente } from './TextoPendente'
 import styles from './PlanoFecho.module.css'
 
 /**
@@ -104,42 +105,48 @@ export function PlanoFecho({ dados, perfil, mostrarPlano }: PlanoFechoProps) {
             />
 
             <div className={styles.corpo}>
-              {/* A moldura vem antes da lista: sem ela, três ações escritas por
-                terceiros são lidas como tarefa atribuída, não como escolha. */}
-              <p className={[common.prose, styles.abertura].join(' ')}>
-                As três ações abaixo partem do perfil {perfil.fator} · {perfil.nome} e do que você
-                respondeu. A decisão de assumir cada uma é sua. Em cada uma há uma linha em branco
-                para você marcar a data de começo.
-              </p>
+              {!narrativa ? (
+                <TextoPendente secao="o plano de desenvolvimento" />
+              ) : (
+                <>
+                {/* A moldura vem antes da lista: sem ela, três ações escritas por
+                  terceiros são lidas como tarefa atribuída, não como escolha. */}
+                <p className={[common.prose, styles.abertura].join(' ')}>
+                  As três ações abaixo partem do perfil {perfil.fator} · {perfil.nome} e do que você
+                  respondeu. A decisão de assumir cada uma é sua. Em cada uma há uma linha em branco
+                  para você marcar a data de começo.
+                </p>
 
-              <ol className={styles.acoes}>
-                {narrativa.planoDesenvolvimento.map((acao, indice) => (
-                  <li key={acao} className={styles.acao}>
-                    <span
-                      className={[common.blockIcon, common.blockIconAccent, styles.acaoNumero].join(
-                        ' ',
-                      )}
-                      aria-hidden
-                    >
-                      {indice + 1}
-                    </span>
-
-                    <p className={styles.acaoTexto}>{acao}</p>
-
-                    <p className={styles.compromisso}>
-                      <span className={[common.eyebrow, styles.compromissoRotulo].join(' ')}>
-                        Começo em
+                <ol className={styles.acoes}>
+                  {narrativa.planoDesenvolvimento.map((acao, indice) => (
+                    <li key={acao} className={styles.acao}>
+                      <span
+                        className={[common.blockIcon, common.blockIconAccent, styles.acaoNumero].join(
+                          ' ',
+                        )}
+                        aria-hidden
+                      >
+                        {indice + 1}
                       </span>
-                      <span className={styles.compromissoLinha} aria-hidden />
-                    </p>
-                  </li>
-                ))}
-              </ol>
 
-              <p className={[common.prose, styles.fechoNota].join(' ')}>
-                Escolha uma para começar nesta semana. As três ao mesmo tempo raramente sobrevivem
-                ao primeiro mês. Quando a primeira virar rotina, passe para a próxima.
-              </p>
+                      <p className={styles.acaoTexto}>{acao}</p>
+
+                      <p className={styles.compromisso}>
+                        <span className={[common.eyebrow, styles.compromissoRotulo].join(' ')}>
+                          Começo em
+                        </span>
+                        <span className={styles.compromissoLinha} aria-hidden />
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+
+                <p className={[common.prose, styles.fechoNota].join(' ')}>
+                  Escolha uma para começar nesta semana. As três ao mesmo tempo raramente sobrevivem
+                  ao primeiro mês. Quando a primeira virar rotina, passe para a próxima.
+                </p>
+                </>
+              )}
             </div>
           </Card>
         </section>
@@ -164,7 +171,11 @@ export function PlanoFecho({ dados, perfil, mostrarPlano }: PlanoFechoProps) {
 
           {/* <p> e não <blockquote>: a frase não é citação de ninguém,
               é o que este relatório concluiu sobre quem o respondeu. */}
-          <p className={styles.fraseTexto}>{narrativa.fraseDoPerfil}</p>
+          {narrativa ? (
+            <p className={styles.fraseTexto}>{narrativa.fraseDoPerfil}</p>
+          ) : (
+            <TextoPendente secao="a frase do perfil" />
+          )}
         </Card>
       </section>
 

@@ -31,9 +31,12 @@ import {
   assessmentsRelatorios,
   assessmentsRespostas,
   creditosTransacoes,
+  precosPacotes,
+  precosRelatorios,
   usuarios,
 } from "./schema";
 import { assessments as dadosAssessments, facilitadores, transacoes } from "../../data/facilitadores";
+import { pacotesCreditos, tiposRelatorio } from "../../data/planos";
 import { narrativaExemplo } from "../../data/narrativa-exemplo";
 
 config({ path: [".env.local", ".env"] });
@@ -147,11 +150,63 @@ function saldo(facilitadorId: string): number {
     .reduce((soma, linha) => soma + linha.quantidade, 0);
 }
 
+/**
+ * A tabela comercial: as linhas que ate aqui eram `data/planos.ts`.
+ *
+ * Vai no SEED, e nao na migration, por dois motivos. A migration cria
+ * ESTRUTURA e roda em todo ambiente, inclusive naquele em que o preco ja foi
+ * ajustado — reinserir o preco de especificacao ali seria desfazer a decisao
+ * comercial de alguem num deploy. E preco e dado, e dado se semeia.
+ *
+ * Roda ANTES e FORA do `if (existentes)` que protege os usuarios: um banco que
+ * ja tem gente e que acabou de migrar continua sem preco nenhum, e sem preco
+ * `actions/assessments.ts` recusa todo mapa novo. Cada tabela olha para a
+ * propria vazia, entao rodar de novo nao duplica nem sobrescreve o que o admin
+ * ja editou.
+ *
+ * `modified_by` e o dono da plataforma, que e quem definiria estes precos.
+ */
+async function semearPrecos(db: ReturnType<typeof drizzle>): Promise<void> {
+  const dono = idUsuario.valmer!;
+
+  const [temRelatorio] = await db.select({ id: precosRelatorios.id }).from(precosRelatorios).limit(1);
+  if (!temRelatorio) {
+    await db.insert(precosRelatorios).values(
+      tiposRelatorio.map((tipo) => ({
+        codigo: tipo.codigo,
+        nome: tipo.nome,
+        creditos: tipo.creditos,
+        conteudo: tipo.conteudo,
+        revenda_min: tipo.revendaMin,
+        revenda_max: tipo.revendaMax,
+        modified_by: dono,
+      })),
+    );
+    console.log(`  precos_relatorios: ${tiposRelatorio.length}`);
+  }
+
+  const [temPacote] = await db.select({ id: precosPacotes.id }).from(precosPacotes).limit(1);
+  if (!temPacote) {
+    await db.insert(precosPacotes).values(
+      pacotesCreditos.map((pacote) => ({
+        nome: pacote.nome,
+        creditos: pacote.creditos,
+        preco: pacote.preco,
+        publico: pacote.publico,
+        modified_by: dono,
+      })),
+    );
+    console.log(`  precos_pacotes:    ${pacotesCreditos.length}`);
+  }
+}
+
 async function main(): Promise<void> {
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
   const db = drizzle(pool);
 
   try {
+    await semearPrecos(db);
+
     // Sem filtro de is_deleted, de proposito: um usuario soft-deletado ainda
     // ocupa o e-mail no indice unico, entao re-semear por cima estouraria.
     const existentes = await db.select({ id: usuarios.id }).from(usuarios).limit(1);

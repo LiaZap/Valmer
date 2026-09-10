@@ -1,9 +1,12 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { IconButton } from '@/components/ui/IconButton'
 import { Pill } from '@/components/ui/Pill'
 import { RowActions, Table, Td, Th, Tr, tableStyles } from '@/components/ui/Table'
 import { useToast } from '@/components/ui/Toast'
+import { gerarPelaTela } from '@/lib/actions/relatorio'
 import { resultadoDeContadores } from '@/lib/disc'
 import { ROTULO_SITUACAO, type Assessment, type SituacaoAssessment } from '@/data/facilitadores'
 import styles from './TabelaAssessments.module.css'
@@ -13,6 +16,62 @@ const TOM: Record<SituacaoAssessment, 'success' | 'warning' | 'neutral'> = {
   em_andamento: 'warning',
   pendente: 'neutral',
   expirado: 'neutral',
+}
+
+/**
+ * Gera o texto do relatorio deste mapa.
+ *
+ * A chamada a IA leva minutos, entao o botao mostra que esta trabalhando e se
+ * TRAVA: dois cliques seriam duas geracoes, e cada uma custa uma chamada paga.
+ * A trava e do navegador; quem garante a regra do lado de la e a action, que
+ * confere sessao e dono antes de gastar a chave.
+ *
+ * Depois do sucesso a lista e recarregada, e a linha passa a mostrar ver e
+ * baixar — os dois botoes que ja funcionavam.
+ */
+function BotaoGerarRelatorio({ assessment }: { assessment: Assessment }) {
+  const { toast } = useToast()
+  const router = useRouter()
+  const [gerando, setGerando] = useState(false)
+
+  async function gerar() {
+    if (gerando) return
+    setGerando(true)
+    toast(`Gerando o relatório de ${assessment.avaliadoNome}. Isso leva alguns minutos.`)
+
+    try {
+      const resposta = await gerarPelaTela(assessment.token)
+
+      if (resposta.ok) {
+        toast(`Relatório de ${assessment.avaliadoNome} pronto.`)
+        router.refresh()
+      } else {
+        // Recusa de regra chega com a mensagem que a pessoa resolve sozinha:
+        // falta de chave, mapa de outro parceiro, mapa não respondido.
+        toast(resposta.erro)
+      }
+    } catch {
+      // Falha de verdade chega como digest opaco em produção, então a tela
+      // diz o que dá para dizer: não gerou, e nada foi cobrado duas vezes.
+      toast('Não foi possível gerar o relatório agora. Tente de novo.')
+    } finally {
+      setGerando(false)
+    }
+  }
+
+  return (
+    <IconButton
+      icon={gerando ? 'refresh' : 'zap'}
+      label={
+        gerando
+          ? `Gerando relatório de ${assessment.avaliadoNome}`
+          : `Gerar relatório de ${assessment.avaliadoNome}`
+      }
+      onClick={gerar}
+      disabled={gerando}
+      aria-busy={gerando}
+    />
+  )
 }
 
 /**
@@ -113,7 +172,12 @@ export function TabelaAssessments({
 
             <Td align="right">
               <RowActions>
-                {assessment.situacao === 'concluido' ? (
+                {/* Mapa concluído SEM narrativa não oferece ver nem baixar: o
+                    documento sairia com as seções escritas em branco. Primeiro
+                    gera, depois entrega. */}
+                {assessment.situacao === 'concluido' && !assessment.temNarrativa ? (
+                  <BotaoGerarRelatorio assessment={assessment} />
+                ) : assessment.situacao === 'concluido' ? (
                   <>
                     {/* Aba nova nos dois: quem está numa lista filtrada não
                         quer perder o filtro para conferir um relatório, e

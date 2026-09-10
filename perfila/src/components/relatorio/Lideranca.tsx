@@ -2,6 +2,7 @@ import { Card, CardHeader } from '@/components/ui/Card'
 import { Icon } from '@/components/ui/Icon'
 import type { DadosRelatorio, PerfilEstatico } from '@/lib/relatorio/tipos'
 import common from '@/styles/common.module.css'
+import { TextoPendente } from './TextoPendente'
 import styles from './Lideranca.module.css'
 
 /**
@@ -34,7 +35,12 @@ import styles from './Lideranca.module.css'
  */
 
 type LiderancaProps = {
-  /** Os campos escritos pela IA — deste bloco entra só `liderancaNatural`. */
+  /**
+   * Os campos escritos pela IA — deste bloco entra só `liderancaNatural`, e
+   * ele é nulo enquanto a geração não rodou. "Onde você se encaixa" não
+   * depende dele: cargos e orientações ao gestor são tabela fixa do perfil, e
+   * continuam no documento.
+   */
   narrativa: DadosRelatorio['narrativa']
   /** Conteúdo fixo do perfil primário: cargos de encaixe e orientações ao gestor. */
   perfil: PerfilEstatico
@@ -166,13 +172,22 @@ export function Lideranca({
                 }
               />
               <div className={styles.corpo}>
-                <p className={styles.abertura}>{narrativa.liderancaNatural}</p>
+                {narrativa ? (
+                  <>
+                    <p className={styles.abertura}>{narrativa.liderancaNatural}</p>
 
-                <p className={[common.prose, styles.rodape].join(' ')}>
-                  Neste relatório, liderança é o modo como você influencia decisões e mobiliza as
-                  pessoas ao redor, com ou sem equipe formal. O texto descreve a sua tendência;
-                  desempenho fica para outra conversa.
-                </p>
+                    {/* O rodapé sai junto com o texto porque fala DELE: sem o
+                        texto, "o texto descreve a sua tendência" apontaria
+                        para nada. */}
+                    <p className={[common.prose, styles.rodape].join(' ')}>
+                      Neste relatório, liderança é o modo como você influencia decisões e mobiliza
+                      as pessoas ao redor, com ou sem equipe formal. O texto descreve a sua
+                      tendência; desempenho fica para outra conversa.
+                    </p>
+                  </>
+                ) : (
+                  <TextoPendente secao='o texto de "Seu estilo de liderança"' />
+                )}
               </div>
             </Card>
           </section>

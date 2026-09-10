@@ -1,16 +1,30 @@
 /**
- * Leitura do relatorio pronto, pelo mesmo token do assessment.
+ * Leitura do relatorio pronto, e a geracao do texto dele.
  *
- * O relatorio e o artefato que o facilitador entrega ao cliente dele, entao a
- * regra de acesso e a do respondente e nao a do portal: quem tem o link le, sem
- * sessao. Escrita nenhuma mora aqui — o que existe hoje e so a leitura.
+ * As duas moram no mesmo arquivo e tem regras de acesso OPOSTAS, de proposito:
+ *
+ * - `carregarRelatorio` e do avaliado. O relatorio e o artefato que o
+ *   facilitador entrega ao cliente dele, entao quem tem o link le, sem sessao:
+ *   o token e a credencial.
+ * - `gerarRelatorio` e do parceiro, custa dinheiro a cada chamada e por isso
+ *   exige sessao, permissao e recorte por dono AQUI DENTRO. Server Action e
+ *   endpoint POST publico: sem a checagem no corpo da funcao, um script de
+ *   terceiro esvaziaria a conta da API repetindo a requisicao.
+ *
+ * A tela publica do relatorio NAO chama a geracao. Quem gera e a lista de
+ * mapas, que ja roda logada.
  */
 "use server";
 
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { assessments, assessmentsRelatorios, usuarios } from "@/lib/db/schema";
+import { getSession, temPermissao } from "@/lib/auth";
+import { registrarAuditoria } from "@/lib/audit/logger";
 import { esquemaNarrativa, type NarrativaRelatorio } from "@/lib/relatorio/tipos";
+import { FalhaNaNarrativa } from "@/lib/relatorio/gerar";
+import { gerarESalvar, type FalhaPersistencia } from "@/lib/relatorio/persistir";
+import { paraTela, RecusaDeRegra } from "./recusa";
 import type { CodigoRelatorio } from "@/data/planos";
 import type { FatorDisc } from "@/data/dna";
 
@@ -96,4 +110,109 @@ export async function carregarRelatorio(token: string): Promise<RelatorioCarrega
     contadores: { D: contador_d, I: contador_i, S: contador_s, C: contador_c },
     narrativa: validada?.success ? validada.data : null,
   };
+}
+
+/** O que a tela mostra quando o assessment nao rende relatorio. */
+const MOTIVO: Record<FalhaPersistencia, string> = {
+  invalido: "Mapa nao encontrado.",
+  nao_concluido: "Este mapa ainda nao foi respondido.",
+  sem_contadores: "Este mapa nao tem resultado calculado.",
+};
+
+/**
+ * Escreve a narrativa deste assessment e grava, versionada.
+ *
+ * A checagem mora aqui dentro porque uma Server Action e endpoint POST
+ * publico: quem passar um token qualquer nao pode gastar a chave da API da
+ * empresa. Sessao, permissao e recorte por dono, na mesma ordem de
+ * `actions/turmas.ts`.
+ *
+ * Sem chave, RECUSA. Nao existe plano B que caia na narrativa de exemplo: foi
+ * exatamente esse fallback que fez todo relatorio sair com o nome e o texto de
+ * outra pessoa.
+ *
+ * Gerar de novo nao sobrescreve nada. `persistir.ts` grava cada geracao como
+ * versao nova e `carregarRelatorio` le a ultima; e sem `forcar`, um token que
+ * ja tem narrativa devolve a gravada em vez de pagar de novo pelo mesmo texto.
+ *
+ * Lanca `RecusaDeRegra` no que o parceiro resolve sozinho. Sem revalidate:
+ * quem chama de teste ou de script nao tem requisicao em curso. A tela usa
+ * `gerarPelaTela`.
+ */
+export async function gerarRelatorio(
+  token: string,
+): Promise<{ versao: number; reaproveitada: boolean }> {
+  const sessao = await getSession();
+  if (!sessao) throw new Error("Nao autenticado");
+  if (!temPermissao(sessao.papel, "assessments", "atualizar")) {
+    throw new Error("Sem permissao para gerar relatorios");
+  }
+
+  const [alvo] = await db
+    .select({
+      id: assessments.id,
+      nome: assessments.avaliado_nome,
+      dono: assessments.facilitador_id,
+    })
+    .from(assessments)
+    .where(and(eq(assessments.token, token), eq(assessments.is_deleted, false)))
+    .limit(1);
+
+  // Recorte por dono: o parceiro so gera o relatorio dos mapas dele, e o admin
+  // gera o de todos. "Nao existe" e "e de outro parceiro" dao a MESMA resposta
+  // — distinguir as duas transformaria a action num teste de existencia de
+  // token alheio.
+  if (!alvo || (sessao.papel !== "admin" && alvo.dono !== sessao.userId)) {
+    throw new RecusaDeRegra(MOTIVO.invalido);
+  }
+
+  // Checado antes de qualquer escrita: sem chave nada e gravado, e a mensagem
+  // diz o que falta em vez de deixar a tela adivinhar.
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new RecusaDeRegra(
+      "Falta a ANTHROPIC_API_KEY no servidor. Sem ela o texto nao pode ser escrito.",
+    );
+  }
+
+  let gravada;
+  try {
+    gravada = await gerarESalvar(token);
+  } catch (erro) {
+    // Falha de negocio da API vira recusa legivel; queda de rede continua
+    // subindo como falha de verdade.
+    if (erro instanceof FalhaNaNarrativa) {
+      throw new RecusaDeRegra(
+        erro.causa === "configuracao"
+          ? "Falta a ANTHROPIC_API_KEY no servidor. Sem ela o texto nao pode ser escrito."
+          : "A IA nao devolveu o relatorio desta vez. Tente de novo em alguns minutos.",
+      );
+    }
+    throw erro;
+  }
+
+  if (!gravada.ok) throw new RecusaDeRegra(MOTIVO[gravada.erro]);
+
+  // Auditoria da geracao, com a PESSOA que mandou gerar. A linha que
+  // `persistir.ts` grava e assinada pelo gerador, que nao e ninguem: sem esta,
+  // a trilha nao responde quem gastou a chamada paga. So quando houve geracao
+  // de fato — reaproveitar o texto ja gravado nao gera nada.
+  if (!gravada.reaproveitada) {
+    await registrarAuditoria({
+      userId: sessao.userId,
+      acao: "criar",
+      tabela: "assessments_relatorios",
+      registroId: alvo.id,
+      detalhes: `Gerou pela tela a narrativa v${gravada.versao} do relatorio de ${alvo.nome}`,
+    });
+  }
+
+  return { versao: gravada.versao, reaproveitada: gravada.reaproveitada };
+}
+
+/**
+ * `gerarRelatorio` para a lista de mapas: recusa vira objeto e a lista
+ * revalida. Mesmo contrato de `turmas.criarPelaTela`.
+ */
+export async function gerarPelaTela(token: string) {
+  return paraTela("/facilitador/assessments", () => gerarRelatorio(token));
 }

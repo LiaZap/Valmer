@@ -12,7 +12,13 @@
  */
 import { and, desc, eq, gte, inArray, lt, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { assessments, creditosTransacoes, usuarios } from "@/lib/db/schema";
+import {
+  assessments,
+  assessmentsRelatorios,
+  creditosTransacoes,
+  DEGUSTACOES_INICIAIS,
+  usuarios,
+} from "@/lib/db/schema";
 import { getSession, temPermissao, type Sessao } from "@/lib/auth";
 import { initials } from "@/lib/text";
 import { categoriaAtingida, cicloDe, faltamPara, metaDaBarra } from "@/lib/beneficios";
@@ -46,7 +52,7 @@ type LinhaAssessment = typeof assessments.$inferSelect;
  * tem os quatro nulos, e montar `{D: 0, I: 0, S: 0, C: 0}` faria a lista exibir
  * "Perfil DI" para quem ainda nao respondeu nada.
  */
-function paraAssessment(linha: LinhaAssessment): Assessment {
+function paraAssessment(linha: LinhaAssessment, comNarrativa?: Set<string>): Assessment {
   const { contador_d, contador_i, contador_s, contador_c } = linha;
   const completo =
     contador_d !== null && contador_i !== null && contador_s !== null && contador_c !== null;
@@ -78,7 +84,32 @@ function paraAssessment(linha: LinhaAssessment): Assessment {
     expiraEm: data(linha.expira_em),
     concluidoEm: linha.concluido_em ? data(linha.concluido_em) : undefined,
     contadores,
+    temNarrativa: comNarrativa?.has(linha.id) ?? false,
   };
+}
+
+/**
+ * Quais destes assessments ja tem narrativa gravada.
+ *
+ * Uma consulta para a lista inteira, e nao uma por linha: a lista de mapas de
+ * um parceiro passa de centenas, e uma consulta por linha e o mesmo N+1 que
+ * derruba a tela quando a conta cresce.
+ */
+async function comNarrativaGravada(linhas: LinhaAssessment[]): Promise<Set<string>> {
+  const ids = linhas.filter((l) => l.situacao === "concluido").map((l) => l.id);
+  if (ids.length === 0) return new Set();
+
+  const gravados = await db
+    .selectDistinct({ id: assessmentsRelatorios.assessment_id })
+    .from(assessmentsRelatorios)
+    .where(
+      and(
+        inArray(assessmentsRelatorios.assessment_id, ids),
+        eq(assessmentsRelatorios.is_deleted, false),
+      ),
+    );
+
+  return new Set(gravados.map((g) => g.id));
 }
 
 function paraFacilitador(linha: typeof usuarios.$inferSelect): Facilitador {
@@ -117,7 +148,8 @@ export async function assessmentsVisiveis(): Promise<Assessment[]> {
     )
     .orderBy(desc(assessments.created_at));
 
-  return linhas.map(paraAssessment);
+  const comNarrativa = await comNarrativaGravada(linhas);
+  return linhas.map((linha) => paraAssessment(linha, comNarrativa));
 }
 
 /**
@@ -147,7 +179,8 @@ export async function assessmentsDaTurma(turmaId: string): Promise<Assessment[]>
     )
     .orderBy(desc(assessments.created_at));
 
-  return linhas.map(paraAssessment);
+  const comNarrativa = await comNarrativaGravada(linhas);
+  return linhas.map((linha) => paraAssessment(linha, comNarrativa));
 }
 
 /** Os facilitadores, para o painel do admin. */
@@ -232,6 +265,44 @@ export async function contaAtual(): Promise<Facilitador> {
   if (!linha) throw new Error("Usuario da sessao nao encontrado");
 
   return paraFacilitador(linha);
+}
+
+/**
+ * A tela de degustacao de quem esta logado: saldo de amostras e qual nivel de
+ * relatorio ele oferece.
+ *
+ * Separada de `contaAtual` porque a `Facilitador` que ela devolve e o formato
+ * que TODAS as telas de gestao consomem — inflar aquele tipo com dois campos
+ * que so uma tela usa faria a tabela do admin carregar informacao que ela nao
+ * mostra.
+ *
+ * `utilizadas` e DERIVADA, e nao um contador gravado: o saldo nasce do DEFAULT
+ * da coluna e so desce (cada degustacao consome exatamente 1), entao concedido
+ * menos saldo e o numero exato. Um contador proprio seria a mesma conta
+ * guardada duas vezes, com a chance de as duas divergirem. Ver o porque de nao
+ * haver extrato de degustacao em `schema/usuarios.ts`.
+ */
+export async function degustacaoDaConta() {
+  const sessao = await getSession();
+  if (!sessao) throw new Error("Nao autenticado");
+
+  const [linha] = await db
+    .select({
+      saldo: usuarios.creditos_degustacao,
+      relatorio: usuarios.degustacao_relatorio,
+    })
+    .from(usuarios)
+    .where(and(eq(usuarios.id, sessao.userId), eq(usuarios.is_deleted, false)))
+    .limit(1);
+
+  if (!linha) throw new Error("Usuario da sessao nao encontrado");
+
+  return {
+    saldo: linha.saldo,
+    relatorio: linha.relatorio,
+    concedidas: DEGUSTACOES_INICIAIS,
+    utilizadas: DEGUSTACOES_INICIAIS - linha.saldo,
+  };
 }
 
 /**

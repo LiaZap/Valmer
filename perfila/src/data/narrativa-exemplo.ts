@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Narrativa de exemplo
  * --------------------
  * Escrita para o perfil do relatório de referência (predominância de
@@ -6,7 +6,9 @@
  * relatório renderize sem chave de API — desenvolver layout não
  * deveria custar uma chamada paga a cada recarga.
  *
- * Em produção este objeto vem de gerarNarrativa().
+ * NUNCA exporte este objeto direto para a página. Quem decide o que a página
+ * mostra é `narrativaParaExibir`, no fim do arquivo: em produção ele nunca
+ * chega a um avaliado. Em produção o texto vem de gerarNarrativa().
  */
 
 import type { NarrativaRelatorio } from '@/lib/relatorio/tipos'
@@ -42,4 +44,29 @@ export const narrativaExemplo: NarrativaRelatorio = {
   ],
   fraseDoPerfil:
     'Você é alguém que acende a sala e, no mesmo gesto, aponta a direção. Sua força é fazer as pessoas quererem caminhar, e seu maior aprendizado é permanecer tempo suficiente para ver a caminhada terminar.',
+}
+
+/**
+ * A narrativa que a PÁGINA deve mostrar quando não há nenhuma gravada.
+ *
+ * O exemplo acima foi escrito para OUTRA pessoa: ele começa chamando o leitor
+ * de "Paulo" e descreve o perfil de "Paulo". Entregá-lo a um avaliado não é um
+ * texto genérico, é o texto de terceiro com o nome de terceiro dentro, no único
+ * documento que sai da plataforma e chega ao cliente final do parceiro.
+ *
+ * Por isso em produção esta função devolve `null`, e as seções escritas saem
+ * marcadas como pendentes. O que é calculado (percentuais, perfil combinado) e
+ * o que é tabela fixa por perfil continuam no documento: aquilo é verdade.
+ *
+ * Fora de produção o exemplo continua vivo, porque desenvolver layout não pode
+ * custar uma chamada paga a cada recarga. `ambiente` é parâmetro, e não leitura
+ * direta de `process.env` no corpo, para o teste conseguir provar o caso de
+ * produção sem mexer em variável global.
+ */
+export function narrativaParaExibir(
+  gravada: NarrativaRelatorio | null,
+  ambiente: string | undefined = process.env.NODE_ENV,
+): NarrativaRelatorio | null {
+  if (gravada) return gravada
+  return ambiente === 'production' ? null : narrativaExemplo
 }

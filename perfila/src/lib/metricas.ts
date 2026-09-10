@@ -17,9 +17,24 @@ export type DadosPlataforma = {
   facilitadores: Facilitador[]
   assessments: Assessment[]
   transacoes: Transacao[]
+  /**
+   * Os pacotes vigentes, para casar cada compra com o preço que ela custou.
+   *
+   * Chega por parâmetro pelo mesmo motivo dos outros três: quem lê o banco é o
+   * lado servidor. Opcional porque a tabela `precos_pacotes` nasceu agora e as
+   * telas que chamam esta função ainda passam a lista fixa por omissão — o
+   * fallback é o mesmo `data/planos.ts` de sempre, então o número do painel não
+   * muda enquanto a tela não for ligada ao banco.
+   */
+  pacotes?: { creditos: number; preco: number }[]
 }
 
-export function metricasPlataforma({ facilitadores, assessments, transacoes }: DadosPlataforma) {
+export function metricasPlataforma({
+  facilitadores,
+  assessments,
+  transacoes,
+  pacotes = pacotesCreditos,
+}: DadosPlataforma) {
   const ativos = facilitadores.filter((facilitador) => facilitador.ativo)
 
   const creditosVendidos = transacoes
@@ -37,7 +52,7 @@ export function metricasPlataforma({ facilitadores, assessments, transacoes }: D
   const receita = transacoes
     .filter((transacao) => transacao.tipo === 'compra')
     .reduce((soma, transacao) => {
-      const pacote = pacotesCreditos.find((item) => item.creditos === transacao.quantidade)
+      const pacote = pacotes.find((item) => item.creditos === transacao.quantidade)
       return soma + (pacote?.preco ?? 0)
     }, 0)
 

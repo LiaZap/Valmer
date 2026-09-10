@@ -26,7 +26,7 @@ import { creditosTransacoes, usuarios } from "@/lib/db/schema";
 import { getSession, temPermissao, type Acao, type Sessao } from "@/lib/auth";
 import { registrarAuditoria } from "@/lib/audit/logger";
 import { definirSenha } from "@/lib/auth/senha";
-import { getPacote } from "@/data/planos";
+import { pacotePorNome } from "@/lib/precos";
 import { senhaNovaSchema } from "@/lib/validators/auth";
 import {
   atualizarFacilitadorSchema,
@@ -64,9 +64,12 @@ async function exigirSessao(acao: Acao): Promise<Sessao> {
 export async function criar(dados: unknown) {
   const sessao = await exigirSessao("criar");
   const validado = criarFacilitadorSchema.parse(dados);
-  const pacote = getPacote(validado.pacote);
 
   const criado = await db.transaction(async (tx) => {
+    // O pacote vem da tabela `precos_pacotes`, e nao mais de data/planos.ts:
+    // lido dentro da transacao que credita, ele recusa nome descontinuado e a
+    // quantidade continua vindo do pacote, nunca da tela. Ver lib/precos.ts.
+    const pacote = await pacotePorNome(validado.pacote, tx);
     // O indice unico de e-mail ja recusaria, mas com erro de banco: a tela
     // mostraria "duplicate key value violates unique constraint" para o que e
     // uma decisao de negocio banal. A consulta antes existe para a recusa ter
@@ -142,9 +145,9 @@ export async function criar(dados: unknown) {
 export async function venderCreditos(dados: unknown) {
   const sessao = await exigirSessao("atualizar");
   const validado = venderCreditosSchema.parse(dados);
-  const pacote = getPacote(validado.pacote);
 
   return db.transaction(async (tx) => {
+    const pacote = await pacotePorNome(validado.pacote, tx);
     const [parceiro] = await tx
       .select()
       .from(usuarios)

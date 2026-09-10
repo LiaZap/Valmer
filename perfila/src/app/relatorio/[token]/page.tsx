@@ -6,7 +6,7 @@ import { Lideranca } from '@/components/relatorio/Lideranca'
 import { Motivadores } from '@/components/relatorio/Motivadores'
 import { PlanoFecho } from '@/components/relatorio/PlanoFecho'
 import { QuemVoceE } from '@/components/relatorio/QuemVoceE'
-import { narrativaExemplo } from '@/data/narrativa-exemplo'
+import { narrativaParaExibir } from '@/data/narrativa-exemplo'
 import { getPerfilEstatico } from '@/data/perfis'
 import { carregarRelatorio } from '@/lib/actions/relatorio'
 import { resultadoDeContadores } from '@/lib/disc'
@@ -65,10 +65,11 @@ export default async function RelatorioPage({
     emitidoEm: DATA_BR.format(relatorio.emitidoEm),
     tipoRelatorio: relatorio.tipoRelatorio,
     resultado,
-    // Enquanto a geração por IA não roda para este assessment, o documento
-    // sai com a narrativa de exemplo: layout e revisão não dependem de uma
-    // chamada paga, e um relatório sem as seções escritas não é entregável.
-    narrativa: relatorio.narrativa ?? narrativaExemplo,
+    // Sem narrativa gravada o documento NÃO empresta a de outra pessoa: em
+    // produção ele sai com as seções escritas marcadas como pendentes, e com
+    // tudo que é calculado no lugar. Fora de produção o exemplo entra, para o
+    // layout continuar sendo desenvolvido sem chamada paga.
+    narrativa: narrativaParaExibir(relatorio.narrativa),
   }
 
   const perfilPrimario = getPerfilEstatico(resultado.primario)

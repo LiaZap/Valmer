@@ -3,6 +3,19 @@
  * ---------------------------------------
  * Valores da especificação. O facilitador gasta créditos por
  * assessment; o admin vende os créditos em pacotes.
+ *
+ * ESTE ARQUIVO NÃO É MAIS A FONTE DO PREÇO COBRADO.
+ * Quem cobra lê `precos_relatorios` e `precos_pacotes` no banco, por
+ * `lib/precos.ts` — preço mudou de código para dado, e o admin edita em
+ * /admin/precos sem deploy. O que sobra aqui são duas coisas:
+ *
+ * 1. O DADO INICIAL do seed (`lib/db/seed.ts`), para o sistema não acordar sem
+ *    tabela de preços.
+ * 2. As telas que ainda montam a vitrine a partir desta lista, e que serão
+ *    ligadas ao banco em seguida. Enquanto isso, elas mostram estes números e
+ *    a cobrança usa os do banco — que o seed criou iguais.
+ *
+ * Os tipos e `moeda`/`custoPorCredito` continuam valendo para os dois lados.
  */
 
 export type CodigoRelatorio = 'S1' | 'S2' | 'S3' | 'S4'
@@ -88,13 +101,17 @@ export const pacotesCreditos: PacoteCreditos[] = [
   },
 ]
 
-/** O pacote pelo nome. O nome vem validado contra esta mesma lista. */
-export function getPacote(nome: string): PacoteCreditos {
-  return pacotesCreditos.find((pacote) => pacote.nome === nome)!
-}
-
-/** Custo por crédito, derivado do pacote — nunca digitado à mão. */
-export function custoPorCredito(pacote: PacoteCreditos): number {
+/**
+ * Custo por crédito, derivado do pacote — nunca digitado à mão.
+ *
+ * Recebe a FORMA, e não o tipo `PacoteCreditos`: assim a linha de
+ * `precos_pacotes` vinda do banco e o pacote fixo daqui passam pela mesma
+ * conta. Duas versões desta divisão arredondariam diferente em telas vizinhas.
+ *
+ * (`getPacote` saiu: quem procura pacote pelo nome hoje é
+ * `lib/precos.ts:pacotePorNome`, contra o banco.)
+ */
+export function custoPorCredito(pacote: { preco: number; creditos: number }): number {
   return pacote.preco / pacote.creditos
 }
 

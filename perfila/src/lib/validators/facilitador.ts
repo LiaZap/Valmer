@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { pacotesCreditos } from "@/data/planos";
 import { emailPessoa, nomePessoa } from "./assessment";
 import { senhaNovaSchema } from "./auth";
 import { empresaOpcional, telefoneOpcional } from "./perfil";
@@ -8,12 +7,23 @@ import { empresaOpcional, telefoneOpcional } from "./perfil";
  * Fronteira das duas escritas que movem dinheiro: cadastrar o parceiro e
  * vender credito para ele.
  *
- * O pacote e validado contra `src/data/planos.ts`, e nao contra um numero
- * livre. Aceitar `creditos` cru da tela deixaria o admin creditar qualquer
- * quantidade por um campo escondido, e o preco do pacote — que e o que
- * justifica o lancamento no extrato — nao viria de lugar nenhum.
+ * O formulario manda o NOME do pacote, nunca a quantidade de creditos. Aceitar
+ * `creditos` cru da tela deixaria o admin creditar qualquer quantidade por um
+ * campo escondido, e o preco do pacote — que e o que justifica o lancamento no
+ * extrato — nao viria de lugar nenhum.
+ *
+ * O nome deixou de ser `z.enum` da lista fixa de `data/planos.ts` porque os
+ * pacotes agora sao linha de `precos_pacotes`, editavel pelo admin: um enum
+ * congelado no build recusaria o pacote criado ontem e aceitaria o
+ * descontinuado. Quem confere a EXISTENCIA e `lib/precos.ts:pacotePorNome`,
+ * contra o banco e dentro da mesma transacao que credita — mais perto da
+ * escrita, e nao mais longe. Aqui fica so o formato.
  */
-const NOMES_DE_PACOTE = pacotesCreditos.map((pacote) => pacote.nome) as [string, ...string[]];
+const nomeDePacote = z
+  .string()
+  .trim()
+  .min(2, "Escolha um pacote")
+  .max(60, "Nome de pacote invalido");
 
 export const criarFacilitadorSchema = z.object({
   nome: nomePessoa,
@@ -23,7 +33,7 @@ export const criarFacilitadorSchema = z.object({
     .trim()
     .min(2, "Informe a empresa ou consultoria")
     .max(160, "Nome da empresa muito longo"),
-  pacote: z.enum(NOMES_DE_PACOTE),
+  pacote: nomeDePacote,
   /**
    * A senha inicial vem do formulario porque nao ha provedor de e-mail no
    * projeto. Mesmo schema que qualquer senha nova do sistema: o parceiro vai
@@ -35,7 +45,7 @@ export const criarFacilitadorSchema = z.object({
 
 export const venderCreditosSchema = z.object({
   facilitador_id: z.string().uuid(),
-  pacote: z.enum(NOMES_DE_PACOTE),
+  pacote: nomeDePacote,
 });
 
 export type CriarFacilitador = z.infer<typeof criarFacilitadorSchema>;

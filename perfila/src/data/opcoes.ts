@@ -10,5 +10,4 @@ export const opcoes = {
   area: ['Selecione', 'Global', 'Pessoal', 'Profissional'],
   relatorio: ['DISC + Tipos Psicológicos + Valores', 'DISC'],
   status: ['Todos', 'Finalizada', 'Pausado'],
-  relatorioDegustacao: ['DISC (resumo)', 'DISC completo'],
 } as const

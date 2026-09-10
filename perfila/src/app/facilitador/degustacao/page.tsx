@@ -1,61 +1,45 @@
-'use client'
-
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
-import { Field, Input } from '@/components/ui/Field'
-import { AutoGrid } from '@/components/ui/Layout'
 import { PageHeader } from '@/components/ui/PageHeader'
-import { Select } from '@/components/ui/Select'
-import { useToast } from '@/components/ui/Toast'
-import { degustacao } from '@/data/creditos'
-import { opcoes } from '@/data/opcoes'
-import ui from '@/styles/common.module.css'
-import styles from './page.module.css'
+import { degustacaoDaConta } from '@/lib/painel'
+import { listarPrecosRelatorios } from '@/lib/precos'
+import { FormDegustacao } from './FormDegustacao'
 
-export default function DegustacaoPage() {
-  const { toast } = useToast()
+/**
+ * Demonstração: a amostra gratuita que o parceiro manda para converter cliente.
+ *
+ * Server Component só para ler — o saldo de amostras e o nível configurado
+ * saem do banco (`usuarios.creditos_degustacao` e
+ * `usuarios.degustacao_relatorio`), e a lista de níveis sai da tabela de
+ * preços, que é quem sabe o nome e a faixa de revenda de cada um. Nada aqui é
+ * número de protótipo: o saldo fixo de `data/creditos.ts` saiu junto com o
+ * botão que avisava não gravar.
+ *
+ * O formulário fica no componente cliente ao lado, que é onde há estado.
+ */
+export default async function DegustacaoPage() {
+  const [conta, precos] = await Promise.all([degustacaoDaConta(), listarPrecosRelatorios()])
 
   return (
     <>
       <PageHeader
         title="Demonstração"
-        subtitle="Ofereça uma amostra gratuita do relatório e converta em clientes."
+        // Não promete e-mail: não existe envio por e-mail no sistema. Quem
+        // entrega o link é o parceiro, copiando da lista de mapas — mesma
+        // regra da tela de novo mapa.
+        subtitle="Ofereça uma amostra gratuita do relatório e converta em clientes. Cada degustação consome 1 amostra do seu saldo e nenhum crédito."
       />
 
-      <AutoGrid min={260} alignStart>
-        <Card>
-          <div className={styles.rotulo}>Saldo de degustações</div>
-          <div className={`${ui.metricLg} ${styles.valor}`}>{degustacao.saldo}</div>
-          <div className={ui.note}>
-            {degustacao.vitalicios} vitalícios · {degustacao.utilizadas} utilizados
-          </div>
-        </Card>
-
-        <Card padding="lg" className={styles.config}>
-          <div className={ui.cardTitle}>Configuração da degustação</div>
-          <div className={styles.campos}>
-            <Field label="Relatório oferecido">
-              {(id) => (
-                <Select
-                  id={id}
-                  options={opcoes.relatorioDegustacao}
-                  label="Relatório oferecido"
-                />
-              )}
-            </Field>
-            <Field label="Preço do relatório completo">
-              {(id) => <Input id={id} placeholder="R$ 0,00" inputMode="decimal" />}
-            </Field>
-          </div>
-          <Button
-            variant="primary"
-            className={styles.salvar}
-            onClick={() => toast('Configuração ainda não é salva: esta tela ainda não grava')}
-          >
-            Salvar
-          </Button>
-        </Card>
-      </AutoGrid>
+      <FormDegustacao
+        saldo={conta.saldo}
+        concedidas={conta.concedidas}
+        utilizadas={conta.utilizadas}
+        relatorio={conta.relatorio}
+        niveis={precos.map((preco) => ({
+          codigo: preco.codigo,
+          nome: preco.nome,
+          revendaMin: preco.revenda_min,
+          revendaMax: preco.revenda_max,
+        }))}
+      />
     </>
   )
 }

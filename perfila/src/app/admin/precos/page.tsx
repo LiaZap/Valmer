@@ -1,99 +1,24 @@
-'use client'
+import { listarPacotesDeCredito, listarRelatorios } from '@/lib/actions/precos'
+import { GestaoPrecos } from './GestaoPrecos'
 
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
-import { Icon } from '@/components/ui/Icon'
-import { PageHeader } from '@/components/ui/PageHeader'
-import { Pill } from '@/components/ui/Pill'
-import { Table, Td, Th, Tr, tableStyles } from '@/components/ui/Table'
-import { useToast } from '@/components/ui/Toast'
-import { custoPorCredito, moeda, pacotesCreditos, tiposRelatorio } from '@/data/planos'
-import ui from '@/styles/common.module.css'
+/**
+ * Preços — a tabela comercial da plataforma.
+ *
+ * Server Component: a leitura acontece aqui e a escrita fica nas actions que o
+ * componente cliente ao lado chama. Mesmo desenho de /admin/cursos.
+ *
+ * Os números saíram de `data/planos.ts` e vieram para `precos_relatorios` e
+ * `precos_pacotes`: mudar preço deixou de ser deploy. A leitura passa pelas
+ * actions, e não por `lib/precos.ts` direto, porque esta é a tela de GESTÃO —
+ * quem entra aqui precisa de `precos:ler`, que é só do admin. (O layout de
+ * /admin já barra o facilitador, mas a checagem que vale é a de dentro da
+ * action: Server Action é endpoint POST público.)
+ */
+export default async function PrecosPage() {
+  const [relatorios, pacotes] = await Promise.all([
+    listarRelatorios(),
+    listarPacotesDeCredito(),
+  ])
 
-export default function PrecosPage() {
-  const { toast } = useToast()
-
-  return (
-    <>
-      <PageHeader
-        title="Preços"
-        subtitle="Quanto cada relatório consome de crédito e quanto custa cada pacote."
-        actions={
-          <Button
-            variant="primary"
-            icon={<Icon name="edit" />}
-            onClick={() => toast('Edição de preços ainda não disponível: os valores ainda não ficam no banco')}
-          >
-            Editar tabela
-          </Button>
-        }
-      />
-
-      <Card padding="none" clip scrollX>
-        <div className={ui.sectionHead} style={{ padding: 'var(--space-16) var(--space-20)' }}>
-          <div className={ui.cardTitle}>Tipos de relatório</div>
-        </div>
-        <Table>
-          <thead>
-            <tr>
-              <Th>Tipo</Th>
-              <Th>Conteúdo</Th>
-              <Th align="right">Créditos</Th>
-              <Th align="right">Revenda sugerida</Th>
-            </tr>
-          </thead>
-          <tbody>
-            {tiposRelatorio.map((tipo) => (
-              <Tr key={tipo.codigo}>
-                <Td>
-                  <div className={tableStyles.primary}>
-                    {tipo.codigo} · {tipo.nome}
-                  </div>
-                </Td>
-                <Td muted>{tipo.conteudo}</Td>
-                <Td align="right">
-                  <Pill tone="success">{tipo.creditos}</Pill>
-                </Td>
-                <Td align="right" muted>
-                  {moeda(tipo.revendaMin)} a {moeda(tipo.revendaMax)}
-                </Td>
-              </Tr>
-            ))}
-          </tbody>
-        </Table>
-      </Card>
-
-      <Card padding="none" clip scrollX>
-        <div className={ui.sectionHead} style={{ padding: 'var(--space-16) var(--space-20)' }}>
-          <div className={ui.cardTitle}>Pacotes de crédito</div>
-        </div>
-        <Table>
-          <thead>
-            <tr>
-              <Th>Pacote</Th>
-              <Th align="right">Créditos</Th>
-              <Th align="right">Preço</Th>
-              <Th align="right">Custo por crédito</Th>
-              <Th>Público-alvo</Th>
-            </tr>
-          </thead>
-          <tbody>
-            {pacotesCreditos.map((pacote) => (
-              <Tr key={pacote.nome}>
-                <Td>
-                  <span className={tableStyles.primary}>{pacote.nome}</span>
-                </Td>
-                <Td align="right">{pacote.creditos}</Td>
-                <Td align="right">{moeda(pacote.preco)}</Td>
-                <Td align="right" muted>
-                  {moeda(custoPorCredito(pacote))}
-                </Td>
-                <Td muted>{pacote.publico}</Td>
-              </Tr>
-            ))}
-          </tbody>
-        </Table>
-      </Card>
-    </>
-  )
+  return <GestaoPrecos relatorios={relatorios} pacotes={pacotes} />
 }
