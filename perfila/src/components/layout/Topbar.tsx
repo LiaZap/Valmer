@@ -17,7 +17,6 @@ export type UsuarioTopbar = {
 }
 
 type TopbarProps = {
-  onToggleSidebar: () => void
   grupos: NavGroup[]
   base: string
   /** Primeiro nível do breadcrumb: o ambiente. */
@@ -34,7 +33,6 @@ type TopbarProps = {
  * título.
  */
 export function Topbar({
-  onToggleSidebar,
   grupos,
   base,
   raiz,
@@ -46,8 +44,6 @@ export function Topbar({
 
   return (
     <header className={styles.topbar}>
-      <IconButton icon="menu" label="Recolher menu" variant="topbar" onClick={onToggleSidebar} />
-
       <nav className={styles.breadcrumb} aria-label="Trilha de navegação">
         <span>{raiz}</span>
         <span className={styles.separator} aria-hidden>

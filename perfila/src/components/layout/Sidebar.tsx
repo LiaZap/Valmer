@@ -10,6 +10,10 @@ import styles from './Sidebar.module.css'
 
 type SidebarProps = {
   collapsed: boolean
+  /** Recolhe e expande. Mora aqui, e nao na topbar: o controle fica junto do
+      que ele controla, e no rodape ele nao disputa espaco com o caminho da
+      tela. */
+  onToggle: () => void
   grupos: NavGroup[]
   /** Raiz do ambiente — destino da marca e âncora do item ativo. */
   base: string
@@ -26,7 +30,7 @@ type SidebarProps = {
  * Serve aos dois ambientes com moldura: o que muda é a lista de
  * grupos e o subtítulo sob a marca.
  */
-export function Sidebar({ collapsed, grupos, base, subtitulo }: SidebarProps) {
+export function Sidebar({ collapsed, onToggle, grupos, base, subtitulo }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -97,6 +101,24 @@ export function Sidebar({ collapsed, grupos, base, subtitulo }: SidebarProps) {
             <Icon name="logout" size={16} />
           </span>
           <span className={styles.label}>Sair</span>
+        </button>
+
+        {/* A seta que recolhe. Ela era um hamburguer na topbar, longe do que
+            controlava e ao lado do caminho da tela, onde parecia menu de
+            navegacao. Aqui ela aponta para o lado em que a barra vai se
+            mover, que e a unica dica que dispensa rotulo. */}
+        <button
+          type="button"
+          title={collapsed ? 'Expandir menu' : 'Recolher menu'}
+          aria-label={collapsed ? 'Expandir menu' : 'Recolher menu'}
+          aria-expanded={!collapsed}
+          className={styles.recolher}
+          onClick={onToggle}
+        >
+          <span className={styles.itemIcon}>
+            <Icon name={collapsed ? 'chevR' : 'chevL'} size={16} />
+          </span>
+          <span className={styles.label}>Recolher</span>
         </button>
       </div>
     </aside>

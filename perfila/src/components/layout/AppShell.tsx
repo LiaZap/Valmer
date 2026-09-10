@@ -48,11 +48,16 @@ export function AppShell({
   return (
     <ToastProvider>
       <div className={styles.shell}>
-        <Sidebar collapsed={collapsed} grupos={grupos} base={base} subtitulo={subtitulo} />
+        <Sidebar
+          collapsed={collapsed}
+          onToggle={() => setCollapsed((current) => !current)}
+          grupos={grupos}
+          base={base}
+          subtitulo={subtitulo}
+        />
 
         <main className={styles.main}>
           <Topbar
-            onToggleSidebar={() => setCollapsed((current) => !current)}
             grupos={grupos}
             base={base}
             raiz={raiz}

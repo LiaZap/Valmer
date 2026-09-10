@@ -192,6 +192,30 @@
   text-decoration: none;
 }
 
+/* Mesma forma dos itens de menu, um tom abaixo: recolher e ajuste de tela, e
+   nao destino. Se ela pesasse como o Sair, o rodape teria duas acoes com o
+   mesmo peso e uma delas encerra a sessao. */
+.recolher {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  width: 100%;
+  height: var(--control-nav);
+  padding: 0 var(--space-10);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-125);
+  text-align: left;
+  cursor: pointer;
+}
+
+.recolher:hover {
+  background: var(--color-hover);
+  color: var(--color-text-secondary);
+}
+
 /* ---------- Estado recolhido ----------
    Só ícones, centralizados. O rótulo continua no DOM (o `title` e o
    nome acessível do link seguem funcionando), apenas não é exibido. */
