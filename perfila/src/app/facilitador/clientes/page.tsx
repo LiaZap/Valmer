@@ -1,134 +1,38 @@
-'use client'
-
-import { Avatar } from '@/components/ui/Avatar'
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
-import { Field, Input } from '@/components/ui/Field'
-import { Icon } from '@/components/ui/Icon'
-import { IconButton } from '@/components/ui/IconButton'
-import { PageHeader } from '@/components/ui/PageHeader'
-import { FilterBar, RowActions, Table, Td, Th, Tr, tableStyles } from '@/components/ui/Table'
-import { useToast } from '@/components/ui/Toast'
-import { clientes, totalClientes } from '@/data/clientes'
-import ui from '@/styles/common.module.css'
+import { listar } from '@/lib/actions/clientes'
+import { initials } from '@/lib/text'
+import { ListaClientes } from './ListaClientes'
 
 /**
- * Os clientes são lista fixa de `@/data`, sem tabela no banco: nada aqui
- * cadastra, importa, envia ou remove. Os avisos nomeiam o que ainda falta.
+ * Carteira de clientes do parceiro, agora vinda do banco.
+ *
+ * Server Component: a consulta acontece aqui, com sessão e recorte por dono no
+ * WHERE da action, e a interatividade fica no componente cliente ao lado.
+ * Mesmo desenho da lista de turmas.
+ *
+ * As datas são formatadas aqui, e não no cliente: o servidor roda em UTC e o
+ * navegador no fuso de quem abre a tela, então formatar dos dois lados faria a
+ * mesma linha aparecer com dia diferente antes e depois da hidratação.
  */
-export default function ClientesPage() {
-  const { toast } = useToast()
+const DATA_BR = new Intl.DateTimeFormat('pt-BR', {
+  timeZone: 'America/Sao_Paulo',
+  dateStyle: 'short',
+})
 
-  return (
-    <>
-      <PageHeader
-        title="Clientes"
-        subtitle={`${totalClientes} clientes cadastrados`}
-        actions={
-          <>
-            <Button
-              icon={<Icon name="upload" />}
-              onClick={() => toast('Importação de clientes ainda não disponível')}
-            >
-              Importar
-            </Button>
-            <Button
-              icon={<Icon name="download" />}
-              onClick={() => toast('Exportação ainda não disponível')}
-            >
-              Exportar
-            </Button>
-            <Button
-              variant="primary"
-              icon={<Icon name="plus" />}
-              onClick={() => toast('Cadastro de cliente ainda não disponível')}
-            >
-              Adicionar cliente
-            </Button>
-          </>
-        }
-      />
+export default async function ClientesPage() {
+  const clientes = await listar()
 
-      <Card padding="none" scrollX>
-        <FilterBar>
-          <Field label="Nome" className={tableStyles.filterGrow}>
-            {(id) => <Input id={id} placeholder="Nome" />}
-          </Field>
-          <Field label="E-mail" className={tableStyles.filterGrow}>
-            {(id) => <Input id={id} type="email" placeholder="E-mail" />}
-          </Field>
-          <Field label="Data inicial" className={tableStyles.filterDate}>
-            {(id) => <Input id={id} placeholder="dd/mm/aaaa" inputMode="numeric" />}
-          </Field>
-          <Field label="Data final" className={tableStyles.filterDate}>
-            {(id) => <Input id={id} placeholder="dd/mm/aaaa" inputMode="numeric" />}
-          </Field>
-          <Field label="Último login" className={tableStyles.filterDate}>
-            {(id) => <Input id={id} placeholder="dd/mm/aaaa" inputMode="numeric" />}
-          </Field>
-          <Button
-            variant="dark"
-            size="lg"
-            onClick={() => toast('Busca de clientes ainda não disponível')}
-          >
-            Pesquisar
-          </Button>
-        </FilterBar>
+  const itens = clientes.map((cliente) => ({
+    id: cliente.id,
+    nome: cliente.nome,
+    email: cliente.email,
+    celular: cliente.celular,
+    iniciais: initials(cliente.nome),
+    cadastradoEm: DATA_BR.format(cliente.created_at),
+    dono: cliente.dono,
+    // A tela devolve este valor no salvar: é ele que faz o optimistic locking
+    // da action recusar a gravação quando outra aba alterou a linha antes.
+    atualizadoEm: cliente.updated_at,
+  }))
 
-        <Table>
-          <thead>
-            <tr>
-              <Th>Cliente</Th>
-              <Th>Celular</Th>
-              <Th>Último login</Th>
-              <Th align="right">Ações</Th>
-            </tr>
-          </thead>
-          <tbody>
-            {clientes.map((cliente) => (
-              <Tr key={cliente.email}>
-                <Td dense>
-                  <div className={ui.pessoa}>
-                    <Avatar>{cliente.iniciais}</Avatar>
-                    <div>
-                      <div className={ui.pessoaNome}>{cliente.name}</div>
-                      <div className={ui.pessoaEmail}>{cliente.email}</div>
-                    </div>
-                  </div>
-                </Td>
-                <Td dense muted>
-                  {cliente.celular}
-                </Td>
-                <Td dense muted>
-                  {cliente.ultimoLogin}
-                </Td>
-                <Td dense align="right">
-                  <RowActions>
-                    <IconButton
-                      icon="eye"
-                      label="Detalhes"
-                      onClick={() => toast('Detalhes do cliente ainda não disponíveis')}
-                    />
-                    <IconButton
-                      icon="mail"
-                      label="Enviar e-mail"
-                      onClick={() => toast('Envio de e-mail ainda não disponível')}
-                    />
-                    <IconButton
-                      icon="trash"
-                      label="Remover"
-                      tone="danger"
-                      onClick={() =>
-                        toast('Remover ainda não disponível: esta lista ainda não grava')
-                      }
-                    />
-                  </RowActions>
-                </Td>
-              </Tr>
-            ))}
-          </tbody>
-        </Table>
-      </Card>
-    </>
-  )
+  return <ListaClientes itens={itens} />
 }

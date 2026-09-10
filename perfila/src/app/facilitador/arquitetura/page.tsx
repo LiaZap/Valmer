@@ -1,117 +1,37 @@
-'use client'
-
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
-import { Field, Input } from '@/components/ui/Field'
-import { Icon } from '@/components/ui/Icon'
-import { IconButton } from '@/components/ui/IconButton'
-import { PageHeader } from '@/components/ui/PageHeader'
-import {
-  FilterBar,
-  RowActions,
-  Table,
-  TableFooter,
-  Td,
-  Th,
-  Tr,
-  tableStyles,
-} from '@/components/ui/Table'
-import { useToast } from '@/components/ui/Toast'
-import { cargos } from '@/data/cargos'
+import { listar } from '@/lib/actions/cargos'
+import { ListaCargos } from './ListaCargos'
 
 /**
- * Nenhuma ação desta tela grava: `cargos` é lista fixa de `@/data`, sem tabela
- * no banco. Por isso cada aviso nomeia o que ainda falta, em vez de confirmar
- * um efeito que não acontece.
+ * Arquitetura de Cargos do parceiro, agora vinda do banco.
+ *
+ * Server Component: a consulta acontece aqui, com sessão e escopo do dono no
+ * WHERE, e a interatividade (formulário, ações da linha) fica no componente
+ * cliente ao lado. Mesmo desenho da lista de turmas.
+ *
+ * A data é formatada aqui, e não no cliente: o servidor roda em UTC e o
+ * navegador no fuso de quem abre a tela, então formatar dos dois lados faria a
+ * mesma linha aparecer com horas diferentes antes e depois da hidratação.
  */
-export default function ArquiteturaPage() {
-  const { toast } = useToast()
+const DATA_HORA_BR = new Intl.DateTimeFormat('pt-BR', {
+  timeZone: 'America/Sao_Paulo',
+  dateStyle: 'short',
+  timeStyle: 'short',
+})
 
-  return (
-    <>
-      <PageHeader
-        title="Arquitetura de Cargos"
-        subtitle="Defina o perfil comportamental ideal para cada cargo e compare com candidatos."
-        actions={
-          <Button
-            variant="primary"
-            icon={<Icon name="plus" />}
-            onClick={() => toast('Cadastro de cargo ainda não disponível')}
-          >
-            Adicionar cargo
-          </Button>
-        }
-      />
+export default async function ArquiteturaPage() {
+  const cargos = await listar()
 
-      <Card padding="none" scrollX>
-        <FilterBar>
-          <Field label="Nome" className={tableStyles.filterGrow}>
-            {(id) => <Input id={id} placeholder="Buscar por cargo" />}
-          </Field>
-          <Field label="Data inicial" className={tableStyles.filterDate}>
-            {(id) => <Input id={id} placeholder="dd/mm/aaaa" inputMode="numeric" />}
-          </Field>
-          <Field label="Data final" className={tableStyles.filterDate}>
-            {(id) => <Input id={id} placeholder="dd/mm/aaaa" inputMode="numeric" />}
-          </Field>
-          <Button
-            variant="dark"
-            size="lg"
-            onClick={() => toast('Busca por cargo ainda não disponível')}
-          >
-            Pesquisar
-          </Button>
-        </FilterBar>
+  const itens = cargos.map((cargo) => ({
+    id: cargo.id,
+    nome: cargo.nome,
+    alvo_d: cargo.alvo_d,
+    alvo_i: cargo.alvo_i,
+    alvo_s: cargo.alvo_s,
+    alvo_c: cargo.alvo_c,
+    dono: cargo.dono,
+    criadoEm: DATA_HORA_BR.format(cargo.created_at),
+    atualizadoEm: cargo.updated_at,
+  }))
 
-        <Table>
-          <thead>
-            <tr>
-              <Th>Cargo</Th>
-              <Th>Criado por</Th>
-              <Th>Criado em</Th>
-              <Th align="right">Ações</Th>
-            </tr>
-          </thead>
-          <tbody>
-            {cargos.map((cargo) => (
-              <Tr key={cargo.id}>
-                <Td>
-                  <span className={tableStyles.primary}>{cargo.name}</span>
-                </Td>
-                <Td muted>{cargo.by}</Td>
-                <Td muted>{cargo.date}</Td>
-                <Td align="right">
-                  <RowActions>
-                    <IconButton
-                      icon="download"
-                      label="Baixar"
-                      onClick={() => toast('Download do PDF ainda não disponível')}
-                    />
-                    <IconButton
-                      icon="edit"
-                      label="Alterar"
-                      onClick={() => toast('Edição de cargo ainda não disponível')}
-                    />
-                    <IconButton
-                      icon="copy"
-                      label="Duplicar"
-                      onClick={() => toast('Duplicar ainda não disponível')}
-                    />
-                    <IconButton
-                      icon="trash"
-                      label="Remover"
-                      tone="danger"
-                      onClick={() => toast('Remover ainda não disponível: esta lista ainda não grava')}
-                    />
-                  </RowActions>
-                </Td>
-              </Tr>
-            ))}
-          </tbody>
-        </Table>
-
-        <TableFooter>Total: {cargos.length}</TableFooter>
-      </Card>
-    </>
-  )
+  return <ListaCargos itens={itens} />
 }

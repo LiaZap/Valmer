@@ -66,6 +66,12 @@ export const assessments = pgTable(
   },
   (t) => [
     uniqueIndex("uq_assessments_token").on(t.token),
+    // NAO e redundante com a PK. E o alvo da FK COMPOSTA de devolutivas
+    // (assessment_id, facilitador_id): com ela, o banco RECUSA uma devolutiva
+    // de um parceiro sobre o assessment de outro. Escopo na chave, e nao so no
+    // WHERE — WHERE alguem esquece de escrever, chave nao. E o mesmo papel que
+    // `uq_turmas_id_facilitador` cumpre para os assessments.
+    uniqueIndex("uq_assessments_id_facilitador").on(t.id, t.facilitador_id),
     index("idx_assessments_facilitador").on(t.facilitador_id),
     index("idx_assessments_ativos").on(t.is_deleted),
   ],

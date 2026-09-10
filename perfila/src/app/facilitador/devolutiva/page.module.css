@@ -8,3 +8,16 @@
   font-size: var(--fs-12);
   color: var(--color-text-subtle);
 }
+
+/* Abertura da sessão: seletor do mapa concluído e o botão, lado a lado. */
+.abertura {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-12);
+}
+
+.aberturaCampo {
+  flex: 1 1 320px;
+  min-width: 0;
+}

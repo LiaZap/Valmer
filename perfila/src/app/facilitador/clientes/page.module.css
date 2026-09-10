@@ -1,0 +1,21 @@
+/* Corpo do painel de cadastro/detalhe, acima da tabela. */
+.corpo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  padding: var(--space-20);
+}
+
+/* Dois campos lado a lado; empilham quando não cabem. */
+.dupla {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-16);
+}
+
+/* Pilha dos pares rótulo/valor do detalhe. */
+.dados {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}

@@ -8,3 +8,6 @@ export * from "./creditos";
 export * from "./auditoria";
 export * from "./cursos";
 export * from "./turmas";
+export * from "./clientes";
+export * from "./cargos";
+export * from "./devolutivas";

@@ -1,119 +1,72 @@
-'use client'
-
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
-import { Field, Input } from '@/components/ui/Field'
-import { IconButton } from '@/components/ui/IconButton'
-import { PageHeader } from '@/components/ui/PageHeader'
-import { Pill } from '@/components/ui/Pill'
-import { Select } from '@/components/ui/Select'
-import { FilterBar, RowActions, Table, Td, Th, Tr, tableStyles } from '@/components/ui/Table'
-import { useToast } from '@/components/ui/Toast'
-import { TIPO_RELATORIO, devolutivas } from '@/data/devolutivas'
-import { opcoes } from '@/data/opcoes'
-import styles from './page.module.css'
+import { listar as listarMapas } from '@/lib/actions/assessments'
+import { listar } from '@/lib/actions/devolutivas'
+import { ListaDevolutivas, type ItemDevolutiva, type MapaConcluido } from './ListaDevolutivas'
 
 /**
- * As devolutivas são lista fixa de `@/data`, sem tabela no banco: a busca não
- * filtra e nenhuma ação de linha existe ainda. Os avisos dizem isso.
+ * Devolutivas do parceiro, agora vindas do banco.
+ *
+ * Server Component: as consultas acontecem aqui, cada uma com sessão e recorte
+ * do dono dentro da própria action, e a interatividade (abrir, finalizar) fica
+ * no componente cliente ao lado. Mesmo desenho da lista de turmas.
+ *
+ * As datas são formatadas aqui, e não no cliente: o servidor roda em UTC e o
+ * navegador no fuso de quem abre a tela, então formatar dos dois lados faria a
+ * mesma linha aparecer com horas diferentes antes e depois da hidratação.
  */
-export default function DevolutivaPage() {
-  const { toast } = useToast()
+const DATA_HORA_BR = new Intl.DateTimeFormat('pt-BR', {
+  timeZone: 'America/Sao_Paulo',
+  dateStyle: 'short',
+  timeStyle: 'short',
+})
 
-  return (
-    <>
-      <PageHeader
-        title="Devolutiva"
-        subtitle="Sessões de feedback com os respondentes dos seus passaportes."
-      />
+/** hh:mm:ss. Vazio enquanto ninguém parou o relógio, que é o normal da pausada. */
+function formatarDuracao(segundos: number | null): string {
+  if (segundos === null) return ''
+  const partes = [Math.floor(segundos / 3600), Math.floor(segundos / 60) % 60, segundos % 60]
+  return partes.map((parte) => String(parte).padStart(2, '0')).join(':')
+}
 
-      <Card padding="none" scrollX>
-        <FilterBar>
-          <Field label="Nome" className={tableStyles.filterGrow}>
-            {(id) => <Input id={id} placeholder="Nome" />}
-          </Field>
-          <Field label="E-mail" className={tableStyles.filterGrow}>
-            {(id) => <Input id={id} type="email" placeholder="E-mail" />}
-          </Field>
-          <Field label="Status" className={tableStyles.filterMd}>
-            {(id) => <Select id={id} options={opcoes.status} label="Status" />}
-          </Field>
-          <Field label="Data inicial" className={tableStyles.filterDate}>
-            {(id) => <Input id={id} placeholder="dd/mm/aaaa" inputMode="numeric" />}
-          </Field>
-          <Field label="Data final" className={tableStyles.filterDate}>
-            {(id) => <Input id={id} placeholder="dd/mm/aaaa" inputMode="numeric" />}
-          </Field>
-          <Button
-            variant="dark"
-            size="lg"
-            onClick={() => toast('Busca de devolutivas ainda não disponível')}
-          >
-            Pesquisar
-          </Button>
-        </FilterBar>
+export default async function DevolutivaPage() {
+  // Os mapas são lidos junto porque a tela precisa deles de qualquer jeito: é
+  // deles que sai o seletor de abertura. O e-mail e o nível do relatório saem
+  // daí também — `devolutivas.listar` devolve só o nome do avaliado, e uma
+  // terceira consulta para buscar o que já está em memória não se paga.
+  const [devolutivas, mapas] = await Promise.all([listar(), listarMapas()])
+  const porMapa = new Map(mapas.map((mapa) => [mapa.id, mapa]))
 
-        <Table>
-          <thead>
-            <tr>
-              <Th>Respondente</Th>
-              <Th>Passaporte</Th>
-              <Th>Status</Th>
-              <Th>Criado em</Th>
-              <Th align="right">Ações</Th>
-            </tr>
-          </thead>
-          <tbody>
-            {devolutivas.map((devolutiva) => {
-              const finalizada = devolutiva.status === 'Finalizada'
-              return (
-                <Tr key={devolutiva.id}>
-                  <Td>
-                    <div className={tableStyles.primary}>{devolutiva.name}</div>
-                    <div className={tableStyles.secondary}>{devolutiva.email}</div>
-                  </Td>
-                  <Td>
-                    <div className={styles.passaporte}>{devolutiva.campanha}</div>
-                    <div className={tableStyles.secondary}>{TIPO_RELATORIO}</div>
-                  </Td>
-                  <Td>
-                    <Pill tone={finalizada ? 'success' : 'warning'} dot>
-                      {devolutiva.status}
-                    </Pill>
-                    {devolutiva.tempo ? (
-                      <div className={styles.tempo}>Tempo: {devolutiva.tempo}</div>
-                    ) : null}
-                  </Td>
-                  <Td muted>{devolutiva.date}</Td>
-                  <Td align="right">
-                    <RowActions>
-                      <IconButton
-                        icon="eye"
-                        label="Visualizar"
-                        onClick={() => toast('Visualização da devolutiva ainda não disponível')}
-                      />
-                      {finalizada ? (
-                        <>
-                          <IconButton
-                            icon="download"
-                            label="Baixar PDF"
-                            onClick={() => toast('Download do PDF ainda não disponível')}
-                          />
-                          <IconButton
-                            icon="mail"
-                            label="Enviar por e-mail"
-                            onClick={() => toast('Envio por e-mail ainda não disponível')}
-                          />
-                        </>
-                      ) : null}
-                    </RowActions>
-                  </Td>
-                </Tr>
-              )
-            })}
-          </tbody>
-        </Table>
-      </Card>
-    </>
-  )
+  const itens: ItemDevolutiva[] = devolutivas.map((devolutiva) => {
+    const mapa = porMapa.get(devolutiva.assessment_id)
+    return {
+      id: devolutiva.id,
+      nome: devolutiva.avaliado_nome,
+      // O mapa pode ter sido excluído (lógico) depois da sessão aberta: a lista
+      // de mapas não traz os excluídos e a devolutiva continua viva.
+      email: mapa?.avaliado_email ?? '—',
+      tipo: mapa?.tipo_relatorio ?? null,
+      // Não há coluna de situação: `finalizada_em` preenchida é o estado, e o
+      // rótulo vem derivado do SQL da action.
+      finalizada: devolutiva.situacao === 'Finalizada',
+      tempo: formatarDuracao(devolutiva.duracao_segundos),
+      criadaEm: DATA_HORA_BR.format(devolutiva.created_at),
+      abertaEm: devolutiva.created_at.getTime(),
+      atualizadaEm: devolutiva.updated_at,
+    }
+  })
+
+  // Uma devolutiva por mapa: o mapa que já tem sessão sai do seletor. Não é
+  // garantia — o banco não impede a segunda linha —, é a tela não oferecer o
+  // duplicado óbvio. Quem recusa de verdade é a action, que confere o dono.
+  const jaTemSessao = new Set(devolutivas.map((devolutiva) => devolutiva.assessment_id))
+  const concluidos: MapaConcluido[] = mapas
+    .filter((mapa) => mapa.situacao === 'concluido' && !jaTemSessao.has(mapa.id))
+    .map((mapa) => ({
+      id: mapa.id,
+      // A data entra no rótulo para desempatar: o Select devolve o TEXTO
+      // escolhido, e o mesmo avaliado pode ter dois mapas do mesmo nível.
+      rotulo: `${mapa.avaliado_nome} · ${mapa.tipo_relatorio} · ${DATA_HORA_BR.format(
+        mapa.concluido_em ?? mapa.created_at,
+      )}`,
+    }))
+
+  return <ListaDevolutivas itens={itens} concluidos={concluidos} />
 }
