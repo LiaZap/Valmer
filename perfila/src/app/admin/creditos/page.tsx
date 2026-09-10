@@ -51,7 +51,7 @@ export default async function CreditosAdminPage() {
           <BotaoAviso
             variant="primary"
             icon={<Icon name="plus" />}
-            aviso="Abrindo venda de créditos"
+            aviso="Venda de créditos ainda não disponível"
           >
             Vender créditos
           </BotaoAviso>
@@ -65,7 +65,7 @@ export default async function CreditosAdminPage() {
             <div className={styles.creditos}>{pacote.creditos}</div>
             <div className={styles.preco}>{moeda(pacote.preco)}</div>
             <div className={ui.note}>{moeda(custoPorCredito(pacote))} por crédito</div>
-            <BotaoAviso className={styles.acao} aviso={`Vendendo pacote ${pacote.nome}`}>
+            <BotaoAviso className={styles.acao} aviso={`Venda do pacote ${pacote.nome} ainda não disponível`}>
               Vender
             </BotaoAviso>
           </Card>
@@ -75,7 +75,7 @@ export default async function CreditosAdminPage() {
       <Card padding="none" clip scrollX>
         <div className={ui.sectionHead} style={{ padding: 'var(--space-16) var(--space-20)' }}>
           <div className={ui.cardTitle}>Extrato de créditos</div>
-          <BotaoAviso variant="link" aviso="Exportação iniciada">
+          <BotaoAviso variant="link" aviso="Exportação do extrato ainda não disponível">
             Exportar
           </BotaoAviso>
         </div>

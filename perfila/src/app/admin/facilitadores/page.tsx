@@ -31,7 +31,7 @@ export default async function FacilitadoresPage() {
         subtitle="Parceiros e empresas que compram créditos e aplicam mapas comportamentais."
         actions={
           <>
-            <BotaoAviso icon={<Icon name="download" />} aviso="Exportação iniciada">
+            <BotaoAviso icon={<Icon name="download" />} aviso="Exportação de facilitadores ainda não disponível">
               Exportar
             </BotaoAviso>
             <Button href="/admin/facilitadores/novo" variant="primary" icon={<Icon name="plus" />}>

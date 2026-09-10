@@ -31,7 +31,7 @@ export default function MentoresPage() {
                 block
                 className={styles.agendar}
                 iconRight={<Icon name="chevR" />}
-                onClick={() => toast('Abrindo…')}
+                onClick={() => toast('Agendamento de mentoria ainda não disponível')}
               >
                 Agendar mentoria
               </Button>

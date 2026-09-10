@@ -50,7 +50,7 @@ export default function DegustacaoPage() {
           <Button
             variant="primary"
             className={styles.salvar}
-            onClick={() => toast('Configuração salva')}
+            onClick={() => toast('Configuração ainda não é salva: esta tela ainda não grava')}
           >
             Salvar
           </Button>

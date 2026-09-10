@@ -13,6 +13,10 @@ import { TIPO_RELATORIO, devolutivas } from '@/data/devolutivas'
 import { opcoes } from '@/data/opcoes'
 import styles from './page.module.css'
 
+/**
+ * As devolutivas são lista fixa de `@/data`, sem tabela no banco: a busca não
+ * filtra e nenhuma ação de linha existe ainda. Os avisos dizem isso.
+ */
 export default function DevolutivaPage() {
   const { toast } = useToast()
 
@@ -40,7 +44,11 @@ export default function DevolutivaPage() {
           <Field label="Data final" className={tableStyles.filterDate}>
             {(id) => <Input id={id} placeholder="dd/mm/aaaa" inputMode="numeric" />}
           </Field>
-          <Button variant="dark" size="lg" onClick={() => toast('Filtro aplicado')}>
+          <Button
+            variant="dark"
+            size="lg"
+            onClick={() => toast('Busca de devolutivas ainda não disponível')}
+          >
             Pesquisar
           </Button>
         </FilterBar>
@@ -82,19 +90,19 @@ export default function DevolutivaPage() {
                       <IconButton
                         icon="eye"
                         label="Visualizar"
-                        onClick={() => toast('Abrindo visualização')}
+                        onClick={() => toast('Visualização da devolutiva ainda não disponível')}
                       />
                       {finalizada ? (
                         <>
                           <IconButton
                             icon="download"
                             label="Baixar PDF"
-                            onClick={() => toast('Download do PDF iniciado')}
+                            onClick={() => toast('Download do PDF ainda não disponível')}
                           />
                           <IconButton
                             icon="mail"
                             label="Enviar por e-mail"
-                            onClick={() => toast('E-mail enviado')}
+                            onClick={() => toast('Envio por e-mail ainda não disponível')}
                           />
                         </>
                       ) : null}

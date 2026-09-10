@@ -100,7 +100,7 @@ export default async function CreditosPage() {
           <BotaoAviso
             variant="primary"
             className={styles.recargaBotao}
-            aviso="Redirecionando para compra"
+            aviso="Compra de créditos ainda não disponível"
           >
             Comprar créditos
           </BotaoAviso>

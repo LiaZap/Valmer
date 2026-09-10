@@ -12,6 +12,10 @@ import { useToast } from '@/components/ui/Toast'
 import { dnas } from '@/data/dna'
 import styles from './page.module.css'
 
+/**
+ * Os DNAs são lista fixa de `@/data`, sem tabela no banco. Abrir o detalhe é a
+ * única ação que existe de verdade; as outras avisam o que ainda falta.
+ */
 export default function DnaPage() {
   const { toast } = useToast()
 
@@ -38,10 +42,18 @@ export default function DnaPage() {
           <Field label="Data final" className={tableStyles.filterDate}>
             {(id) => <Input id={id} placeholder="dd/mm/aaaa" inputMode="numeric" />}
           </Field>
-          <Button variant="dark" size="lg" onClick={() => toast('Filtro aplicado')}>
+          <Button
+            variant="dark"
+            size="lg"
+            onClick={() => toast('Busca de DNA ainda não disponível')}
+          >
             Pesquisar
           </Button>
-          <Button variant="ghost" size="lg" onClick={() => toast('Filtros limpos')}>
+          <Button
+            variant="ghost"
+            size="lg"
+            onClick={() => toast('Limpar filtros ainda não disponível')}
+          >
             Limpar
           </Button>
         </FilterBar>
@@ -79,28 +91,30 @@ export default function DnaPage() {
                     <IconButton
                       icon="edit"
                       label="Editar"
-                      onClick={() => toast('Abrindo edição')}
+                      onClick={() => toast('Edição do DNA ainda não disponível')}
                     />
                     <IconButton
                       icon="file"
                       label="Ver relatório"
-                      onClick={() => toast('Gerando relatório')}
+                      onClick={() => toast('Relatório do DNA ainda não disponível')}
                     />
                     <IconButton
                       icon="chart"
                       label="Gráficos"
-                      onClick={() => toast('Abrindo gráficos')}
+                      onClick={() => toast('Gráficos do DNA ainda não disponíveis')}
                     />
                     <IconButton
                       icon="download"
                       label="Baixar PDF"
-                      onClick={() => toast('Download do PDF iniciado')}
+                      onClick={() => toast('Download do PDF ainda não disponível')}
                     />
                     <IconButton
                       icon="trash"
                       label="Remover"
                       tone="danger"
-                      onClick={() => toast('Item removido')}
+                      onClick={() =>
+                        toast('Remover ainda não disponível: esta lista ainda não grava')
+                      }
                     />
                   </RowActions>
                 </Td>

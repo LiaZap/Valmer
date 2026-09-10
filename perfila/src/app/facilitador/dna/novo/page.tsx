@@ -17,9 +17,11 @@ export default function NovoDnaPage() {
   const { toast } = useToast()
   const router = useRouter()
 
+  // A volta para a lista continua: o cliente já conhece esse caminho. O que
+  // muda é o aviso, que não promete mais uma gravação que não existe.
   function salvar() {
     router.push('/facilitador/dna')
-    toast('DNA salvo')
+    toast('DNA ainda não é salvo: esta tela ainda não grava')
   }
 
   return (
@@ -44,7 +46,11 @@ export default function NovoDnaPage() {
             <CardHeader
               title="Turmas"
               actions={
-                <Button size="sm" icon={<Icon name="plus" />} onClick={() => toast('Adicionado')}>
+                <Button
+                  size="sm"
+                  icon={<Icon name="plus" />}
+                  onClick={() => toast('Vincular turma ainda não disponível')}
+                >
                   Adicionar turma
                 </Button>
               }
@@ -61,9 +67,13 @@ export default function NovoDnaPage() {
                     icon="refresh"
                     label="Atualizar"
                     variant="outline"
-                    onClick={() => toast('Atualizado')}
+                    onClick={() => toast('Atualizar inventário ainda não disponível')}
                   />
-                  <Button size="sm" icon={<Icon name="plus" />} onClick={() => toast('Adicionado')}>
+                  <Button
+                    size="sm"
+                    icon={<Icon name="plus" />}
+                    onClick={() => toast('Adicionar inventário ainda não disponível')}
+                  >
                     Adicionar inventário
                   </Button>
                 </>

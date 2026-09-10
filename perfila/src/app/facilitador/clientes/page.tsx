@@ -12,6 +12,10 @@ import { useToast } from '@/components/ui/Toast'
 import { clientes, totalClientes } from '@/data/clientes'
 import ui from '@/styles/common.module.css'
 
+/**
+ * Os clientes são lista fixa de `@/data`, sem tabela no banco: nada aqui
+ * cadastra, importa, envia ou remove. Os avisos nomeiam o que ainda falta.
+ */
 export default function ClientesPage() {
   const { toast } = useToast()
 
@@ -24,17 +28,20 @@ export default function ClientesPage() {
           <>
             <Button
               icon={<Icon name="upload" />}
-              onClick={() => toast('Selecione um arquivo .csv ou .xlsx')}
+              onClick={() => toast('Importação de clientes ainda não disponível')}
             >
               Importar
             </Button>
-            <Button icon={<Icon name="download" />} onClick={() => toast('Exportação iniciada')}>
+            <Button
+              icon={<Icon name="download" />}
+              onClick={() => toast('Exportação ainda não disponível')}
+            >
               Exportar
             </Button>
             <Button
               variant="primary"
               icon={<Icon name="plus" />}
-              onClick={() => toast('Adicionado')}
+              onClick={() => toast('Cadastro de cliente ainda não disponível')}
             >
               Adicionar cliente
             </Button>
@@ -59,7 +66,11 @@ export default function ClientesPage() {
           <Field label="Último login" className={tableStyles.filterDate}>
             {(id) => <Input id={id} placeholder="dd/mm/aaaa" inputMode="numeric" />}
           </Field>
-          <Button variant="dark" size="lg" onClick={() => toast('Filtro aplicado')}>
+          <Button
+            variant="dark"
+            size="lg"
+            onClick={() => toast('Busca de clientes ainda não disponível')}
+          >
             Pesquisar
           </Button>
         </FilterBar>
@@ -96,18 +107,20 @@ export default function ClientesPage() {
                     <IconButton
                       icon="eye"
                       label="Detalhes"
-                      onClick={() => toast('Abrindo visualização')}
+                      onClick={() => toast('Detalhes do cliente ainda não disponíveis')}
                     />
                     <IconButton
                       icon="mail"
                       label="Enviar e-mail"
-                      onClick={() => toast('E-mail enviado')}
+                      onClick={() => toast('Envio de e-mail ainda não disponível')}
                     />
                     <IconButton
                       icon="trash"
                       label="Remover"
                       tone="danger"
-                      onClick={() => toast('Item removido')}
+                      onClick={() =>
+                        toast('Remover ainda não disponível: esta lista ainda não grava')
+                      }
                     />
                   </RowActions>
                 </Td>

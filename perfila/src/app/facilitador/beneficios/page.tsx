@@ -44,7 +44,10 @@ export default async function BeneficiosPage() {
         title="Trilha do Parceiro"
         subtitle="Cada nível da trilha abre uma vantagem nova. Você sobe comprando ou aplicando créditos."
         actions={
-          <BotaoAviso icon={<Icon name="chat" />} aviso="Abrindo WhatsApp">
+          <BotaoAviso
+            icon={<Icon name="chat" />}
+            aviso="Contato pelo WhatsApp ainda não disponível"
+          >
             Falar com o consultor
           </BotaoAviso>
         }

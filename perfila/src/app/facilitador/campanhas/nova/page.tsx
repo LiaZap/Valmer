@@ -17,9 +17,11 @@ export default function NovaCampanhaPage() {
   const router = useRouter()
   const [permiteDownload, setPermiteDownload] = useState(false)
 
+  // A volta para a lista continua: o cliente já conhece esse caminho. O que
+  // muda é o aviso, que não promete mais uma gravação que não existe.
   function salvar() {
     router.push('/facilitador/campanhas')
-    toast('Turma salva')
+    toast('Turma ainda não é salva: esta tela ainda não grava')
   }
 
   return (

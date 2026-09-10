@@ -32,7 +32,11 @@ export default function IntegracoesPage() {
             </div>
             <div className={styles.nome}>{integracao.name}</div>
             <p className={styles.descricao}>{integracao.desc}</p>
-            <Button variant="dark" block onClick={() => toast('Iniciando integração')}>
+            <Button
+              variant="dark"
+              block
+              onClick={() => toast(`Integração com ${integracao.name} ainda não disponível`)}
+            >
               Integrar
             </Button>
           </Card>

@@ -22,7 +22,7 @@ export default function PrecosPage() {
           <Button
             variant="primary"
             icon={<Icon name="edit" />}
-            onClick={() => toast('Abrindo edição de preços')}
+            onClick={() => toast('Edição de preços ainda não disponível: os valores ainda não ficam no banco')}
           >
             Editar tabela
           </Button>

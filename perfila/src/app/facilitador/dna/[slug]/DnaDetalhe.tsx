@@ -41,13 +41,16 @@ export function DnaDetalhe({ dna }: { dna: Dna }) {
         subtitle={`${dna.inventarios ?? 0} inventários · criado em ${dna.date.split(' ')[0]} por ${dna.by}`}
         actions={
           <>
-            <Button icon={<Icon name="file" />} onClick={() => toast('Gerando relatório')}>
+            <Button
+              icon={<Icon name="file" />}
+              onClick={() => toast('Relatório do DNA ainda não disponível')}
+            >
               Visualizar relatório
             </Button>
             <Button
               variant="primary"
               icon={<Icon name="download" />}
-              onClick={() => toast('Download do PDF iniciado')}
+              onClick={() => toast('Download do PDF ainda não disponível')}
             >
               Baixar PDF
             </Button>
@@ -79,7 +82,11 @@ export function DnaDetalhe({ dna }: { dna: Dna }) {
           <Field label="Data final" className={tableStyles.filterDate}>
             {(id) => <Input id={id} placeholder="dd/mm/aaaa" inputMode="numeric" />}
           </Field>
-          <Button variant="dark" size="lg" onClick={() => toast('Filtro aplicado')}>
+          <Button
+            variant="dark"
+            size="lg"
+            onClick={() => toast('Busca de respondentes ainda não disponível')}
+          >
             Pesquisar
           </Button>
         </FilterBar>

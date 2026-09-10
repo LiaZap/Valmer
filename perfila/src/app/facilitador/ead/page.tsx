@@ -26,7 +26,7 @@ export default function EadPage() {
               type="button"
               className={styles.play}
               aria-label="Reproduzir aula"
-              onClick={() => toast('Abrindo…')}
+              onClick={() => toast('Reprodução da aula ainda não disponível')}
             >
               <Icon name="play" size={32} />
             </button>
@@ -50,7 +50,7 @@ export default function EadPage() {
               key={aula.title}
               type="button"
               className={styles.aula}
-              onClick={() => toast('Abrindo…')}
+              onClick={() => toast('Reprodução da aula ainda não disponível')}
             >
               <span
                 className={[styles.marcador, aula.concluida ? styles.marcadorConcluido : null]

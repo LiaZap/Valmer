@@ -30,13 +30,13 @@ export default function QuestoesPage() {
         subtitle={`${questoes.length} questões situacionais em ${blocosAssessment.length} blocos. Cada opção pontua um fator.`}
         actions={
           <>
-            <Button icon={<Icon name="download" />} onClick={() => toast('Exportação iniciada')}>
+            <Button icon={<Icon name="download" />} onClick={() => toast('Exportação de questões ainda não disponível')}>
               Exportar
             </Button>
             <Button
               variant="primary"
               icon={<Icon name="plus" />}
-              onClick={() => toast('Abrindo nova questão')}
+              onClick={() => toast('Nova questão ainda não disponível: o banco de questões vem do código')}
             >
               Nova questão
             </Button>
@@ -80,7 +80,7 @@ export default function QuestoesPage() {
                     <IconButton
                       icon="edit"
                       label={`Editar ${questao.codigo}`}
-                      onClick={() => toast(`Abrindo edição de ${questao.codigo}`)}
+                      onClick={() => toast('Edição de questões ainda não disponível: o banco vem do código')}
                     />
                   </div>
 

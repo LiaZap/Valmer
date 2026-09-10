@@ -87,12 +87,16 @@ export default function EnvioRapidoPage() {
             </div>
 
             <div className={styles.acoes}>
-              <Button variant="primary" icon={<Icon name="plus" />} onClick={() => toast('Adicionado')}>
+              <Button
+                variant="primary"
+                icon={<Icon name="plus" />}
+                onClick={() => toast('Adicionar destinatário ainda não disponível')}
+              >
                 Adicionar
               </Button>
               <Button
                 icon={<Icon name="upload" />}
-                onClick={() => toast('Selecione um arquivo .csv ou .xlsx')}
+                onClick={() => toast('Importação de planilha ainda não disponível')}
               >
                 Importar planilha
               </Button>

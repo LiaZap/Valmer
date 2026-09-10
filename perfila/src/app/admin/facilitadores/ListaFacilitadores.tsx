@@ -140,21 +140,27 @@ export function ListaFacilitadores({
                   </Pill>
                 </Td>
                 <Td dense align="right">
+                  {/* A lista é real — vem da tabela `usuarios` —, mas nenhuma
+                      destas quatro ações existe no servidor: o projeto não grava
+                      usuário nem envia e-mail. Por isso o aviso diz o que falta
+                      em vez de anunciar um efeito que ninguém executa. */}
                   <RowActions>
                     <IconButton
                       icon="card"
                       label={`Vender créditos para ${facilitador.nome}`}
-                      onClick={() => toast('Abrindo venda de créditos')}
+                      onClick={() => toast('Venda de créditos ainda não disponível')}
                     />
                     <IconButton
                       icon="mail"
                       label={`Reenviar acesso para ${facilitador.nome}`}
-                      onClick={() => toast('Acesso reenviado por e-mail')}
+                      onClick={() =>
+                        toast('Reenvio de acesso ainda não disponível: a plataforma ainda não envia e-mail')
+                      }
                     />
                     <IconButton
                       icon="edit"
                       label={`Editar ${facilitador.nome}`}
-                      onClick={() => toast('Abrindo edição')}
+                      onClick={() => toast('Edição de facilitador ainda não disponível')}
                     />
                     <IconButton
                       icon={facilitador.ativo ? 'trash' : 'check'}
@@ -165,7 +171,11 @@ export function ListaFacilitadores({
                       }
                       tone={facilitador.ativo ? 'danger' : 'default'}
                       onClick={() =>
-                        toast(facilitador.ativo ? 'Facilitador desativado' : 'Facilitador ativado')
+                        toast(
+                          facilitador.ativo
+                            ? 'Desativar ainda não disponível'
+                            : 'Ativar ainda não disponível',
+                        )
                       }
                     />
                   </RowActions>

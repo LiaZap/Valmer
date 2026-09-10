@@ -144,10 +144,15 @@ export function TabelaAssessments({
                       label={`Copiar link de ${assessment.avaliadoNome}`}
                       onClick={() => copiarLink(assessment)}
                     />
+                    {/* Não existe envio de e-mail no projeto, então o aviso
+                        aponta para a ação ao lado, que funciona de verdade:
+                        copiar o link e mandar por onde já se manda hoje. */}
                     <IconButton
                       icon="mail"
                       label={`Reenviar convite para ${assessment.avaliadoNome}`}
-                      onClick={() => toast('Convite reenviado')}
+                      onClick={() =>
+                        toast('Reenvio por e-mail ainda não disponível: copie o link ao lado')
+                      }
                     />
                   </>
                 )}

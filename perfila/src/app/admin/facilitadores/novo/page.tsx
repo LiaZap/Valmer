@@ -19,7 +19,7 @@ export default function NovoFacilitadorPage() {
 
   function salvar() {
     router.push('/admin/facilitadores')
-    toast('Facilitador criado. Acesso enviado por e-mail.')
+    toast('Cadastro de facilitador ainda não disponível: nada foi salvo')
   }
 
   return (

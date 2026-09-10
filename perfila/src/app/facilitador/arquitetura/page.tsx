@@ -19,6 +19,11 @@ import {
 import { useToast } from '@/components/ui/Toast'
 import { cargos } from '@/data/cargos'
 
+/**
+ * Nenhuma ação desta tela grava: `cargos` é lista fixa de `@/data`, sem tabela
+ * no banco. Por isso cada aviso nomeia o que ainda falta, em vez de confirmar
+ * um efeito que não acontece.
+ */
 export default function ArquiteturaPage() {
   const { toast } = useToast()
 
@@ -28,7 +33,11 @@ export default function ArquiteturaPage() {
         title="Arquitetura de Cargos"
         subtitle="Defina o perfil comportamental ideal para cada cargo e compare com candidatos."
         actions={
-          <Button variant="primary" icon={<Icon name="plus" />} onClick={() => toast('Adicionado')}>
+          <Button
+            variant="primary"
+            icon={<Icon name="plus" />}
+            onClick={() => toast('Cadastro de cargo ainda não disponível')}
+          >
             Adicionar cargo
           </Button>
         }
@@ -45,7 +54,11 @@ export default function ArquiteturaPage() {
           <Field label="Data final" className={tableStyles.filterDate}>
             {(id) => <Input id={id} placeholder="dd/mm/aaaa" inputMode="numeric" />}
           </Field>
-          <Button variant="dark" size="lg" onClick={() => toast('Filtro aplicado')}>
+          <Button
+            variant="dark"
+            size="lg"
+            onClick={() => toast('Busca por cargo ainda não disponível')}
+          >
             Pesquisar
           </Button>
         </FilterBar>
@@ -72,19 +85,23 @@ export default function ArquiteturaPage() {
                     <IconButton
                       icon="download"
                       label="Baixar"
-                      onClick={() => toast('Download do PDF iniciado')}
+                      onClick={() => toast('Download do PDF ainda não disponível')}
                     />
                     <IconButton
                       icon="edit"
                       label="Alterar"
-                      onClick={() => toast('Abrindo edição')}
+                      onClick={() => toast('Edição de cargo ainda não disponível')}
                     />
-                    <IconButton icon="copy" label="Duplicar" onClick={() => toast('Duplicado')} />
+                    <IconButton
+                      icon="copy"
+                      label="Duplicar"
+                      onClick={() => toast('Duplicar ainda não disponível')}
+                    />
                     <IconButton
                       icon="trash"
                       label="Remover"
                       tone="danger"
-                      onClick={() => toast('Item removido')}
+                      onClick={() => toast('Remover ainda não disponível: esta lista ainda não grava')}
                     />
                   </RowActions>
                 </Td>

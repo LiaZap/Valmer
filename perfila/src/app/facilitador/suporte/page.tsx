@@ -29,7 +29,10 @@ export default function SuportePage() {
             </Field>
           </div>
           <CardFooter>
-            <Button variant="primary" onClick={() => toast('Mensagem enviada ao suporte')}>
+            <Button
+              variant="primary"
+              onClick={() => toast('Envio ainda não disponível: use os contatos desta tela')}
+            >
               Enviar mensagem
             </Button>
           </CardFooter>

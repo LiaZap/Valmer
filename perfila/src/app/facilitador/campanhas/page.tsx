@@ -24,6 +24,11 @@ import { campanhas, campanhasResumo } from '@/data/campanhas'
 import { opcoes } from '@/data/opcoes'
 import styles from './page.module.css'
 
+/**
+ * As turmas são lista fixa de `@/data`, sem tabela no banco: nada aqui grava,
+ * exporta ou gera link. Os avisos nomeiam o que falta, em vez de confirmar um
+ * efeito que não acontece.
+ */
 export default function CampanhasPage() {
   const { toast } = useToast()
 
@@ -34,16 +39,22 @@ export default function CampanhasPage() {
         subtitle={`${campanhasResumo.quantidade} turmas · ${campanhasResumo.passaportes} passaportes enviados`}
         actions={
           <>
-            <Button icon={<Icon name="download" />} onClick={() => toast('Exportação iniciada')}>
+            <Button
+              icon={<Icon name="download" />}
+              onClick={() => toast('Exportação ainda não disponível')}
+            >
               Exportar
             </Button>
-            <Button icon={<Icon name="link" />} onClick={() => toast('Abrindo meus links')}>
+            <Button
+              icon={<Icon name="link" />}
+              onClick={() => toast('Meus links ainda não disponíveis')}
+            >
               Meus links
             </Button>
             <Button
               variant="danger"
               icon={<Icon name="trash" />}
-              onClick={() => toast('Passaportes pendentes removidos')}
+              onClick={() => toast('Remover pendentes ainda não disponível')}
             >
               Remover pendentes
             </Button>
@@ -73,10 +84,18 @@ export default function CampanhasPage() {
           <Field label="Data final" className={tableStyles.filterDate}>
             {(id) => <Input id={id} placeholder="dd/mm/aaaa" inputMode="numeric" />}
           </Field>
-          <Button variant="dark" size="lg" onClick={() => toast('Filtro aplicado')}>
+          <Button
+            variant="dark"
+            size="lg"
+            onClick={() => toast('Busca de turmas ainda não disponível')}
+          >
             Pesquisar
           </Button>
-          <Button variant="ghost" size="lg" onClick={() => toast('Filtros limpos')}>
+          <Button
+            variant="ghost"
+            size="lg"
+            onClick={() => toast('Limpar filtros ainda não disponível')}
+          >
             Limpar
           </Button>
         </FilterBar>
@@ -132,17 +151,17 @@ export default function CampanhasPage() {
                       <IconButton
                         icon="eye"
                         label="Visualizar"
-                        onClick={() => toast('Abrindo visualização')}
+                        onClick={() => toast('Visualização da turma ainda não disponível')}
                       />
                       <IconButton
                         icon="link"
                         label="Gerar link"
-                        onClick={() => toast('Link copiado')}
+                        onClick={() => toast('Link da turma ainda não disponível')}
                       />
                       <IconButton
                         icon="download"
                         label="Exportar"
-                        onClick={() => toast('Exportação iniciada')}
+                        onClick={() => toast('Exportação ainda não disponível')}
                       />
                     </RowActions>
                   </Td>

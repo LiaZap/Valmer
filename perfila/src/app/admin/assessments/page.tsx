@@ -27,7 +27,7 @@ export default async function AssessmentsAdminPage() {
         title="Mapas Comportamentais"
         subtitle={`${itens.length} enviados · ${concluidos} concluídos`}
         actions={
-          <BotaoAviso icon={<Icon name="download" />} aviso="Exportação iniciada">
+          <BotaoAviso icon={<Icon name="download" />} aviso="Exportação de mapas ainda não disponível">
             Exportar
           </BotaoAviso>
         }
