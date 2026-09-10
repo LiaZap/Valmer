@@ -1,6 +1,8 @@
-/* Espaço reservado para a foto do mentor. */
+/* Espaço reservado para a foto do mentor. Mesma proporção da foto real
+   (`.retrato`): se as duas divergirem, o card muda de altura no instante em
+   que alguém envia a imagem, e a grade inteira salta. */
 .foto {
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 3 / 4;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -34,10 +36,18 @@
   margin-top: var(--space-8);
 }
 
-/* A foto real ocupa exatamente o espaço do retângulo reservado acima. */
+/* A foto real ocupa exatamente o espaço do retângulo reservado acima.
+   Mais alto que 4/3: foto de pessoa é RETRATO, e num quadro deitado o `cover`
+   corta pelo meio — foi assim que a primeira versão comeu a cabeça do Valmer.
+   3/4 devolve altura ao quadro e o card fica com a proporção da foto. */
 .retrato {
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 3 / 4;
   width: 100%;
   object-fit: cover;
+  /* O corte que sobrar vem de BAIXO, nunca de cima: numa foto de pessoa o
+     rosto está no terço superior, e é a única parte que não pode faltar.
+     `center 15%` ancora um pouco abaixo do topo, para não colar a cabeça na
+     borda em foto com pouco espaço acima. */
+  object-position: center 15%;
   display: block;
 }
