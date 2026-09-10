@@ -319,7 +319,18 @@
   --sidebar-header-height: 56px;
   --topbar-height: 64px;
   --content-padding: 28px;
-  --content-max-width: 1360px;
+  /* 1600 e nao 1360, e nao "sem limite". Em 1920 o desenho fecha quase
+     exato: 1920 menos a sidebar de 248 deixa 1672, e 1600 mais os 2x28 de
+     respiro dao 1656 — a faixa morta de ~310px que sobrava a direita some,
+     porque `.content` alinha ao inicio e nao ao centro, e o vazio caia todo
+     de um lado so.
+
+     O limite continua existindo por causa de monitor ultrawide: sem ele uma
+     tabela de turma esticaria para 2560px e o olho perderia a linha entre a
+     primeira coluna e a ultima. Vale para as telas do shell (admin e portal),
+     que sao painel de cartao e tabela. O relatorio nao passa por aqui: ele
+     tem layout proprio, com a medida de leitura que texto corrido pede. */
+  --content-max-width: 1600px;
   --content-gap: 20px;
 
   /* Quebra padrão do produto: 560px. Abaixo daqui a tela vira uma
