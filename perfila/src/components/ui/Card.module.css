@@ -40,6 +40,21 @@
   overflow: hidden;
 }
 
+/* OS DOIS JUNTOS, e esta regra existe porque eles se anulavam.
+   `.clip` vem depois de `.scrollX` e tem a mesma especificidade, então o
+   `overflow: hidden` ganhava e zerava os dois eixos: `<Card clip scrollX>` não
+   rolava, CORTAVA. Cinco telas usam a dupla, e a pior é a matriz de benefícios,
+   onde três das cinco categorias ficavam inalcançáveis — e as de preços, onde o
+   que sumia era a coluna de ações, o único caminho para editar.
+
+   A seletora dupla tem especificidade maior que qualquer uma das duas sozinhas,
+   então ela vence mesmo que alguém reordene o arquivo. O eixo vertical continua
+   recortado, que é o que o `clip` queria: arredondar o canto. */
+.clip.scrollX {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
 /* ---------- Cabeçalho e rodapé ---------- */
 .header {
   display: flex;
@@ -83,5 +98,37 @@
      o título ficava de fora porque mora no <CardHeader>. */
   .header {
     break-after: avoid;
+  }
+}
+
+/* ---------- Telefone (até 720px) ----------
+   `screen and`, e não a consulta solta: uma folha A4 tem menos de 720px de
+   largura, então `@media screen and (max-width: 720px)` sozinho TAMBÉM vale na impressão —
+   e o relatório que o parceiro entrega ao cliente dele sai daqui, com Card e
+   CardHeader em seis blocos. O desenho de telefone não pode vazar para o papel. */
+@media screen and (max-width: 720px) {
+  /* Dois botões lado a lado no pé do formulário não cabem em 390px: "Cancelar"
+     mais "Criar link do avaliado" passam da largura da tela e o segundo sai pela
+     direita. Empilhados, cada um pega a linha inteira.
+
+     `column`, e NÃO `column-reverse`. A inversão já esteve aqui, com o
+     argumento de pôr a ação em cima; ela troca o que se VÊ sem trocar o que se
+     NAVEGA. Quem usa teclado ou leitor de tela continua recebendo [cancelar,
+     ação] enquanto a tela mostra [ação, cancelar] — é falha de sequência
+     significativa, e por duas linhas de ganho duvidoso: no telefone o polegar
+     descansa na BASE, então a ação embaixo está mais perto, não mais longe.
+
+     A largura vem do `align-items: stretch` que o flex já aplica sozinho em
+     coluna; não há regra para isso. */
+  .footer {
+    flex-direction: column;
+    padding: var(--space-14) var(--space-16);
+  }
+
+  /* Título e ações quebram em duas linhas em vez de o título ser espremido até
+     virar uma coluna de letras para as ações caberem ao lado. */
+  .header {
+    flex-wrap: wrap;
+    padding: var(--space-16);
   }
 }

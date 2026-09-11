@@ -238,11 +238,53 @@
 /* ---------- Telas estreitas ---------- */
 
 /* O relatório também é aberto no celular: duas colunas de nomes
-   longos viram duas colunas de palavras quebradas. */
-@media (max-width: 640px) {
+   longos viram duas colunas de palavras quebradas.
+
+   O `screen and` não é enfeite: a mancha do A4 mede 170mm (210mm menos
+   as margens de 20mm do @page), ou ~643px de largura CSS, e uma regra de
+   `max-width: 640px` passa a raspar na folha impressa. Sem ele o PDF
+   sairia com a lista de cargos em uma coluna só. */
+@media screen and (max-width: 640px) {
   .cargos,
   .orientacoes {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Telefone ----------
+   `screen and` pelo mesmo motivo da regra de 640px acima. */
+@media screen and (max-width: 720px) {
+  .corpo,
+  .painelCorpo {
+    padding: var(--space-16);
+  }
+
+  .painelCabecalho {
+    padding: var(--space-14) var(--space-16);
+  }
+
+  .titulo {
+    font-size: var(--fs-20);
+  }
+
+  /* Mesma razão do @media print logo abaixo: em coluna estreita, 20px de
+     abertura viram uma mancha de poucas palavras por linha. */
+  .abertura {
+    font-size: var(--fs-17);
+  }
+
+  /* Um só corpo de texto no telefone, como nas outras seções. As classes
+     vêm repetidas para vencer `common.prose` sem depender da ordem dos
+     módulos no bundle — mesmo recurso do `.frase.frase` de
+     PlanoFecho.module.css. */
+  .nota.nota,
+  .fecho.fecho,
+  .rodape.rodape,
+  .painelRodape.painelRodape,
+  .cargo,
+  .orientacao,
+  .destinatario {
+    font-size: var(--fs-15);
   }
 }
 

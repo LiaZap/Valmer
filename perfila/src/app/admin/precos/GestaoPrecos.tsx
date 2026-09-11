@@ -202,7 +202,7 @@ export function GestaoPrecos({
                 {editando ? <Th align="right">Ações</Th> : null}
               </tr>
             </thead>
-            <tbody>
+            <tbody role="rowgroup">
               {relatorios.map((tipo) => (
                 <Tr key={tipo.id}>
                   <Td>
@@ -210,11 +210,11 @@ export function GestaoPrecos({
                       {tipo.codigo} · {tipo.nome}
                     </div>
                   </Td>
-                  <Td muted>{tipo.conteudo}</Td>
-                  <Td align="right">
+                  <Td muted rotulo="Conteúdo">{tipo.conteudo}</Td>
+                  <Td align="right" rotulo="Créditos">
                     <Pill tone="success">{tipo.creditos}</Pill>
                   </Td>
-                  <Td align="right" muted>
+                  <Td align="right" muted rotulo="Revenda sugerida">
                     {moeda(tipo.revenda_min)} a {moeda(tipo.revenda_max)}
                   </Td>
                   {editando ? (
@@ -282,18 +282,18 @@ export function GestaoPrecos({
                 {editando ? <Th align="right">Ações</Th> : null}
               </tr>
             </thead>
-            <tbody>
+            <tbody role="rowgroup">
               {pacotes.map((pacote) => (
                 <Tr key={pacote.id}>
                   <Td>
                     <span className={tableStyles.primary}>{pacote.nome}</span>
                   </Td>
-                  <Td align="right">{pacote.creditos}</Td>
-                  <Td align="right">{moeda(pacote.preco)}</Td>
-                  <Td align="right" muted>
+                  <Td align="right" rotulo="Créditos">{pacote.creditos}</Td>
+                  <Td align="right" rotulo="Preço">{moeda(pacote.preco)}</Td>
+                  <Td align="right" muted rotulo="Custo por crédito">
                     {moeda(custoPorCredito(pacote))}
                   </Td>
-                  <Td muted>{pacote.publico}</Td>
+                  <Td muted rotulo="Público-alvo">{pacote.publico}</Td>
                   {editando ? (
                     <Td align="right">
                       <RowActions>

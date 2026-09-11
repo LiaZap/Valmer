@@ -25,7 +25,7 @@
   padding: 0 var(--space-16);
 }
 
-@media (max-width: 560px) {
+@media screen and (max-width: 560px) {
   .campos {
     grid-template-columns: 1fr;
   }
@@ -40,4 +40,13 @@
   font-size: var(--fs-135);
   font-weight: var(--fw-medium);
   color: var(--color-text);
+}
+
+@media screen and (max-width: 720px) {
+  /* O botão que conclui o cartão pega a linha inteira. Alinhado à direita ele
+     fica com a largura do próprio texto, e "Salvar" vira um alvo de 70px
+     encostado na borda — o canto mais difícil de alcançar com o polegar. */
+  .salvar {
+    align-self: stretch;
+  }
 }

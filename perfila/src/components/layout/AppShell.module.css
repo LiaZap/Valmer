@@ -1,6 +1,9 @@
+/* `dvh` e não `vh`: no iOS o `vh` inclui a barra do navegador, então uma tela
+   curta ficava mais alta que o visível e nascia com rolagem de 90px que não
+   levava a lugar nenhum. */
 .shell {
   display: flex;
-  min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
 }
 
@@ -44,9 +47,22 @@
   gap: var(--space-16);
 }
 
-@media (max-width: 560px) {
+/* ---------- Telefone ----------
+   Abaixo de 720px a lateral sai e entra a barra inferior fixa. O respiro para
+   ela mora no `.main`, e NÃO no `.content`: o último elemento da página é o
+   rodapé, e é o fim da página que a barra cobre — espaço só no conteúdo empurra
+   o rodapé para debaixo dela, que é o defeito que se queria evitar. Aqui vale
+   para os dois de uma vez.
+
+   Quem escrever uma barra de ação fixa dentro de uma tela usa o mesmo token
+   como deslocamento: `bottom: var(--barra-inferior-espaco)`. */
+@media screen and (max-width: 720px) {
+  .main {
+    padding-bottom: var(--barra-inferior-espaco);
+  }
+
   .content {
-    padding: var(--space-16) var(--space-16) 48px;
+    padding: var(--space-16) var(--space-16) var(--space-24);
   }
 
   .footer {

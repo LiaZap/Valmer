@@ -296,19 +296,19 @@ export function ListaCargos({ itens }: { itens: ItemCargo[] }) {
                 <Th align="right">Ações</Th>
               </tr>
             </thead>
-            <tbody>
+            <tbody role="rowgroup">
               {itens.map((cargo) => (
                 <Tr key={cargo.id}>
                   <Td>
                     <span className={tableStyles.primary}>{cargo.nome}</span>
                   </Td>
-                  <Td muted>
+                  <Td muted rotulo="Alvo">
                     {cargo.alvo_d === null
                       ? 'Sem alvo'
                       : `D ${cargo.alvo_d} · I ${cargo.alvo_i} · S ${cargo.alvo_s} · C ${cargo.alvo_c}`}
                   </Td>
-                  <Td muted>{cargo.dono}</Td>
-                  <Td muted>{cargo.criadoEm}</Td>
+                  <Td muted rotulo="Criado por">{cargo.dono}</Td>
+                  <Td muted rotulo="Criado em">{cargo.criadoEm}</Td>
                   <Td align="right">
                     <RowActions>
                       <IconButton

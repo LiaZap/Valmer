@@ -98,9 +98,80 @@ a.item:hover {
   color: var(--color-text-subtle);
 }
 
-/* A busca é o segundo item a sair em tela estreita, como antes. */
-@media (max-width: 700px) {
+/* ---------- Telefone ----------
+   A busca NÃO sai. Ela era o segundo item a sumir em tela estreita, e sumindo
+   levava junto o único caminho até um avaliado que não está na lista aberta —
+   no telefone, onde a lista mostra menos linhas, isso é o oposto do que se
+   precisa.
+
+   Então ela colapsa no alvo de 44px do ícone e volta a ser campo inteiro
+   quando recebe o toque. Quem faz isso é o `:focus-within`, e não um estado em
+   JavaScript: o campo é um `<label>`, o toque no ícone dá foco ao input, e o
+   input aberto é o mesmo que já estava lá — sem segundo componente, sem
+   segundo caminho para o mesmo bug. Ao abrir, a trilha ao lado encolhe com
+   reticências, que é o que ela já sabia fazer. */
+@media screen and (max-width: 720px) {
   .caixa {
-    display: none;
+    flex: none;
+    max-width: none;
+  }
+
+  .campo {
+    /* 44px: o mínimo de alvo de toque. Fechado, o ícone É o botão. */
+    width: var(--alvo-toque);
+    height: var(--alvo-toque);
+    justify-content: center;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .input {
+    width: 0;
+    flex: none;
+    padding: 0;
+    /* 16px, e não os 13 do ponteiro: abaixo de 16 o iOS DÁ ZOOM ao focar o
+       campo, e a página não volta mais ao lugar depois. */
+    font-size: var(--fs-16);
+  }
+
+  /* Base 100%: aberto, o campo pede a barra inteira e o que estiver ao lado
+     encolhe. Com base `auto` ele dividia a sobra com o espaçador e abria com
+     uns 90px, que não mostram nem um nome inteiro. */
+  .caixa:focus-within {
+    flex: 1 1 100%;
+  }
+
+  .caixa:focus-within .campo {
+    width: auto;
+    justify-content: flex-start;
+    padding: 0 var(--space-12);
+  }
+
+  .caixa:focus-within .input {
+    width: auto;
+    flex: 1;
+  }
+
+  /* O painel deixa de ser ancorado na CAIXA e passa a ser ancorado na TELA.
+     Alargar mantendo `right: 0` da caixa jogava a borda esquerda para fora do
+     visível: a caixa não fica no canto direito da barra, ela fica antes do
+     avatar, então um painel de `100vw - 32px` alinhado à direita dela começava
+     uns 60px além da margem esquerda da tela — e é justamente ali que o texto
+     de cada resultado começa.
+
+     `fixed`, e não `absolute`, porque a barra é `position: sticky; top: 0`: o
+     painel nasce colado ao topo do visível e continua lá durante a rolagem,
+     que é exatamente onde a barra está. Sem contêiner de transformação no
+     caminho — conferido em Topbar.module.css. */
+  .painel {
+    position: fixed;
+    top: calc(var(--topbar-height) + var(--space-6));
+    left: var(--space-16);
+    right: var(--space-16);
+    width: auto;
+    max-width: none;
+    /* Sem a tela inteira para crescer: o teclado do telefone come metade da
+       altura, e uma lista de 420px ficaria por baixo dele. */
+    max-height: min(420px, 50dvh);
   }
 }

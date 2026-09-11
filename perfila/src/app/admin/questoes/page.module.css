@@ -91,3 +91,14 @@
 .fatorC {
   background: var(--chart-disc-c);
 }
+
+/* ---- CELULAR ----
+   Cada questão tem um alvo só, o lápis no canto — e ele é o botão de 32px das
+   linhas de tabela. Aqui ele não está numa tabela: está sozinho ao lado de um
+   enunciado de duas linhas, e o dedo o erra. */
+@media screen and (max-width: 720px) {
+  .questao button {
+    min-height: var(--alvo-toque);
+    min-width: var(--alvo-toque);
+  }
+}

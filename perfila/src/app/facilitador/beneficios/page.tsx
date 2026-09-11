@@ -3,7 +3,6 @@ import { Card } from '@/components/ui/Card'
 import { Icon } from '@/components/ui/Icon'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { Progress } from '@/components/ui/Progress'
-import { tableStyles } from '@/components/ui/Table'
 import { beneficios, categorias } from '@/data/beneficios'
 import { progressoDoPrograma } from '@/lib/painel'
 import ui from '@/styles/common.module.css'
@@ -112,7 +111,7 @@ export default async function BeneficiosPage() {
 
       {/* Matriz: uma linha por benefício, uma coluna por categoria. */}
       <Card padding="none" clip scrollX>
-        <table className={tableStyles.table}>
+        <table className={styles.matriz}>
           <thead>
             <tr>
               <th scope="col" className={styles.matrizCabecalho}>
@@ -137,7 +136,7 @@ export default async function BeneficiosPage() {
           </thead>
           <tbody>
             {beneficios.map((beneficio) => (
-              <tr key={beneficio.name} className={tableStyles.row}>
+              <tr key={beneficio.name} className={styles.matrizLinha}>
                 <th scope="row" className={styles.matrizNome}>
                   {beneficio.name}
                 </th>

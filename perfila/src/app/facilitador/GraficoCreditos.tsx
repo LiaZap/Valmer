@@ -35,7 +35,7 @@ export function GraficoCreditos({ movimentos }: { movimentos: Transacao[] }) {
 
   return (
     <>
-      <div className={ui.sectionHead}>
+      <div className={`${ui.sectionHead} ${styles.graficoHead}`}>
         <div className={ui.cardTitle}>Créditos por período</div>
         <div className={styles.legenda}>
           <span className={styles.legendaItem}>

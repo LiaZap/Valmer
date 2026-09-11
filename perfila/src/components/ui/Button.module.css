@@ -137,3 +137,18 @@
 .block {
   width: 100%;
 }
+
+/* ---------- Telefone (até 720px) ----------
+   44px é o mínimo que o dedo acerta sem pegar o vizinho — a medida que Apple e
+   Google publicam. Vale para os três tamanhos: o `sm` de 32px existe para caber
+   numa linha de tabela, e no telefone não há linha de tabela para caber.
+
+   `link` fica de fora de propósito: ele é texto dentro de uma frase, e esticá-lo
+   a 44px abriria um buraco no meio do parágrafo. */
+@media screen and (max-width: 720px) {
+  .sm,
+  .md,
+  .lg {
+    height: var(--alvo-toque);
+  }
+}

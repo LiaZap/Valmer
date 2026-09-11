@@ -167,3 +167,18 @@
   color: var(--color-text-muted);
   line-height: var(--leading-relaxed);
 }
+
+/* ---------- Telefone ----------
+   O aviso é a única frase da tela em vários casos — link expirado, mapa já
+   respondido, recusa de regra — e 13px é tamanho de legenda de painel, não de
+   mensagem que alguém abre sozinha no telefone e precisa entender de primeira.
+   Sobe para 15px, o mesmo critério já aplicado no texto do relatório.
+
+   `screen and` porque folha A4 mede 642px de largura CSS: sem ele o tamanho de
+   telefone entraria no PDF entregue ao cliente. */
+@media screen and (max-width: 720px) {
+  .callout {
+    font-size: var(--fs-15);
+    padding: var(--space-14) var(--space-16);
+  }
+}

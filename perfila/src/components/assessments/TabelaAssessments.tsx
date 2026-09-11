@@ -127,7 +127,7 @@ export function TabelaAssessments({
           <Th align="right">Ações</Th>
         </tr>
       </thead>
-      <tbody>
+      <tbody role="rowgroup">
         {itens.map((assessment) => (
           <Tr key={assessment.id}>
             <Td>
@@ -136,10 +136,10 @@ export function TabelaAssessments({
             </Td>
 
             {mostrarFacilitador ? (
-              <Td muted>{empresas[assessment.facilitadorId] ?? '—'}</Td>
+              <Td muted rotulo="Facilitador">{empresas[assessment.facilitadorId] ?? '—'}</Td>
             ) : null}
 
-            <Td>
+            <Td rotulo="Relatório">
               <span className={styles.tipo}>{assessment.tipoRelatorio}</span>
               <div className={tableStyles.secondary}>
                 {assessment.creditosUsados}{' '}
@@ -147,7 +147,7 @@ export function TabelaAssessments({
               </div>
             </Td>
 
-            <Td>
+            <Td rotulo="Situação">
               <Pill tone={TOM[assessment.situacao]} dot>
                 {ROTULO_SITUACAO[assessment.situacao]}
               </Pill>
@@ -162,7 +162,7 @@ export function TabelaAssessments({
               ) : null}
             </Td>
 
-            <Td muted>
+            <Td muted rotulo="Prazo do link">
               {assessment.situacao === 'concluido'
                 ? `Respondido em ${assessment.concluidoEm}`
                 : `Expira em ${assessment.expiraEm}`}

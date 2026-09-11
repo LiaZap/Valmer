@@ -155,7 +155,7 @@ export function ListaTurmas({ itens }: { itens: ItemTurma[] }) {
                 <Th align="right">Ações</Th>
               </tr>
             </thead>
-            <tbody>
+            <tbody role="rowgroup">
               {itens.map((turma) => {
                 const pendentes = turma.total - turma.respondidos
                 const completa = turma.total > 0 && pendentes === 0
@@ -167,14 +167,14 @@ export function ListaTurmas({ itens }: { itens: ItemTurma[] }) {
                         {turma.tipo} · {getTipoRelatorio(turma.tipo).nome}
                       </div>
                     </Td>
-                    <Td>
+                    <Td rotulo="Finalidade">
                       <Pill>{ROTULO_AREA[turma.area]}</Pill>
                     </Td>
-                    <Td muted>
+                    <Td muted rotulo="Criada em">
                       <div>{turma.criadaEm}</div>
                       <div className={tableStyles.secondary}>por {turma.por}</div>
                     </Td>
-                    <Td>
+                    <Td rotulo="Respostas">
                       <div className={styles.respostasLabel}>
                         <span className={styles.respostasTotal}>
                           {turma.respondidos} de {turma.total} respondidos
@@ -191,7 +191,7 @@ export function ListaTurmas({ itens }: { itens: ItemTurma[] }) {
                         label={`Respostas de ${turma.nome}`}
                       />
                     </Td>
-                    <Td align="center">
+                    <Td align="center" rotulo="Download">
                       {turma.permiteDownload ? (
                         <span className={styles.download} title="Download liberado ao respondente">
                           <Icon name="check" />

@@ -251,7 +251,7 @@
 
 /* ---------- Telas estreitas ---------- */
 
-@media (max-width: 560px) {
+@media screen and (max-width: 560px) {
   .corpo {
     padding: var(--space-16) var(--space-16) var(--space-20);
   }
@@ -289,6 +289,35 @@
 
   .marca {
     justify-content: flex-start;
+  }
+}
+
+/* ---------- Telefone ----------
+   `screen and` pelo motivo explicado em `relatorio/[token]/page.module.css`:
+   a mancha do A4 dá ~643px e um 720px sem `screen` entraria no PDF.
+
+   A quebra de 560px acima continua sendo a do miolo — recuo, título e
+   rodapé em uma coluna. Aqui só entra o que é do telefone. */
+@media screen and (max-width: 720px) {
+  /* Repetido da regra de 560px acima para que os <h2> das quatro seções do
+     relatório caiam juntos: a quebra do telefone é 720px. */
+  .titulo {
+    font-size: var(--fs-20);
+  }
+
+  /* Um só corpo de texto no telefone: `.acaoTexto` já está em 15px e estas
+     vinham nos 13px de `common.prose`. As classes vêm repetidas para vencer
+     a do módulo compartilhado sem depender da ordem no bundle — mesmo
+     recurso do `.frase.frase` logo abaixo. */
+  .abertura.abertura,
+  .fechoNota.fechoNota {
+    font-size: var(--fs-15);
+  }
+
+  /* A ressalva continua sendo a letra miúda do documento, mas 11,5px num
+     telefone já não é miúdo, é ilegível. */
+  .ressalva {
+    font-size: var(--fs-13);
   }
 }
 

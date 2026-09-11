@@ -82,7 +82,10 @@ export function BuscaTopbar({ placeholder }: { placeholder: string }) {
 
   return (
     <div className={styles.caixa} ref={caixa}>
-      <div className={styles.campo}>
+      {/* `label` e não `div`: no telefone o campo encolhe até o ícone, e é o
+          toque no ícone que precisa dar foco ao input — o label faz isso sem
+          um onClick e sem uma ref. */}
+      <label className={styles.campo}>
         <Icon name="search" size={16} />
         <input
           type="search"
@@ -96,7 +99,7 @@ export function BuscaTopbar({ placeholder }: { placeholder: string }) {
             if (evento.key === 'Escape') setAberto(false)
           }}
         />
-      </div>
+      </label>
 
       {aberto && resultado ? (
         <div className={styles.painel}>

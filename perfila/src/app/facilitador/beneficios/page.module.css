@@ -137,7 +137,7 @@
   color: var(--color-on-ink);
 }
 
-@media (max-width: 560px) {
+@media screen and (max-width: 560px) {
   .passos {
     grid-template-columns: 1fr 1fr;
     row-gap: var(--space-14);
@@ -153,6 +153,26 @@
 }
 
 /* ---------- Matriz de benefícios ---------- */
+/* Tabela própria, e não a `Table` do sistema, porque esta é uma MATRIZ de
+   comparação: o valor de cada célula só existe no cruzamento da linha com a
+   coluna. Virar cartão empilhado, como as listas fazem no telefone, jogaria o
+   nome da categoria — que mora no cabeçalho — para dentro de cada valor, e a
+   leitura lado a lado, que é o motivo desta tela, acabaria. */
+.matriz {
+  width: 100%;
+  border-collapse: collapse;
+  /* Abaixo desta largura a matriz rola dentro do card, nunca na página. */
+  min-width: 720px;
+}
+
+.matrizLinha {
+  transition: background var(--transition-fast);
+}
+
+.matrizLinha:hover {
+  background: var(--color-surface-muted);
+}
+
 .matrizCabecalho {
   width: 26%;
   padding: var(--space-16);
@@ -217,4 +237,32 @@
 /* Benefício não incluído. */
 .ausente {
   color: var(--color-border-strong);
+}
+
+/* ---- CELULAR ----
+   A matriz continua matriz e rola na horizontal DENTRO do card — é o caso que
+   a regra permite, porque o valor não se explica fora do cruzamento. O que não
+   pode é a coluna do nome sair de cena junto: um "incluído" no meio da tela,
+   sem a vantagem ao lado, não é informação nenhuma. Ela fica presa à esquerda
+   enquanto as categorias passam.
+
+   720 escrito à mão porque @media não lê var(); o número mora em tokens.css. */
+@media screen and (max-width: 720px) {
+  .matrizCabecalho,
+  .matrizNome {
+    position: sticky;
+    left: 0;
+    /* Opaca porque as outras colunas passam POR BAIXO: sem fundo, um texto
+       encavala no outro. */
+    background: var(--color-surface);
+    /* `box-shadow`, e NÃO `border-right`. A matriz é `border-collapse: collapse`
+       (linha 163), e com as bordas colapsadas a linha entre duas células é uma
+       só, dividida pelas duas: enquanto a coluna da direita desliza por baixo,
+       quem pinta aquela borda vai junto e o separador pisca. A sombra é da
+       célula presa e não colapsa com ninguém. */
+    box-shadow: 1px 0 0 var(--color-border);
+    /* Ordem dentro da própria tabela, não camada do produto — por isso não sai
+       dos tokens de z-index: basta ficar na frente da coluna que desliza. */
+    z-index: 1;
+  }
 }

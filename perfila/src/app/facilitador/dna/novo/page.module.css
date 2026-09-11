@@ -22,3 +22,13 @@
   font-weight: var(--fw-semibold);
   color: var(--color-text);
 }
+
+@media screen and (max-width: 720px) {
+  /* Mesma regra do rodapé de card: empilha na ordem do DOM. `column-reverse`
+     esteve aqui e saiu pelo mesmo motivo — ver Card.module.css: inverter o
+     visual sem inverter a navegação deixa teclado e leitor de tela lendo
+     [cancelar, salvar] numa tela que mostra [salvar, cancelar]. */
+  .acoes {
+    flex-direction: column;
+  }
+}

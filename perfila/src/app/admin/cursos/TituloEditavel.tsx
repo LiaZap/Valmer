@@ -51,7 +51,7 @@ export function TituloEditavel({
 
   if (!editando) {
     return (
-      <Row gap={4}>
+      <Row gap={4} wrap>
         <span className={className}>
           {prefixo}
           {titulo}
@@ -71,7 +71,7 @@ export function TituloEditavel({
   }
 
   return (
-    <Row gap={4}>
+    <Row gap={4} wrap>
       <Input
         autoFocus
         value={rascunho}

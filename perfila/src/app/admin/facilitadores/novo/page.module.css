@@ -72,12 +72,41 @@
   color: var(--color-text-muted);
 }
 
-@media (max-width: 560px) {
+@media screen and (max-width: 560px) {
   .dupla {
     grid-template-columns: 1fr;
   }
 
   .corpo {
     padding: var(--space-16);
+  }
+}
+
+/* Valor e interruptor da situação da conta, na tela de editar parceiro — que
+   usa este arquivo, como diz o comentário no topo de FormFacilitador.tsx.
+   Era estilo em linha; virou classe para ganhar a área de toque abaixo. */
+.situacao {
+  display: flex;
+  align-items: center;
+  gap: var(--space-10);
+}
+
+/* ---- CELULAR ----
+   A grade de duas colunas e o respiro do corpo já caem em 560px, e os cartões
+   de pacote empilham sozinhos — a coluna deles pede 160px e o telefone, com o
+   respiro do card, não dá duas. Sobra o interruptor.
+
+   Ele tem 40x22 e não pode crescer sem virar outro desenho: o que cresce é a
+   área de toque, um alvo de 44px invisível e centrado nele. Sem isto, ativar e
+   desativar a conta de um parceiro é o menor alvo da administração inteira. */
+@media screen and (max-width: 720px) {
+  .situacao button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--alvo-toque);
+    height: var(--alvo-toque);
+    translate: -50% -50%;
   }
 }

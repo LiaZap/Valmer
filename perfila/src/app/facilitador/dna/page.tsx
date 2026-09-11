@@ -68,7 +68,7 @@ export default function DnaPage() {
               <Th align="right">Ações</Th>
             </tr>
           </thead>
-          <tbody>
+          <tbody role="rowgroup">
             {dnas.map((dna) => (
               <Tr key={dna.slug}>
                 <Td>
@@ -80,11 +80,11 @@ export default function DnaPage() {
                     Português (BR)
                   </div>
                 </Td>
-                <Td>
+                <Td rotulo="Inventários">
                   <span className={styles.inventarios}>{dna.inventarios ?? '—'}</span>
                 </Td>
-                <Td muted>{dna.by}</Td>
-                <Td muted>{dna.date}</Td>
+                <Td muted rotulo="Criado por">{dna.by}</Td>
+                <Td muted rotulo="Criado em">{dna.date}</Td>
                 <Td align="right">
                   <RowActions>
                     <IconButton icon="eye" label="Abrir" href={`/facilitador/dna/${dna.slug}`} />

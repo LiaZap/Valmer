@@ -74,3 +74,30 @@
   flex-direction: column;
   gap: var(--space-16);
 }
+
+/* ---------- Telefone ----------
+   O gráfico DISC é o dado central do relatório, e no telefone ele tinha virado
+   o MENOR texto da própria seção: o rótulo em 11,5px caixa alta com 0,18em de
+   espaçamento entre letras, o valor em 13px — enquanto a microcópia que
+   EXPLICA o gráfico, logo acima, subiu para 15px. O texto sobre a coisa ficava
+   maior que a coisa.
+
+   O espaçamento entre letras também cai. Ele existe para caixa alta em tamanho
+   de rótulo respirar; em 360px, "D · DOMINÂNCIA" com 2px por letra empurra o
+   percentual para fora da linha.
+
+   `screen and` porque este componente também sai na folha impressa, e lá o
+   desenho é o de sempre. */
+@media screen and (max-width: 720px) {
+  .rotulo {
+    font-size: var(--fs-13);
+    /* Sem token: 0,18em e 0,22em são os dois valores do sistema, e os dois são
+       de rótulo pequeno. A 13px em caixa alta num telefone, qualquer um dos
+       dois rouba a largura do percentual ao lado. */
+    letter-spacing: 0.06em;
+  }
+
+  .valor {
+    font-size: var(--fs-15);
+  }
+}

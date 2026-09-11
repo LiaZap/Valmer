@@ -93,13 +93,32 @@
 
 /* No celular a margem do ícone continua, mas devolve espaço à
    coluna de texto — a medida de linha é o que não pode encolher. */
-@media (max-width: 480px) {
+@media screen and (max-width: 480px) {
   .bloco {
     column-gap: var(--space-12);
   }
 
   .titulo {
     font-size: var(--fs-20);
+  }
+}
+
+/* ---------- Telefone ----------
+   `screen and` pelo motivo explicado em `relatorio/[token]/page.module.css`:
+   a mancha do A4 dá ~643px e um 720px sem `screen` entraria no PDF. */
+@media screen and (max-width: 720px) {
+  /* Repetido da regra de 480px acima para que os <h2> das quatro seções do
+     relatório caiam juntos: a quebra do telefone é 720px. */
+  .titulo {
+    font-size: var(--fs-20);
+  }
+
+  /* Um só corpo de texto no telefone: `.texto` já está em 15px, e a
+     abertura vinha nos 13px de `common.prose`. A classe vem repetida para
+     vencer a do módulo compartilhado sem depender da ordem no bundle —
+     mesmo recurso do `.frase.frase` de PlanoFecho.module.css. */
+  .abertura.abertura {
+    font-size: var(--fs-15);
   }
 }
 

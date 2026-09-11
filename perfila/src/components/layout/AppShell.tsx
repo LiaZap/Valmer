@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from 'react'
 import { ToastProvider } from '@/components/ui/Toast'
 import type { NavGroup } from '@/lib/routes'
+import { BarraInferior } from './BarraInferior'
 import { Sidebar } from './Sidebar'
 import { Topbar, type UsuarioTopbar } from './Topbar'
 import styles from './AppShell.module.css'
@@ -31,6 +32,11 @@ type AppShellProps = {
  * Moldura dos ambientes com login: sidebar, barra superior, área de
  * conteúdo e rodapé. Também instala o provedor de toasts, para que
  * qualquer página confirme uma ação com uma linha de código.
+ *
+ * No telefone a moldura é OUTRA, e não a mesma encolhida: abaixo de 720px a
+ * lateral sai da tela e a navegação vira a barra inferior. As duas convivem no
+ * DOM e se revezam pelo CSS — quem decide é a largura, não o JavaScript, senão
+ * a primeira pintura sairia com a moldura errada.
  *
  * Admin e facilitador usam a mesma moldura de propósito: quem
  * administra a plataforma também opera nela, e alternar entre os
@@ -76,6 +82,8 @@ export function AppShell({
             <span>{VERSAO}</span>
           </footer>
         </main>
+
+        <BarraInferior grupos={grupos} base={base} />
       </div>
     </ToastProvider>
   )

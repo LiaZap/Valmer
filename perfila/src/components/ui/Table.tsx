@@ -13,8 +13,19 @@ const ALIGN_CLASS: Record<Align, string | null> = {
 
 /**
  * Tabela de dados do sistema.
- * O card em volta é quem rola horizontalmente (`<Card scrollX>`),
- * então a página nunca ganha barra horizontal.
+ *
+ * Acima de 720px é tabela: o card em volta é quem rola horizontalmente
+ * (`<Card scrollX>`), então a página nunca ganha barra horizontal.
+ *
+ * Abaixo de 720px ela para de ser tabela — cada linha vira um cartão
+ * empilhado e o cabeçalho some, porque uma tabela de 720px num telefone de
+ * 390px obriga a arrastar para ler a última coluna, e as primeiras somem.
+ *
+ * Trocar o `display` apaga a semântica que o leitor de tela usa para anunciar
+ * linha e coluna. Por isso cada parte declara o `role` à mão: no desktop eles
+ * repetem o que o elemento já diz, no telefone são a única coisa que sobra.
+ * O `<tbody>` não passa por aqui — quem o escreve é a tela, e é lá que ele
+ * leva `role="rowgroup"`.
  */
 export function Table({
   children,
@@ -25,7 +36,10 @@ export function Table({
   compact?: boolean
 }) {
   return (
-    <table className={[styles.table, compact ? styles.compact : null].filter(Boolean).join(' ')}>
+    <table
+      role="table"
+      className={[styles.table, compact ? styles.compact : null].filter(Boolean).join(' ')}
+    >
       {children}
     </table>
   )
@@ -42,7 +56,12 @@ export function Th({
   style?: CSSProperties
 }) {
   return (
-    <th scope="col" className={[styles.th, ALIGN_CLASS[align]].filter(Boolean).join(' ')} style={style}>
+    <th
+      scope="col"
+      role="columnheader"
+      className={[styles.th, ALIGN_CLASS[align]].filter(Boolean).join(' ')}
+      style={style}
+    >
       {children}
     </th>
   )
@@ -53,6 +72,7 @@ export function Td({
   align = 'left',
   dense,
   muted,
+  rotulo,
   className,
 }: {
   children?: ReactNode
@@ -61,10 +81,25 @@ export function Td({
   dense?: boolean
   /** Texto secundário em cinza. */
   muted?: boolean
+  /**
+   * Nome da coluna, repetido aqui porque no cartão do telefone o cabeçalho da
+   * tabela não existe e "12" sozinho não diz se é saldo ou mapa. Vira
+   * `data-rotulo` e o CSS o imprime acima do valor abaixo de 720px.
+   *
+   * Fica de fora na célula que ABRE o cartão (o nome, que é o título) e na que
+   * o FECHA (os botões, cada um já com o próprio `label`).
+   *
+   * Não dá para deduzir do `<Th>`: três tabelas escondem coluna por condição,
+   * e o `createContext` que levaria a lista do cabeçalho até aqui não existe
+   * em Server Component — que é o que `TabelaExtrato` e a lista de DNA são.
+   */
+  rotulo?: string
   className?: string
 }) {
   return (
     <td
+      role="cell"
+      data-rotulo={rotulo}
       className={[
         styles.td,
         ALIGN_CLASS[align],
@@ -81,7 +116,11 @@ export function Td({
 }
 
 export function Tr({ children }: { children: ReactNode }) {
-  return <tr className={styles.row}>{children}</tr>
+  return (
+    <tr role="row" className={styles.row}>
+      {children}
+    </tr>
+  )
 }
 
 /** Agrupa os botões de ação no fim da linha. */

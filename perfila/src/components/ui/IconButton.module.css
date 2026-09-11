@@ -78,3 +78,18 @@
   background: var(--color-danger-tint);
   color: var(--color-danger);
 }
+
+/* ---------- Telefone (até 720px) ----------
+   32px o dedo acerta; o botão de baixo também. O `pager` de 28px é o pior caso:
+   dois deles ficam a 4px um do outro, e voltar uma página vira avançar uma.
+
+   O `topbar` não entra: quem manda na moldura abaixo de 720px é a barra
+   inferior, e o botão de recolher a lateral não existe lá. */
+@media screen and (max-width: 720px) {
+  .plain,
+  .outline,
+  .pager {
+    width: var(--alvo-toque);
+    height: var(--alvo-toque);
+  }
+}

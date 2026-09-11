@@ -32,3 +32,25 @@
 .on .knob {
   left: 20px;
 }
+
+/* ---------- Telefone ----------
+   O interruptor continua com 40x22px: aumentá-lo mudaria o ritmo da lista de
+   notificações, onde ele aparece duas vezes por linha. O que cresce é a ÁREA
+   DE TOQUE, por um pseudo-elemento invisível que estica o alvo do botão para
+   44x44 — o mínimo abaixo do qual o dedo acerta o vizinho, e 22px de altura
+   era a metade disso.
+
+   `inset` negativo, e não padding: padding empurraria o fundo arredondado e o
+   interruptor deixaria de parecer um interruptor. O `::after` não desenha
+   nada, só recebe o toque em nome do botão, que é quem tem o `onClick`.
+
+   `screen and` porque folha A4 tem menos de 720px, e alvo de toque não existe
+   no papel. */
+@media screen and (max-width: 720px) {
+  .toggle::after {
+    content: '';
+    position: absolute;
+    /* 22 + 11 + 11 = 44 de altura; 40 + 2 + 2 = 44 de largura. */
+    inset: -11px -2px;
+  }
+}

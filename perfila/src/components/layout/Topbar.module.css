@@ -1,3 +1,9 @@
+/* Escondida por padrão: ela só existe no telefone, onde a barra lateral — a
+   casa da marca — não está na tela. Ver o comentário no Topbar.tsx. */
+.marcaTelefone {
+  display: none;
+}
+
 .topbar {
   position: sticky;
   top: 0;
@@ -26,6 +32,13 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.raiz {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  flex: none;
 }
 
 .separator {
@@ -140,15 +153,64 @@ span.userButton {
 /* ---------- Adaptação a telas estreitas ----------
    A ordem de sacrifício é: nome do usuário → busca → breadcrumb.
    A busca esconde-se pelo módulo dela (BuscaTopbar.module.css). */
-@media (max-width: 900px) {
+@media screen and (max-width: 900px) {
   .userText {
     display: none;
   }
 }
 
-@media (max-width: 560px) {
+/* ---------- Telefone ----------
+   Em 390px não cabem trilha inteira, busca, nome e avatar: são quatro blocos
+   para a largura de dois. O que fica é o que muda e o que se procura.
+
+   - a RAIZ da trilha sai. Ela repete o ambiente, e o ambiente já está aceso na
+     barra inferior o tempo todo. Fica o nome da tela, que é o único nível que
+     muda de uma tela para a outra.
+   - a BUSCA fica, e vira ícone. Não pode sumir: é o único caminho até um
+     avaliado que não está na lista aberta. Vira o alvo de 44px do ícone e volta
+     a ser campo inteiro no toque — ver `BuscaTopbar.module.css`.
+   - o SAIR sai daqui e desce para a folha do "Mais". É a ação menos frequente
+     do produto, e estava gastando 40px ao lado da busca.
+   - o AVATAR fica: é o caminho para o perfil, e desde 900px já é só o círculo.
+
+   O respiro lateral vem do `--content-padding`, que `tokens.css` derruba para
+   16px nesta mesma faixa — a barra acompanha o conteúdo sem regra própria. */
+@media screen and (max-width: 720px) {
+  /* Alvo de 44px mesmo com o símbolo de 22: é um link, e link de moldura leva
+     toque distraído tanto quanto qualquer outro. */
+  .marcaTelefone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--alvo-toque);
+    min-height: var(--alvo-toque);
+    margin-left: calc(var(--space-8) * -1);
+    flex: none;
+  }
+
   .topbar {
-    padding: 0 var(--space-16);
     gap: var(--space-10);
+  }
+
+  .raiz {
+    display: none;
+  }
+
+  /* Busca em foco toma a barra: a trilha sai enquanto se digita e volta ao
+     sair. `:has(input:focus)` e não uma classe da busca porque os dois módulos
+     não compartilham nome de classe — e um seletor de elemento resolve sem
+     inventar estado em JavaScript. Onde o `:has` não existir, a trilha apenas
+     encolhe com reticências, que é o comportamento que ela já tinha. */
+  .topbar:has(input:focus) .breadcrumb {
+    display: none;
+  }
+
+  .user {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .sair {
+    display: none;
   }
 }

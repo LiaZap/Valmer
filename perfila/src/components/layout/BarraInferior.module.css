@@ -1,0 +1,212 @@
+/* A barra e a folha só existem no telefone. Acima de 720px quem faz este
+   trabalho é a lateral, e as duas nunca aparecem juntas. O `display: none`
+   fora da consulta é o que garante isso — e também desmonta a folha se alguém
+   girar o tablet com ela aberta, em vez de deixar um véu preso na tela. */
+.barra,
+.fundo,
+.folha {
+  display: none;
+}
+
+/* Subir 12px é o suficiente para o olho ler "veio de baixo". Mais que isso
+   atrasa o menu, que é o caminho para dois terços das telas. */
+@keyframes folhaSobe {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media screen and (max-width: 720px) {
+  /* ---------- Barra ---------- */
+  .barra {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: var(--z-barra-inferior);
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    /* A altura declarada já soma a faixa do gesto de voltar do iPhone, e ela
+       volta como padding: assim os cinco itens ficam com os 60px inteiros e
+       nenhum deles nasce sob o risco do sistema. */
+    height: var(--barra-inferior-espaco);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-width: 0;
+    padding: 0 var(--space-2);
+    border: 0;
+    background: transparent;
+    color: var(--color-text-subtle);
+    font-size: var(--fs-105);
+    font-weight: var(--fw-medium);
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  /* O link herda do globals a cor de link e o sublinhado no hover; aqui ele é
+     item de navegação, e não texto de leitura. */
+  .item:hover {
+    color: var(--color-text-subtle);
+    text-decoration: none;
+  }
+
+  /* A pílula de 40x24 existe para o ativo ter onde ser cheio de cor sem que o
+     rótulo entre no azul junto. */
+  .itemIcone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 24px;
+    border-radius: var(--radius-full);
+  }
+
+  /* Azul cheio, como o item ativo da lateral. O tint claro contra o branco é
+     exatamente a diferença que o produto já decidiu que ninguém enxerga. */
+  .itemAtivo,
+  .itemAtivo:hover {
+    color: var(--color-accent);
+    font-weight: var(--fw-semibold);
+  }
+
+  .itemAtivo .itemIcone {
+    background: var(--color-accent);
+    color: var(--color-on-ink);
+  }
+
+  /* Cinco rótulos em 390px dão 78px cada. O corte com reticências é a rede de
+     segurança para o telefone de 360px, não o plano: o rótulo curto é
+     escolhido em `lib/routes.ts`. */
+  .rotulo {
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  /* ---------- Folha do "Mais" ---------- */
+  .fundo {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-folha);
+    padding: 0;
+    border: 0;
+    background: color-mix(in srgb, var(--color-ink) 45%, transparent);
+    cursor: pointer;
+    /* O dedo no véu fecha a folha, e não rola a página de trás: sem isto a
+       lista atrás do véu andava sozinha enquanto o menu estava aberto. O toque
+       continua valendo — o que `none` desliga é o gesto de arrastar. */
+    touch-action: none;
+  }
+
+  .folha {
+    display: block;
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: var(--z-folha);
+    /* `dvh` e não `vh`: no iOS o `vh` conta a barra do navegador, e a folha
+       nasceria mais alta que o visível — o primeiro grupo ficaria escondido
+       acima da dobra. O que não couber rola aqui dentro, e o
+       `overscroll-behavior` impede que a rolagem contamine a página de trás. */
+    max-height: 80dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: var(--space-8) var(--space-12)
+      calc(var(--space-16) + env(safe-area-inset-bottom, 0px));
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+    background: var(--color-surface);
+    box-shadow: var(--shadow-dropdown);
+    animation: folhaSobe var(--transition-slow) ease;
+  }
+
+  /* A alça é desenho, não medida do sistema: 36x4 é o traço que diz "isto
+     subiu da base e volta para lá". */
+  .puxador {
+    width: 36px;
+    height: 4px;
+    margin: var(--space-4) auto var(--space-10);
+    border-radius: var(--radius-full);
+    background: var(--color-border-strong);
+  }
+
+  .folhaGrupo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-bottom: var(--space-12);
+  }
+
+  .folhaGrupoRotulo {
+    padding: var(--space-4) var(--space-10);
+    font-size: var(--fs-105);
+    font-weight: var(--fw-semibold);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
+
+  /* 44px e não os 34px do item da lateral: lá a medida é de ponteiro, aqui é
+     de dedo — abaixo disso o toque erra o vizinho. */
+  .folhaItem,
+  .folhaSair {
+    display: flex;
+    align-items: center;
+    gap: var(--space-12);
+    width: 100%;
+    min-height: var(--alvo-toque);
+    padding: 0 var(--space-10);
+    border: 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-size: var(--fs-14);
+    font-weight: var(--fw-medium);
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .folhaItem:hover {
+    color: var(--color-text-secondary);
+    text-decoration: none;
+  }
+
+  .folhaItemAtivo,
+  .folhaItemAtivo:hover {
+    background: var(--color-accent);
+    color: var(--color-on-ink);
+    font-weight: var(--fw-semibold);
+  }
+
+  .folhaRotulo {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .folhaSair {
+    margin-top: var(--space-8);
+    padding-top: var(--space-8);
+    border-top: 1px solid var(--color-border-soft);
+    border-radius: 0;
+    color: var(--color-danger);
+  }
+}

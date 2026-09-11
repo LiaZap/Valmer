@@ -7,7 +7,11 @@
    ============================================================ */
 
 .pagina {
+  /* 100dvh porque a 100vh do iPhone conta a barra do navegador junto: a
+     página fica mais alta que o visível. O 100vh antes é a reserva para
+     quem não conhece dvh. */
   min-height: 100vh;
+  min-height: 100dvh;
   background: var(--color-bg);
 }
 
@@ -55,10 +59,55 @@
   gap: 56px;
 }
 
-@media (max-width: 560px) {
+@media screen and (max-width: 560px) {
   .documento {
     padding: var(--space-20) var(--space-16) 48px;
     gap: 40px;
+  }
+}
+
+/* ---------- Telefone ----------
+   O `screen and` não é enfeite. A mancha do A4 declarado no `@page` logo
+   abaixo mede 170mm (210mm menos 20mm de cada margem), ou ~643px de largura
+   CSS: um `@media screen and (max-width: 720px)` sem `screen` casaria também com a
+   folha impressa, e o PDF do relatório sairia com o desenho de telefone
+   dentro dele. Vale para os cinco módulos do relatório.
+
+   Esta tela não passa pelo AppShell — não existe `relatorio/layout.tsx` e o
+   layout raiz só monta o documento —, então aqui não há barra lateral nem
+   barra inferior e o `--barra-inferior-espaco` não se aplica. O que muda no
+   telefone é a barra de ações, o único pedaço de aplicação do documento. */
+@media screen and (max-width: 720px) {
+  .acoes {
+    padding: var(--space-10) var(--space-16);
+  }
+
+  /* A assinatura sai da barra: o mesmo símbolo e o mesmo nome abrem a capa
+     logo abaixo, e no telefone eram eles que empurravam os dois botões para
+     fora da tela — como o <Button> é `white-space: nowrap`, isso não vira
+     quebra de linha, vira rolagem horizontal da página. */
+  .acoesMarca {
+    display: none;
+  }
+
+  /* `wrap`, e essa é a linha que resolve. `flex: 1` nos filhos não impede
+     estouro nenhum: item flex nasce com `min-width: auto` e o <Button> é
+     `white-space: nowrap`, então nenhum dos dois encolhe abaixo do próprio
+     texto. Somados, "Imprimir ou salvar PDF" e "Copiar link" passam de 390px —
+     e passam mais ainda quando o segundo vira "Link copiado" por 2,5s depois
+     do clique, estado que uma medição de rótulo em repouso não vê. Podendo
+     quebrar, eles empilham em vez de empurrar a página para o lado.
+
+     A altura de toque NÃO se repete aqui: `Button.module.css` já leva `.sm`,
+     `.md` e `.lg` a `--alvo-toque` abaixo de 720px. Duas regras para o mesmo
+     piso divergem na primeira vez que alguém mexer numa delas. */
+  .acoesBotoes {
+    flex: 1;
+    flex-wrap: wrap;
+  }
+
+  .acoesBotoes button {
+    flex: 1 1 auto;
   }
 }
 

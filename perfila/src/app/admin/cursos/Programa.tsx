@@ -198,7 +198,7 @@ export function Programa({ curso }: { curso: CursoComPrograma }) {
         />
       ))}
 
-      <Row gap={8} wrap>
+      <Row gap={8} wrap className={styles.linhaNovo}>
         <Input
           className={styles.campoLinha}
           placeholder="Título do novo módulo"
@@ -298,7 +298,7 @@ function ModuloEditor({
         />
       ))}
 
-      <Row gap={8} wrap>
+      <Row gap={8} wrap className={styles.linhaNovo}>
         <Input
           className={styles.campoLinha}
           placeholder="Título da nova aula"
@@ -368,7 +368,7 @@ function AulaEditor({
         )}
       </Row>
 
-      <Row gap={4}>
+      <Row gap={4} className={styles.aulaAcoes}>
         {/* O input de arquivo fica escondido atrás do botão do sistema: o
             controle nativo não aceita os estilos do projeto, e trocá-lo por um
             <label> estilizado perderia o foco de teclado. */}

@@ -1,6 +1,6 @@
 .sidebar {
   align-self: stretch;
-  min-height: 100vh;
+  min-height: 100dvh;
   flex: none;
   display: flex;
   flex-direction: column;
@@ -17,7 +17,9 @@
   align-self: flex-start;
   position: sticky;
   top: 0;
-  height: 100vh;
+  /* `dvh`: no iOS o `vh` conta a barra do navegador, e a lateral ficava mais
+     alta que a janela — o Sair do rodapé nascia fora da tela. */
+  height: 100dvh;
   overflow: hidden;
 }
 
@@ -246,7 +248,7 @@
 
 /* Em telas estreitas a sidebar recolhe sozinha para sobrar espaço
    ao conteúdo, independentemente do botão de menu. */
-@media (max-width: 860px) {
+@media screen and (max-width: 860px) {
   .sidebar {
     width: var(--sidebar-width-collapsed);
   }
@@ -270,5 +272,19 @@
 
   .sidebar .brand {
     padding: 0;
+  }
+}
+
+/* No telefone a lateral SAI DA TELA, e não encolhe mais um pouco. Recolhida
+   ela ainda custa 68px — 17% de um aparelho de 390px gastos com uma coluna de
+   ícone, ao lado de um conteúdo que já não cabe. Quem navega ali é a
+   `BarraInferior`; as duas nunca aparecem juntas.
+
+   `display: none` e não `width: 0`: assim ela também sai da ordem de
+   tabulação e do leitor de tela, senão o teclado passeava por quinze links
+   invisíveis antes de chegar ao conteúdo. */
+@media screen and (max-width: 720px) {
+  .sidebar {
+    display: none;
   }
 }

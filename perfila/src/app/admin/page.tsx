@@ -144,7 +144,7 @@ export default async function AdminPage() {
                 <Th align="right">Situação</Th>
               </tr>
             </thead>
-            <tbody>
+            <tbody role="rowgroup">
               {facilitadores.map((facilitador) => (
                 <Tr key={facilitador.id}>
                   <Td dense>
@@ -156,7 +156,7 @@ export default async function AdminPage() {
                       </div>
                     </div>
                   </Td>
-                  <Td dense align="right">
+                  <Td dense align="right" rotulo="Saldo">
                     <span
                       className={[styles.saldo, facilitador.creditos === 0 ? styles.semCreditos : null]
                         .filter(Boolean)
@@ -165,7 +165,7 @@ export default async function AdminPage() {
                       {facilitador.creditos}
                     </span>
                   </Td>
-                  <Td dense align="right">
+                  <Td dense align="right" rotulo="Situação">
                     <Pill tone={facilitador.ativo ? 'success' : 'neutral'} dot>
                       {facilitador.ativo ? 'Ativo' : 'Inativo'}
                     </Pill>

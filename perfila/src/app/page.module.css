@@ -2,7 +2,12 @@
    O painel é a segunda coluna e some abaixo de 900px — ele não carrega
    informação que só exista ali. */
 .pagina {
+  /* `dvh` e não `vh`: no iOS a `vh` conta a barra do navegador como se ela não
+     existisse, e a tela nasce mais alta que o visível — o rodapé da coluna
+     ficaria escondido atrás da barra. A linha de `vh` fica por baixo como
+     reserva para navegador que não conheça a unidade nova. */
   min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   background: var(--color-bg);
@@ -241,7 +246,7 @@
 
 /* Uma coluna. O painel sai da página em vez de virar faixa: no celular ele
    empurraria o formulário para baixo da dobra sem acrescentar nada. */
-@media (max-width: 900px) {
+@media screen and (max-width: 900px) {
   .pagina {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -269,5 +274,17 @@
   .painel::after,
   .painelMiolo > * {
     animation: none;
+  }
+}
+
+/* ---- CELULAR ----
+   A moldura desta tela já estava resolvida em 900px, e a quebra do telefone
+   não a refaz: o painel da direita já saiu, a marca da esquerda já voltou no
+   lugar dele e o formulário já é uma coluna só. Sobra o dedo — esta é a
+   primeira tela que se abre no telefone, e o botão que a atravessa é o único
+   alvo dela. 38px de altura padrão erram o toque; o piso é 44. */
+@media screen and (max-width: 720px) {
+  .campos button {
+    min-height: var(--alvo-toque);
   }
 }

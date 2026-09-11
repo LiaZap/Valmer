@@ -137,7 +137,7 @@ export function ListaFacilitadores({
               <Th align="right">Ações</Th>
             </tr>
           </thead>
-          <tbody>
+          <tbody role="rowgroup">
             {filtrados.map((facilitador) => (
               <Tr key={facilitador.id}>
                 <Td dense>
@@ -149,19 +149,19 @@ export function ListaFacilitadores({
                     </div>
                   </div>
                 </Td>
-                <Td dense muted>
+                <Td dense muted rotulo="Empresa">
                   {facilitador.empresa}
                 </Td>
-                <Td dense align="right">
+                <Td dense align="right" rotulo="Saldo">
                   {facilitador.creditos}
                 </Td>
-                <Td dense align="right" muted>
+                <Td dense align="right" muted rotulo="Mapas">
                   {assessmentsPorFacilitador[facilitador.id] ?? 0}
                 </Td>
-                <Td dense muted>
+                <Td dense muted rotulo="Criado em">
                   {facilitador.criadoEm}
                 </Td>
-                <Td dense>
+                <Td dense rotulo="Situação">
                   <Pill tone={facilitador.ativo ? 'success' : 'neutral'} dot>
                     {facilitador.ativo ? 'Ativo' : 'Inativo'}
                   </Pill>

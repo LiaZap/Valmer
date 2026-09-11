@@ -39,6 +39,18 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  /*
+   * SEM ISTO, `env(safe-area-inset-*)` VALE ZERO — e a barra inferior do
+   * telefone nasce por baixo da faixa do gesto de voltar do iPhone.
+   *
+   * O navegador só entrega os valores da área segura quando a página pede a
+   * tela inteira, e quem pede é `viewport-fit=cover`. Sem esta linha o Next
+   * não emite o atributo, todo `env(...)` cai no valor padrão (zero) e o
+   * tratamento de recorte do aparelho vira comentário: o CSS continua lá,
+   * correto, sem nunca ser aplicado. Ver `--barra-inferior-espaco` em
+   * `styles/tokens.css`.
+   */
+  viewportFit: 'cover',
   /* Areia, o mesmo `--color-bg`: a barra do navegador continua a
      página em vez de cortar. */
   themeColor: '#f5f2ec',

@@ -276,7 +276,7 @@ export function ListaClientes({ itens }: { itens: ItemCliente[] }) {
                 <Th align="right">Ações</Th>
               </tr>
             </thead>
-            <tbody>
+            <tbody role="rowgroup">
               {itens.map((cliente) => (
                 <Tr key={cliente.id}>
                   <Td dense>
@@ -288,10 +288,10 @@ export function ListaClientes({ itens }: { itens: ItemCliente[] }) {
                       </div>
                     </div>
                   </Td>
-                  <Td dense muted>
+                  <Td dense muted rotulo="Celular">
                     {cliente.celular ?? '—'}
                   </Td>
-                  <Td dense muted>
+                  <Td dense muted rotulo="Cadastrado em">
                     {cliente.cadastradoEm}
                   </Td>
                   <Td dense align="right">

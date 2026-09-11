@@ -100,7 +100,7 @@ export function DnaDetalhe({ dna }: { dna: Dna }) {
               <Th align="right">Respondido em</Th>
             </tr>
           </thead>
-          <tbody>
+          <tbody role="rowgroup">
             {respondentes.map((pessoa) => (
               <Tr key={pessoa.email}>
                 <Td dense>
@@ -112,10 +112,10 @@ export function DnaDetalhe({ dna }: { dna: Dna }) {
                     </div>
                   </div>
                 </Td>
-                <Td dense>
+                <Td dense rotulo="Perfil">
                   <Pill tone="strong">{pessoa.perfil}</Pill>
                 </Td>
-                <Td dense>
+                <Td dense rotulo="D · I · S · C">
                   <div className={styles.chips}>
                     <span className={`${styles.chip} ${CLASSE_CHIP.D}`} title="Dominância">
                       {pessoa.d}
@@ -131,7 +131,7 @@ export function DnaDetalhe({ dna }: { dna: Dna }) {
                     </span>
                   </div>
                 </Td>
-                <Td dense align="right" muted>
+                <Td dense align="right" muted rotulo="Respondido em">
                   {pessoa.date}
                 </Td>
               </Tr>

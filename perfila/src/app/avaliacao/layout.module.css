@@ -1,5 +1,9 @@
 .pagina {
+  /* 100dvh e não só 100vh: no iPhone a 100vh conta a barra do navegador
+     junto, a página fica mais alta que o visível e o rodapé nasce fora da
+     tela. O 100vh antes fica de reserva para quem não conhece dvh. */
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   background: var(--color-bg);
@@ -49,7 +53,7 @@
   color: var(--color-text-subtle);
 }
 
-@media (max-width: 560px) {
+@media screen and (max-width: 560px) {
   .conteudo {
     padding: var(--space-20) var(--space-16) 40px;
   }

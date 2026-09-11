@@ -195,7 +195,7 @@ export function FormFacilitador({
 
             <div className={ui.dataRow}>
               <span className={ui.dataRowLabel}>Situação da conta</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-10)' }}>
+              <span className={styles.situacao}>
                 <span className={ui.dataRowValue}>{ativo ? 'Ativo' : 'Inativo'}</span>
                 <Toggle
                   checked={ativo}

@@ -333,6 +333,38 @@
   --content-max-width: 1600px;
   --content-gap: 20px;
 
+  /* ---- CELULAR ----
+     A partir daqui o produto tem DOIS desenhos, e não um encolhido.
+
+     Até 720px a barra lateral sai da tela e a navegação vira uma barra
+     inferior, como em aplicativo. A escolha não é estética: a lateral
+     recolhida ocupa 68px, que em um telefone de 390px é 17% da largura
+     gasta com ícone, e a tabela de qualquer lista pede 720px sozinha.
+
+     720 e não 560 porque 560 já era o ponto em que as telas viravam uma
+     coluna. O que muda aqui é a MOLDURA, e ela precisa sair antes: um
+     tablet em pé (768px) ainda cabe com lateral; um telefone deitado
+     (até 720px) não.
+
+     `@media` não lê `var()`, então o número está escrito à mão nas regras.
+     Está aqui para a próxima tela não inventar um terceiro valor. */
+  /* TODA consulta por largura deste projeto escreve `@media screen and (...)`,
+     e não a consulta solta. Não é preciosismo: uma folha A4 em retrato mede
+     210mm menos 20mm de margem de cada lado, ou seja 642px de largura CSS —
+     abaixo de 720, de 640 e de 560. Sem o `screen`, o desenho de TELEFONE
+     entrava no PDF que o parceiro entrega ao cliente dele, e o cabeçalho de
+     cada seção do relatório saía com sangria diferente do texto. Eram 35
+     blocos. Estilo de papel vive em `@media print`, e em nenhum outro lugar. */
+  --barra-inferior-altura: 60px;
+  /* O que a barra inferior ocupa de verdade, já contando a faixa do gesto de
+     voltar do iPhone. Todo conteúdo rolável termina com isto embaixo, senão a
+     última linha da lista nasce atrás da barra. */
+  --barra-inferior-espaco: calc(var(--barra-inferior-altura) + env(safe-area-inset-bottom, 0px));
+  /* Mínimo de um alvo de toque. Abaixo disso o dedo erra o vizinho — é a
+     medida que a Apple e o Google publicam, e a razão de ícone de 16px não
+     poder ser o botão inteiro. */
+  --alvo-toque: 44px;
+
   /* Quebra padrão do produto: 560px. Abaixo daqui a tela vira uma
      coluna. Não virou token porque @media não lê var(): fica aqui como
      registro, para a próxima tela não inventar um terceiro valor. São
@@ -370,6 +402,30 @@
      14. CAMADAS (z-index)
      --------------------------------------------------------- */
   --z-topbar: 5;
+  /* ABAIXO do dropdown, de propósito. Ela estava acima (45) e todo painel de
+     `<Select>` aberto perto da base da tela abria ATRÁS da navegação — a lista
+     de opções ficava ilegível justamente onde o dedo alcança. A barra é
+     moldura; o painel é o que a pessoa acabou de abrir, e quem abriu vê. */
+  --z-barra-inferior: 38;
   --z-dropdown: 40;
+  /* A folha do "Mais" cobre a barra de propósito: ela é o menu dela. E o toast
+     fica acima de tudo, porque aviso que nasce atrás de qualquer coisa não é
+     lido. `--z-barra-inferior` está lá em cima, junto do dropdown, onde a
+     ordem entre os dois é a decisão que importa. */
+  --z-folha: 48;
   --z-toast: 50;
+}
+
+/* ---------------------------------------------------------
+   15. O QUE MUDA NO TELEFONE
+   Um token que vale outro número abaixo de 720px vale para o produto
+   inteiro de uma vez: nenhuma tela precisa escrever a exceção dela.
+   --------------------------------------------------------- */
+@media screen and (max-width: 720px) {
+  :root {
+    /* 28px de respiro lateral em cada lado comem 56 dos 390 de um telefone —
+       14% da largura, gastos em margem, antes de qualquer conteúdo. Em 16 a
+       linha do cartão ganha dois dígitos de volta. */
+    --content-padding: var(--space-16);
+  }
 }

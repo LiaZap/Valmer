@@ -109,7 +109,7 @@
   color: var(--color-danger);
 }
 
-@media (max-width: 560px) {
+@media screen and (max-width: 560px) {
   .dupla {
     grid-template-columns: 1fr;
   }

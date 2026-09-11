@@ -302,3 +302,38 @@
   text-overflow: ellipsis;
   max-width: 100%;
 }
+
+/* ---------- Telefone (até 720px) ---------- */
+@media screen and (max-width: 720px) {
+  /* O título do cartão e a legenda do gráfico não cabem na mesma linha em 390px.
+     O `sectionHead` comum não quebra, então o título ia sendo espremido letra a
+     letra até a legenda e o seletor caberem ao lado dele. */
+  .graficoHead {
+    flex-wrap: wrap;
+  }
+
+  /* Catorze colunas do agrupamento diário em 390px dão 13px de coluna: a barra
+     vira um risco e o rótulo "01/09" nasce cortado. A saída é rolar o GRÁFICO,
+     dentro do cartão — nunca a página. Nenhuma coluna é escondida: no telefone o
+     parceiro continua vendo o mesmo movimento que vê no computador. */
+  .grafico {
+    overflow-x: auto;
+    /* Com `center`, conteúdo mais largo que a caixa transborda para os DOIS
+       lados e o navegador não rola para antes do início do fluxo: a primeira
+       coluna ficaria fora de alcance. */
+    justify-content: flex-start;
+  }
+
+  /* Sem o `center` acima, o aviso de extrato vazio se centraliza sozinho. */
+  .graficoAviso {
+    margin: auto;
+  }
+
+  /* O piso que dispara a rolagem. 34px é a largura do rótulo "01/09" em 11px —
+     número cru porque é medida de TEXTO, não de espaço, e não há token para
+     isso. Com seis colunas (Mensal) o piso não é atingido, o `flex: 1` continua
+     valendo e o gráfico preenche o cartão sem rolar. */
+  .barraGrupo {
+    min-width: 34px;
+  }
+}

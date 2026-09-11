@@ -87,3 +87,24 @@
 .searchInputLg {
   font-size: var(--fs-135);
 }
+
+/* ---- CELULAR ----
+   Campo com fonte menor que 16px faz o iOS DAR ZOOM ao focar, e a página não
+   volta mais ao lugar sozinha. 16px é o piso do Safari, não uma escolha de
+   desenho: abaixo dele o zoom é automático, e o produto inteiro passa por
+   estes três seletores. A quebra é a do telefone, escrita à mão porque
+   `@media` não lê `var()`. */
+@media screen and (max-width: 720px) {
+  .input,
+  .textarea,
+  .searchInput {
+    font-size: var(--fs-16);
+  }
+
+  /* A altura sobe junto ao alvo de toque: com 38px de campo o dedo até acerta,
+     mas o campo de cima fica a 6px e a correção custa uma rolagem. */
+  .input,
+  .searchBox {
+    height: var(--alvo-toque);
+  }
+}

@@ -6,7 +6,7 @@
   padding: var(--space-24);
 }
 
-@media (max-width: 560px) {
+@media screen and (max-width: 560px) {
   .corpo {
     padding: var(--space-16);
   }
@@ -53,4 +53,62 @@
 .campoLinha {
   flex: 1;
   min-width: 200px;
+}
+
+/* ---- CELULAR ----
+   Esta é a tela mais densa do produto: cada aula carrega seis alvos — o lápis
+   de renomear, enviar vídeo, subir, descer, excluir, e o módulo repete três
+   deles em cima. Em 390px a linha da aula tem cerca de 270px úteis, e os seis
+   lado a lado só cabem porque cada um fica menor que o dedo.
+
+   A saída não é encolher mais: as ações da aula descem para uma faixa própria,
+   com o botão do vídeo de um lado e a lixeira do outro, e todo alvo do bloco
+   sobe para os 44px do token. */
+@media screen and (max-width: 720px) {
+  .aulaAcoes {
+    /* Linha só delas, abaixo do título da aula. */
+    flex-basis: 100%;
+    flex-wrap: wrap;
+    /* `flex-start`, e NÃO `space-between`. O rótulo do botão de vídeo muda em
+       tempo de execução — "Enviar vídeo", "Trocar vídeo", "Enviando…" — e com
+       o espaço distribuído entre os itens a lixeira MUDAVA DE LUGAR a cada
+       troca: o alvo de excluir andava sozinho sob o dedo da pessoa. Encostados
+       à esquerda, os três ícones ficam onde estavam. */
+    justify-content: flex-start;
+  }
+
+  /* O botão do vídeo toma a linha inteira e os ícones ficam na de baixo. É o
+     único item de rótulo variável do bloco; isolado, a variação dele não
+     empurra mais ninguém. */
+  .aulaAcoes > button:first-child {
+    flex: 1 1 100%;
+  }
+
+  /* Pega o lápis, o confirmar e o cancelar do título editável junto com as
+     ações da aula e as do módulo: são todos botão dentro do bloco. */
+  .modulo button {
+    min-height: var(--alvo-toque);
+    min-width: var(--alvo-toque);
+  }
+
+  /* Campo de texto não encolhe abaixo do tamanho natural dele sem isto, e o
+     título em edição empurrava o confirmar/cancelar para fora da aula —
+     rolagem horizontal na página, que é defeito.
+
+     Mas `min-width: 0` sozinho fazia o contrário: com os dois botões de 44px ao
+     lado, sobravam ~54px para digitar o título numa linha de 270px. O piso de
+     140px mais o `wrap` da linha (ver TituloEditavel.tsx) resolvem os dois
+     lados — quando não couber, os botões descem para a linha de baixo e o campo
+     fica inteiro. */
+  .modulo input {
+    min-width: 0;
+    flex: 1 1 140px;
+  }
+
+  /* "Novo módulo" e "Nova aula" caem para a linha de baixo do campo — eles
+     ficam fora do `.modulo` ou repetem a regra dele, e precisam do mesmo piso
+     de toque. */
+  .linhaNovo button {
+    min-height: var(--alvo-toque);
+  }
 }

@@ -26,3 +26,14 @@
   margin-top: var(--space-12);
 }
 
+
+/* ---- CELULAR ----
+   Os cartões de pacote já empilham sozinhos (a grade pede 240px e o telefone
+   não dá dois). O que não se ajusta sozinho é a venda dentro do cartão: o
+   seletor de parceiro é compacto, 30px, e o botão que move crédito de verdade
+   tem 36. Os dois sobem para o piso de toque. */
+@media screen and (max-width: 720px) {
+  .venda button {
+    min-height: var(--alvo-toque);
+  }
+}

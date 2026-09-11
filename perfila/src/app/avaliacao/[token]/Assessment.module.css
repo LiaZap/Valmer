@@ -175,7 +175,7 @@
    "12 de 28 respondidas" e "Avancar" somam mais que a largura util de um
    telefone de 360px, e o que cedia era o texto dos botoes. O contador sobe
    para a linha de cima e os botoes ficam com a linha inteira. */
-@media (max-width: 560px) {
+@media screen and (max-width: 560px) {
   .navegacao {
     flex-wrap: wrap;
   }
@@ -184,6 +184,12 @@
     order: -1;
     width: 100%;
     justify-content: center;
+  }
+
+  /* Com o contador fora da linha, os dois botões dividem a largura inteira:
+     dois alvos grandes no meio da tela em vez de dois pequenos nas pontas. */
+  .navegacao button {
+    flex: 1;
   }
 }
 
@@ -222,4 +228,42 @@
 .perfilNome {
   font-size: var(--fs-14);
   color: var(--color-text-muted);
+}
+
+/* ---------- Telefone ----------
+   Abaixo de 720px vale o desenho de telefone do produto. Aqui ele não tira
+   moldura nenhuma: esta tela já nasce sem barra lateral e sem barra
+   inferior — `avaliacao/layout.tsx` tem a própria moldura e não passa pelo
+   AppShell —, então o `--barra-inferior-espaco` não se aplica a ela. O que
+   muda é o tamanho do que o dedo acerta e do que o olho lê: são 28 questões
+   seguidas, respondidas em pé e com uma mão só.
+
+   A ação de rodapé continua no fluxo, e não fixa na base. Quem responde por
+   toque não usa o "Avançar": tocar a opção já avança sozinho 220ms depois
+   (`Assessment.tsx`, `porPonteiroRef`), inclusive na última questão, que
+   assim finaliza pelo toque. Uma barra fixa cobriria a última opção das
+   questões mais longas para servir um botão que, no telefone, quase
+   ninguém toca — e ainda teria de brigar com a faixa do gesto do iPhone. */
+@media screen and (max-width: 720px) {
+  /* 13,5px é corpo de tabela, não de alternativa que decide o resultado.
+     Com 15px e 16px de recuo a opção passa de ~48px para ~54px de altura —
+     folgada acima do --alvo-toque — e o texto para de pedir esforço. */
+  .opcao {
+    gap: var(--space-14);
+    padding: var(--space-16);
+    font-size: var(--fs-15);
+  }
+
+  /* O nome do bloco e o contador dividem a linha. Em "Comunicação e
+     influência" mais "Questão 12 de 28" num telefone de 360px não sobra
+     largura para os dois, e sem quebra quem cedia era o contador. */
+  .progressoTopo {
+    flex-wrap: wrap;
+  }
+
+  /* A altura de toque dos botões NÃO mora aqui: `Button.module.css` já leva
+     `.sm`, `.md` e `.lg` a `--alvo-toque` abaixo de 720px. A regra que existia
+     neste lugar era cópia — e a justificativa dela citava 38px, que é o `lg`,
+     enquanto os botões desta navegação não passam `size` e caem no `md`. Um
+     segundo dono do mesmo piso só serve para os dois divergirem depois. */
 }

@@ -7,6 +7,7 @@ import { Icon } from '@/components/ui/Icon'
 import { resolveBreadcrumb, type NavGroup } from '@/lib/routes'
 import { BotaoSair } from './BotaoSair'
 import { BuscaTopbar } from './BuscaTopbar'
+import { MarcaImpacto, NOME_MARCA } from './MarcaImpacto'
 import styles from './Topbar.module.css'
 
 export type UsuarioTopbar = {
@@ -58,10 +59,24 @@ export function Topbar({
 
   return (
     <header className={styles.topbar}>
+      {/* A MARCA SÓ APARECE NO TELEFONE, e é a única vez que ela aparece aqui.
+          Ela mora na barra lateral, que some abaixo de 720px — e some com ela o
+          escudo e o nome, deixando o produto inteiro sem assinatura no aparelho
+          em que o cliente vai abrir. Só o símbolo, sem o nome escrito: em 390px
+          a barra divide o espaço com o nome da tela, a busca e o avatar, e a
+          palavra não caberia sem espremer as três. */}
+      <Link href={base} className={styles.marcaTelefone} aria-label={NOME_MARCA}>
+        <MarcaImpacto size={22} />
+      </Link>
+
       <nav className={styles.breadcrumb} aria-label="Trilha de navegação">
-        <span>{raiz}</span>
-        <span className={styles.separator} aria-hidden>
-          /
+        {/* Raiz e a barra que a segue andam juntas: no telefone as duas somem
+            de uma vez, e uma barra solta antes do nome da tela seria lixo. */}
+        <span className={styles.raiz}>
+          {raiz}
+          <span className={styles.separator} aria-hidden>
+            /
+          </span>
         </span>
         <span className={styles.current}>{title}</span>
         {sub ? (

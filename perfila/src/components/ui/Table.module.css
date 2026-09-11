@@ -147,3 +147,133 @@
   color: var(--color-accent);
   text-decoration: none;
 }
+
+/* ============================================================
+   CELULAR — abaixo de 720px a tabela deixa de ser tabela
+   ------------------------------------------------------------
+   A tabela pede 720px de largura; o telefone tem 390. Rolando na
+   horizontal, para ler a última coluna a pessoa perde as primeiras —
+   some justamente o nome que diz de quem é a linha. Então aqui cada
+   LINHA vira um cartão empilhado e cada valor passa a carregar o
+   próprio rótulo em cima, no mesmo desenho do cabeçalho que saiu.
+
+   Vale para a `compact` também. Ela é a tabela do painel do admin, em
+   coluna estreita, e cabe raspando num telefone de 390px — mas não num
+   de 320, e aí o estouro vaza para a PÁGINA, porque o card dela não
+   rola. Uma regra só, sem exceção para lembrar, e sem risco de barra
+   horizontal na página.
+
+   720 escrito à mão porque @media não lê var(); o número mora em
+   tokens.css. Fora daqui a exceção é a matriz de benefícios, que é
+   comparação lado a lado e continua tabela, no módulo dela.
+   ============================================================ */
+
+@media screen and (max-width: 720px) {
+  .table,
+  .table tbody,
+  .row,
+  .td {
+    display: block;
+  }
+
+  .table {
+    /* Sem a largura mínima não há o que rolar: o cartão usa a largura que tem. */
+    min-width: 0;
+  }
+
+  /* O cabeçalho sai da tela porque o rótulo agora anda junto com o valor.
+     Sai com `display: none` de propósito: repetido em cada cartão ele seria
+     lido duas vezes por linha. */
+  .table thead {
+    display: none;
+  }
+
+  /* O cartão: o card branco em volta já é a superfície, então a linha só
+     precisa do próprio espaço e do fio que a separa da seguinte. */
+  .row {
+    padding: var(--space-14) var(--space-16);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  /* O último fio encostaria no rodapé da tabela, que já tem o dele. */
+  .row:last-child {
+    border-bottom: 0;
+  }
+
+  .td {
+    padding: var(--space-8) 0;
+    border-bottom: 0;
+    /* Desfaz o alinhamento das colunas numéricas: dentro do cartão tudo
+       começa na mesma margem esquerda, senão o valor fica longe do rótulo. */
+    text-align: left;
+  }
+
+  /* `dense` encolhia a linha por causa do avatar; no cartão não há coluna
+     para apertar. */
+  .dense {
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-8);
+  }
+
+  /* O rótulo da coluna, impresso a partir do `data-rotulo` da célula. Mesma
+     tipografia do <th> que acabou de sair da tela — é o mesmo texto, e o olho
+     reconhece o cabeçalho onde ele agora está.
+     Em bloco, nunca ao lado do valor: há célula com barra de progresso e com
+     duas linhas dentro, e qualquer arranjo lado a lado esmagaria essas. */
+  .td[data-rotulo]::before {
+    content: attr(data-rotulo);
+    display: block;
+    margin-bottom: var(--space-2);
+    font-size: var(--fs-11);
+    font-weight: var(--fw-semibold);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
+
+  /* As ações fecham o cartão, sempre no mesmo lugar. No dedo cada uma precisa
+     do alvo inteiro: o ícone de 16px dentro de um botão de 32 erra o vizinho. */
+  .actions {
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  /* O ALVO DOS ÍCONES NÃO MORA AQUI. `IconButton.module.css` já leva `.plain`,
+     `.outline` e `.pager` a `--alvo-toque` abaixo de 720px, no próprio módulo,
+     onde a regra de 32px também está — então não há empate de especificidade
+     entre arquivos a desfazer, e a versão que existia neste lugar era só um
+     segundo dono do mesmo número, esperando para divergir.
+
+     O nome clicável é outra história: ele NÃO é um botão do sistema, é texto
+     corrido com `font: inherit`, e no cartão do telefone ele virou o título —
+     a área de toque dele era a altura de uma linha de texto. */
+  .linkCell {
+    display: flex;
+    align-items: center;
+    min-height: var(--alvo-toque);
+  }
+
+  /* Filtro em duas colunas de 150px num telefone não é filtro. Cada campo
+     ocupa a linha inteira, na ordem em que já estão. */
+  .filters {
+    gap: var(--space-10);
+    padding: var(--space-12) var(--space-16);
+  }
+
+  .filters > * {
+    flex: 1 1 100%;
+    width: auto;
+  }
+
+  /* O zoom do iOS ao focar campo com menos de 16px não se resolve aqui: quem
+     resolve é `Field.module.css`, na mesma quebra e para o produto inteiro.
+     Repetir a regra criaria dois donos para o mesmo defeito. */
+
+  /* O rodapé cabe em duas linhas quando a contagem é longa e ainda há
+     paginação à direita. */
+  .footer {
+    flex-wrap: wrap;
+    gap: var(--space-8);
+    padding: var(--space-12) var(--space-16);
+  }
+}

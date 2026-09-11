@@ -188,26 +188,26 @@ export function ListaDevolutivas({
                 <Th align="right">Ações</Th>
               </tr>
             </thead>
-            <tbody>
+            <tbody role="rowgroup">
               {itens.map((item) => (
                 <Tr key={item.id}>
                   <Td>
                     <div className={tableStyles.primary}>{item.nome}</div>
                     <div className={tableStyles.secondary}>{item.email}</div>
                   </Td>
-                  <Td>
+                  <Td rotulo="Passaporte">
                     <div className={styles.passaporte}>{item.tipo ?? '—'}</div>
                     <div className={tableStyles.secondary}>
                       {item.tipo ? getTipoRelatorio(item.tipo).nome : 'Mapa excluído'}
                     </div>
                   </Td>
-                  <Td>
+                  <Td rotulo="Status">
                     <Pill tone={item.finalizada ? 'success' : 'warning'} dot>
                       {item.finalizada ? 'Finalizada' : 'Pausada'}
                     </Pill>
                     {item.tempo ? <div className={styles.tempo}>Tempo: {item.tempo}</div> : null}
                   </Td>
-                  <Td muted>{item.criadaEm}</Td>
+                  <Td muted rotulo="Criado em">{item.criadaEm}</Td>
                   <Td align="right">
                     <RowActions>
                       <IconButton

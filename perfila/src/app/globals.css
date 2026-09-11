@@ -80,6 +80,22 @@ select:focus {
   box-shadow: var(--focus-ring);
 }
 
+/* Campo com menos de 16px faz o iOS DAR ZOOM ao receber o foco — e a página
+   não volta sozinha ao lugar depois, então a pessoa digita uma linha e perde a
+   tela. O piso vale para o telefone inteiro.
+
+   ATENÇÃO, quem escreve módulo de formulário: esta regra é de ELEMENTO, e
+   qualquer `.classe { font-size }` do seu módulo ganha dela. Ela cobre o campo
+   que não declara tamanho próprio; o que declara precisa repetir
+   `font-size: var(--fs-16)` na mesma faixa de 720px. */
+@media screen and (max-width: 720px) {
+  input,
+  select,
+  textarea {
+    font-size: var(--fs-16);
+  }
+}
+
 /* Foco visível por teclado em qualquer elemento interativo,
    sem poluir o clique de mouse. */
 :focus-visible {
@@ -157,30 +173,12 @@ input[type='checkbox']:checked::before {
   transform: scale(1);
 }
 
-/* ------------------------------------------------------------
-   Animações compartilhadas
-   ------------------------------------------------------------ */
-@keyframes toastIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes ddIn {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
+/* As animações `toastIn` e `ddIn` moravam aqui e foram para dentro de
+   Toast.module.css e Select.module.css. CSS Modules escopa nome de
+   `@keyframes` igual escopa nome de classe, então um módulo NUNCA alcança uma
+   animação declarada neste arquivo: as duas estavam mortas desde sempre, sem
+   erro nenhum aparecer. Animação compartilhada entre módulos, se um dia
+   houver, precisa de `:global`. */
 
 /* ------------------------------------------------------------
    Impressão · variante monocromática do símbolo

@@ -17,6 +17,12 @@
   color: var(--color-on-ink);
   font-size: var(--fs-13);
   box-shadow: var(--shadow-toast);
+  /* O nome da animação é declarado NESTE arquivo, e não em globals.css, porque
+     CSS Modules ESCOPA nome de `@keyframes` junto com nome de classe: escrito
+     aqui, `toastIn` compila para `Toast-module__hash__toastIn` e vai procurar
+     uma animação com esse nome. A que existia era global, o nome nunca batia e
+     o toast entrava na tela sem animação nenhuma — em silêncio, porque
+     animação inexistente não é erro de CSS. */
   animation: toastIn var(--transition-slow) ease;
   /* O aviso explica o que fazer agora, então a frase é mais longa que a
      confirmação de uma palavra: sem teto ela sairia da tela no celular. */
@@ -76,4 +82,35 @@
   outline: 2px solid currentColor;
   outline-offset: 1px;
   opacity: 1;
+}
+
+/* ---------- Telefone ----------
+   Abaixo de 720px a base da tela pertence à barra de navegação. Um aviso em
+   `bottom: var(--space-24)` nasce ATRÁS dela — e a recusa é a única cópia da
+   informação, então nascer escondida é perdê-la. Ele sobe para cima da barra.
+
+   O botão de fechar vai aos 44px de alvo de toque, mas com margem negativa de
+   11px — a metade da diferença entre 44 e os 22 que ele desenha — para o
+   aviso não virar uma faixa de 64px de altura só por causa do X. */
+@media screen and (max-width: 720px) {
+  .viewport {
+    bottom: calc(var(--barra-inferior-espaco) + var(--space-12));
+  }
+
+  .fechar {
+    width: var(--alvo-toque);
+    height: var(--alvo-toque);
+    margin-block: -11px;
+  }
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }

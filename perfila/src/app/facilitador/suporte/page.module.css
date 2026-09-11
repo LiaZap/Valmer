@@ -55,7 +55,7 @@
   line-height: var(--leading-normal);
 }
 
-@media (max-width: 560px) {
+@media screen and (max-width: 560px) {
   .formulario {
     padding: var(--space-16);
   }

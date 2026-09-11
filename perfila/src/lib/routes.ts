@@ -106,6 +106,40 @@ export const NAV_ADMIN: NavGroup[] = [
 ]
 
 /**
+ * Rótulo curto de cada atalho da barra inferior do telefone.
+ *
+ * Isto NÃO é uma segunda lista de navegação: `navRapida` pesca os itens nos
+ * grupos acima pelo href, então rota, ícone e existência continuam saindo de
+ * um lugar só — uma tela nova entra no menu sem ninguém lembrar de dois
+ * arquivos. O que mora aqui é só o rótulo.
+ *
+ * Ele precisa ser curto porque os cinco slots da barra dividem 390px em 78px
+ * cada: "Mapas Comportamentais" não cabe, e cinco rótulos cortados não dizem
+ * nada. "Parceiros" no lugar de "Facilitadores" pelo mesmo motivo, e é
+ * vocabulário que o produto já usa ("Portal do Parceiro").
+ */
+const ATALHOS_CURTOS: Record<string, string> = {
+  '/facilitador': 'Início',
+  '/facilitador/assessments': 'Mapas',
+  '/facilitador/campanhas': 'Turmas',
+  '/facilitador/creditos': 'Créditos',
+  '/admin': 'Início',
+  '/admin/facilitadores': 'Parceiros',
+  '/admin/assessments': 'Mapas',
+  '/admin/precos': 'Preços',
+}
+
+/** Os quatro destinos da barra inferior, na ordem em que os grupos os trazem. */
+export function navRapida(grupos: NavGroup[]): NavItem[] {
+  return grupos
+    .flatMap((grupo) => grupo.items)
+    .flatMap((item) => {
+      const curto = ATALHOS_CURTOS[item.href]
+      return curto ? [{ ...item, label: curto }] : []
+    })
+}
+
+/**
  * Um item segue ativo nas telas filhas. A raiz do ambiente é a
  * exceção: só fica ativa nela mesma, senão ficaria acesa em tudo.
  */

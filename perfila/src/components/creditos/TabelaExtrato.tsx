@@ -45,24 +45,24 @@ export function TabelaExtrato({
           <Th align="right">Créditos</Th>
         </tr>
       </thead>
-      <tbody>
+      <tbody role="rowgroup">
         {itens.map((transacao) => (
           <Tr key={transacao.id}>
-            <Td muted>{transacao.data}</Td>
+            <Td muted rotulo="Data">{transacao.data}</Td>
 
             {nomes ? (
-              <Td>
+              <Td rotulo="Facilitador">
                 <span className={tableStyles.primary}>
                   {nomes[transacao.facilitadorId] ?? transacao.facilitadorId}
                 </span>
               </Td>
             ) : null}
 
-            <Td>
+            <Td rotulo="Movimento">
               <Pill tone={TOM_TIPO[transacao.tipo]}>{ROTULO_TIPO[transacao.tipo]}</Pill>
             </Td>
-            <Td muted>{transacao.descricao}</Td>
-            <Td align="right">
+            <Td muted rotulo="Descrição">{transacao.descricao}</Td>
+            <Td align="right" rotulo="Créditos">
               {/* O sinal é o dado: sem ele, "2" tanto pode ser compra quanto
                   consumo, e o extrato deixa de explicar o saldo. */}
               <span className={transacao.quantidade < 0 ? styles.saida : styles.entrada}>
